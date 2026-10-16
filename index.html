@@ -423,6 +423,27 @@ dialog button:hover:not(:disabled) {
 #contenido-menu .hero,
 #contenido-menu .plato {border-color:#b70b2c!important;}
 button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible {outline-color:#f70906!important;}
+
+/* Filtros de carta: seleccionado blanco, borde y texto escarlata; pulsación táctil. */
+#contenido-menu .filtros button {
+  transition:background-color .16s ease,color .16s ease,border-color .16s ease,transform .11s ease,box-shadow .11s ease;
+  transform:translateY(0) scale(1);
+  touch-action:manipulation;
+}
+#contenido-menu .filtros button[aria-pressed="true"],
+#contenido-menu .filtros button[aria-pressed="true"]:hover,
+#contenido-menu .filtros button[aria-pressed="true"]:focus-visible {
+  background:#fff !important;
+  border-color:#f70906 !important;
+  color:#f70906 !important;
+}
+#contenido-menu .filtros button:active {
+  transform:translateY(3px) scale(.96);
+  box-shadow:inset 0 3px 8px rgba(0,0,0,.25);
+}
+@media(prefers-reduced-motion:reduce) {
+  #contenido-menu .filtros button {transition:none;}
+}
 </style>
 </head>
 <body>
