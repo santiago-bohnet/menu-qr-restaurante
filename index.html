@@ -257,6 +257,34 @@ body { font-family: "Trebuchet MS", system-ui, sans-serif; }
 .filtros button[aria-pressed="true"] { background:#72351f; border-color:#72351f; }
 .cambiar-modo { border-color:#bb9b85; }
 @media(max-width:600px){.pantalla-inicial{margin:12px; padding:30px 16px;}.hero{padding:32px 22px;}}
+
+/* Tema oscuro de Brasa & Corte */
+:root { --verde:#171719; --crema:#09090b; --naranja:#9d342b; --texto:#f3eee9; color-scheme:dark; }
+body { background:#09090b; color:#f3eee9; }
+.pantalla-inicial { background:linear-gradient(145deg,#151519,#0a0a0d); border:1px solid #393034; box-shadow:none; }
+.pantalla-inicial h1, .pantalla-inicial .etiqueta { color:#f5f0ea !important; }
+.pantalla-inicial p { color:#d4c8c5; }
+.opcion { background:#1b1b20; border:1px solid #494146; color:#f3eee9; box-shadow:none; }
+.opcion:hover,.opcion:focus-visible { background:#282027; border-color:#da6653; }
+header a,.marca span { color:#e89a87; }
+.hero { background:linear-gradient(120deg,#101013,#231618 65%,#3b1c1d); border:1px solid #59292c; box-shadow:none; }
+.hero p { color:#ded0cc; }
+.etiqueta { color:#e8a28f; }
+.sello { background:#251b1b; color:#f6ded4; border-color:#a1473d; }
+.plato,.carrito { background:#18181c; border:1px solid #38383e; box-shadow:none; color:#f4f0ec; }
+.plato .ilustracion,.plato:nth-child(2n) .ilustracion,.plato:nth-child(3n) .ilustracion { background:#242126; }
+.descripcion,.subtitulo,.nota,.vacio,footer { color:#bdb6b4; }
+.filtros button { background:#19191d; color:#e4dada; border-color:#444047; }
+.filtros button[aria-pressed="true"],.agregar,.principal { background:#9d342b; color:white; border-color:#9d342b; }
+.agregar:hover,.principal:not(:disabled):hover { background:#b84436; }
+.cambiar-modo,.cantidad button { background:#222126; color:#f2dfd9; border-color:#51464a; }
+.linea { border-color:#363339; }
+input,select,textarea { background:#222227; color:#faf5f0; border-color:#60545b; }
+input::placeholder,textarea::placeholder { color:#aaa0a5; }
+dialog { background:#19191d; color:#f7f1ed; border:1px solid #514249; }
+dialog::backdrop { background:#050506d9; }
+pre { background:#262328; color:#f8eeeb; }
+.secundario { color:#edaa98; }
 </style>
 </head>
 <body>
