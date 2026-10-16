@@ -665,8 +665,10 @@ function ajustarAlturaCarta() {
   if (!tarjetas.length) { lista.style.maxHeight = ""; return; }
   lista.style.maxHeight = "";
   const ultimaVisible = tarjetas[Math.min(5, tarjetas.length - 1)];
-  const alto = ultimaVisible.offsetTop + ultimaVisible.offsetHeight - lista.offsetTop;
-  lista.style.maxHeight = Math.ceil(alto + 2) + "px";
+  // Medir ambas posiciones en el mismo sistema de coordenadas.
+  // offsetTop puede referirse a otro contenedor y producir alturas negativas.
+  const alto = ultimaVisible.getBoundingClientRect().bottom - lista.getBoundingClientRect().top;
+  lista.style.maxHeight = Math.max(180, Math.ceil(alto + 4)) + "px";
 }
 window.addEventListener("resize", () => requestAnimationFrame(ajustarAlturaCarta));
 
