@@ -368,6 +368,27 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 .filtros button[aria-pressed="true"]:hover,.agregar:hover,.principal:not(:disabled):hover {background:#d32534!important;}
 header a { background:#b51c29!important;color:#fff!important; }
 .carrito { border-color:#94202a!important; }
+
+/* Corrección definitiva de botones: prioridad explícita sobre estilos previos. */
+.pantalla-inicial .opcion,
+#contenido-menu .cambiar-modo,
+#contenido-menu .filtros button,
+#contenido-menu .cantidad button,
+#contenido-menu .agregar,
+#contenido-menu .principal,
+#contenido-menu .secundario,
+#contenido-menu #vaciar,
+dialog button {
+  background:#b51c29!important;
+  border-color:#b51c29!important;
+  color:#fff!important;
+}
+.pantalla-inicial .opcion:hover,
+#contenido-menu button:hover:not(:disabled),
+dialog button:hover:not(:disabled){background:#d72837!important;border-color:#d72837!important;}
+#contenido-menu .filtros button[aria-pressed="false"]{background:#65131b!important;border-color:#a52631!important;color:#fff!important;}
+#contenido-menu .filtros button[aria-pressed="true"]{background:#d72837!important;border-color:#d72837!important;}
+#contenido-menu .secundario {text-decoration:underline;}
 </style>
 </head>
 <body>
