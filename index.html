@@ -226,14 +226,33 @@ pre {
   .pie-plato { align-items: stretch; flex-direction: column; }
   .ilustracion { height: 110px; font-size: 60px; }
 }
+
+.pantalla-inicial { max-width: 790px; margin: 45px auto; padding: 40px 22px; text-align: center; }
+.pantalla-inicial h1 { margin: 16px auto; color: var(--verde); }
+.opciones { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 18px; margin-top: 30px; }
+.opcion { border: 2px solid #d6ddd2; background: white; border-radius: 20px; padding: 28px 16px; color: var(--texto); font-weight: 750; font-size: 19px; min-height: 155px; }
+.opcion span { display: block; font-size: 42px; margin-bottom: 12px; }
+.opcion:hover,.opcion:focus-visible { border-color: var(--verde); }
+.cambiar-modo { border: 1px solid #d6ddd2; background: white; border-radius: 9px; padding: 9px 14px; color: var(--verde); }
+@media(max-width:600px) { .opciones { grid-template-columns: 1fr; } .pantalla-inicial { margin: 20px auto; } }
 </style>
 </head>
 <body>
+<section class="pantalla-inicial" id="inicio">
+  <p class="etiqueta" style="color:var(--verde)">MENÚ DIGITAL · DEMOSTRACIÓN</p>
+  <h1>¿Cómo querés pedir?</h1>
+  <p>Elegí una opción para continuar con el menú.</p>
+  <div class="opciones">
+    <button type="button" class="opcion" data-modo="presencial"><span aria-hidden="true">🍽️</span>Comer en el local</button>
+    <button type="button" class="opcion" data-modo="domicilio"><span aria-hidden="true">🛵</span>Pedir a domicilio</button>
+  </div>
+</section>
+<div id="contenido-menu" hidden>
 <div class="demo">MAQUETA INTERACTIVA · Negocio y precios ficticios · Sin pedidos reales</div>
 
 <header>
   <div class="marca">✳ Casa <span>Oliva</span></div>
-  <a href="#carrito">Ver mi pedido <span id="contador">(0)</span></a>
+  <button type="button" id="cambiar-modo" class="cambiar-modo">Cambiar modalidad</button><a href="#carrito">Ver mi pedido <span id="contador">(0)</span></a>
 </header>
 
 <section class="hero">
@@ -241,7 +260,7 @@ pre {
     <div class="etiqueta">COCINA CASERA · HECHA CON GANAS</div>
     <h1>Hoy cocinamos<br>por vos.</h1>
     <p>Elegí algo rico, armá tu pedido y visualizá el resumen de tu pedido de demostración.</p>
-    <div class="etiqueta">PEDIDOS DESDE TU MESA · DEMOSTRACIÓN</div>
+    <div class="etiqueta" id="modo-titulo">MENÚ DE DEMOSTRACIÓN</div>
   </div>
   <div class="sello" aria-hidden="true">
     <strong>✳</strong>
@@ -265,14 +284,10 @@ pre {
     <p class="nota">Precios de ejemplo en pesos argentinos. Envío no incluido.</p>
 
     <form id="formulario">
-      <label for="mesa">Número de mesa (obligatorio)</label>
-      <input id="mesa" name="mesa" type="number" min="1" max="999" step="1" required placeholder="Ej.: 7">
+      <div id="campo-mesa"><label for="mesa">Número de mesa (obligatorio)</label>
+      <input id="mesa" name="mesa" type="number" min="1" max="999" step="1" required placeholder="Ej.: 7"></div>
 
-      <label for="modalidad">¿Cómo lo recibirías?</label>
-      <select id="modalidad">
-        <option value="retiro">Retiro en el local</option>
-        <option value="entrega">Entrega a domicilio</option>
-      </select>
+      <input id="modalidad" type="hidden" value="presencial">
 
       <div id="campo-direccion" hidden>
         <label for="direccion">Dirección de ejemplo</label>
@@ -294,6 +309,7 @@ pre {
 </main>
 
 <footer>Casa Oliva · Demostración de menú digital adaptable a tu negocio.</footer>
+</div>
 
 <dialog id="dialogo" aria-labelledby="titulo-dialogo">
   <h2 id="titulo-dialogo">Así se vería tu mensaje</h2>
@@ -334,6 +350,33 @@ const moneda = valor => new Intl.NumberFormat("es-AR", {
 const clave = "casa-oliva-demo-carrito-v1";
 let carrito = {};
 let categoriaActual = "Todos";
+let modoActual = null;
+
+function elegirModo(modo) {
+  if (modo !== "presencial" && modo !== "domicilio") return;
+  modoActual = modo;
+  $("inicio").hidden = true;
+  $("contenido-menu").hidden = false;
+  $("modalidad").value = modo;
+  $("campo-mesa").hidden = modo !== "presencial";
+  $("mesa").required = modo === "presencial";
+  $("campo-direccion").hidden = modo !== "domicilio";
+  $("direccion").required = modo === "domicilio";
+  $("modo-titulo").textContent = modo === "presencial" ? "CONSUMO EN EL LOCAL · DEMOSTRACIÓN" : "PEDIDO A DOMICILIO · DEMOSTRACIÓN";
+  $("mesa").setCustomValidity("");
+  $("direccion").setCustomValidity("");
+  window.scrollTo({top:0,behavior:"instant"});
+}
+
+document.querySelectorAll("[data-modo]").forEach(boton => {
+  boton.addEventListener("click", () => elegirModo(boton.dataset.modo));
+});
+$("cambiar-modo").addEventListener("click", () => {
+  $("contenido-menu").hidden = true;
+  $("inicio").hidden = false;
+  modoActual = null;
+  window.scrollTo({top:0,behavior:"instant"});
+});
 
 // Solo se guardan cantidades de productos en este navegador.
 // No se almacenan direcciones ni aclaraciones.
@@ -475,17 +518,13 @@ $("vaciar").addEventListener("click", () => {
   $("productos").querySelector("button")?.focus();
 });
 
-$("modalidad").addEventListener("change", () => {
-  const entrega = $("modalidad").value === "entrega";
-  $("campo-direccion").hidden = !entrega;
-  $("direccion").required = entrega;
-});
+ 
 
 $("formulario").addEventListener("submit", evento => {
   evento.preventDefault();
   if (!seleccionados().length) return;
 
-  const entrega = $("modalidad").value === "entrega";
+  const entrega = modoActual === "domicilio";
   const direccion = $("direccion").value.trim();
   if (entrega && !direccion) {
     $("direccion").setCustomValidity("Escribí una dirección de ejemplo.");
@@ -498,7 +537,7 @@ $("formulario").addEventListener("submit", evento => {
   );
 
   const mesa = Number($("mesa").value);
-  if (!Number.isInteger(mesa) || mesa < 1 || mesa > 999) {
+  if (!entrega && (!Number.isInteger(mesa) || mesa < 1 || mesa > 999)) {
     $("mesa").setCustomValidity("Ingresá un número de mesa entre 1 y 999.");
     $("mesa").reportValidity();
     return;
@@ -507,14 +546,14 @@ $("formulario").addEventListener("submit", evento => {
   const aclaraciones = $("aclaraciones").value.trim();
   $("mensaje").textContent = [
     "DEMOSTRACIÓN — NO ES UN PEDIDO REAL",
-    `Mesa: ${mesa}`,
+    entrega ? "Modalidad: a domicilio" : `Mesa: ${mesa}`,
     "",
     `Hola, ${negocio}. Quisiera consultar por este pedido:`,
     "",
     ...lineas,
     "",
     `Subtotal de productos: ${moneda(subtotal())}`,
-    entrega ? `Entrega en: ${direccion}` : "Modalidad: retiro en el local",
+    entrega ? `Entrega en: ${direccion}` : "Modalidad: consumo en el local",
     entrega ? "Costo de envío: a confirmar por el comercio." : "",
     aclaraciones ? `Aclaraciones: ${aclaraciones}` : "",
     "",
