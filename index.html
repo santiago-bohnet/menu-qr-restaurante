@@ -354,6 +354,20 @@ header a { color:#fff; background:#981116; padding:14px 22px; border-radius:24px
  header a{padding:10px 13px;}
  .carrito{margin-top:24px;}
 }
+
+/* Acentos rojos uniformes: reemplazan los tonos marrones/café de la interfaz. */
+:root { --naranja:#bd202b; }
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible { outline-color:#e33b45!important; }
+.etiqueta,.hero .etiqueta,.pantalla-inicial .etiqueta { color:#e3424a!important; }
+.marca-fuego,.marca span,header a,.secundario { color:#e3424a; }
+.hero { border-color:#6c1820!important; }
+.hero-visual { filter:saturate(1.1) contrast(1.13); }
+.opcion:hover,.opcion:focus-visible { border-color:#d52c37!important; }
+.sello { border-color:#a51a25!important; }
+.filtros button[aria-pressed="true"],.agregar,.principal { background:#b51c29!important;border-color:#b51c29!important;color:white!important; }
+.filtros button[aria-pressed="true"]:hover,.agregar:hover,.principal:not(:disabled):hover {background:#d32534!important;}
+header a { background:#b51c29!important;color:#fff!important; }
+.carrito { border-color:#94202a!important; }
 </style>
 </head>
 <body>
