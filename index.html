@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Casa Oliva · Menú de demostración</title>
+<title>Brasa & Corte · Parrilla de demostración</title>
 <style>
 :root {
-  --verde: #234d3c;
-  --crema: #f7f4ec;
-  --naranja: #edac62;
-  --texto: #25362d;
+  --verde: #301c16;
+  --crema: #f7f1e7;
+  --naranja: #cf8651;
+  --texto: #2b201b;
 }
 * { box-sizing: border-box; }
 body {
@@ -235,13 +235,35 @@ pre {
 .opcion:hover,.opcion:focus-visible { border-color: var(--verde); }
 .cambiar-modo { border: 1px solid #d6ddd2; background: white; border-radius: 9px; padding: 9px 14px; color: var(--verde); }
 @media(max-width:600px) { .opciones { grid-template-columns: 1fr; } .pantalla-inicial { margin: 20px auto; } }
+
+/* Identidad visual de parrilla: fuego, hierro y madera. */
+body { font-family: "Trebuchet MS", system-ui, sans-serif; }
+.pantalla-inicial { border:1px solid #d6beaa; border-radius:26px; background:linear-gradient(135deg,#f4dfc6,#fff9f1); box-shadow:0 12px 32px #301c1617; }
+.pantalla-inicial h1 { font-family:Georgia,serif; letter-spacing:-1.6px; }
+.opcion { border-color:#b99076; box-shadow:0 7px 18px #301c1610; }
+.opcion:hover,.opcion:focus-visible { background:#fbebda; border-color:#9f4a28; }
+.marca { font-family:Georgia,serif; letter-spacing:-.6px; }
+.marca span { color:#a95e37; }
+.hero { background:linear-gradient(115deg,#21120e 0%,#49281a 60%,#844022 100%); border:1px solid #a8633c; box-shadow:0 12px 36px #301c1623; }
+.hero h1 { font-family:Georgia,serif; letter-spacing:-1.5px; }
+.hero p { color:#f4dfcb; }
+.etiqueta { color:#ffca85; }
+.sello { background:#e6b16d; border-color:#3d2418; }
+.plato,.carrito { border-color:#e1cbb9; box-shadow:0 4px 18px #301c1610; }
+.ilustracion { background:#e8c7a9; }
+.plato:nth-child(2n) .ilustracion { background:#eed7bc; }
+.plato:nth-child(3n) .ilustracion { background:#e4c9b3; }
+.agregar,.principal { background:#72351f; }
+.filtros button[aria-pressed="true"] { background:#72351f; border-color:#72351f; }
+.cambiar-modo { border-color:#bb9b85; }
+@media(max-width:600px){.pantalla-inicial{margin:12px; padding:30px 16px;}.hero{padding:32px 22px;}}
 </style>
 </head>
 <body>
 <section class="pantalla-inicial" id="inicio">
-  <p class="etiqueta" style="color:var(--verde)">MENÚ DIGITAL · DEMOSTRACIÓN</p>
-  <h1>¿Cómo querés pedir?</h1>
-  <p>Elegí una opción para continuar con el menú.</p>
+  <p class="etiqueta" style="color:var(--verde)">PARRILLA ARGENTINA · MENÚ DEMO</p>
+  <h1>El fuego está encendido.</h1>
+  <p>¿Te sentás a nuestra mesa o disfrutás la parrilla en casa?</p>
   <div class="opciones">
     <button type="button" class="opcion" data-modo="presencial"><span aria-hidden="true">🍽️</span>Comer en el local</button>
     <button type="button" class="opcion" data-modo="domicilio"><span aria-hidden="true">🛵</span>Pedir a domicilio</button>
@@ -251,27 +273,27 @@ pre {
 <div class="demo">MAQUETA INTERACTIVA · Negocio y precios ficticios · Sin pedidos reales</div>
 
 <header>
-  <div class="marca">✳ Casa <span>Oliva</span></div>
+  <div class="marca">🔥 Brasa <span>&amp; Corte</span></div>
   <button type="button" id="cambiar-modo" class="cambiar-modo">Cambiar modalidad</button><a href="#carrito">Ver mi pedido <span id="contador">(0)</span></a>
 </header>
 
 <section class="hero">
   <div>
-    <div class="etiqueta">COCINA CASERA · HECHA CON GANAS</div>
-    <h1>Hoy cocinamos<br>por vos.</h1>
-    <p>Elegí algo rico, armá tu pedido y visualizá el resumen de tu pedido de demostración.</p>
+    <div class="etiqueta">CORTES SELECCIONADOS · FUEGO LENTO</div>
+    <h1>El sabor empieza<br>en las brasas.</h1>
+    <p>Cortes a la parrilla, achuras y guarniciones clásicas. Armá tu pedido y revisá el resumen.</p>
     <div class="etiqueta" id="modo-titulo">MENÚ DE DEMOSTRACIÓN</div>
   </div>
   <div class="sello" aria-hidden="true">
-    <strong>✳</strong>
-    <span>COMIDA DE VERDAD<br>SABOR A CASA</span>
+    <strong>🔥</strong>
+    <span>FUEGO REAL<br>SABOR ARGENTINO</span>
   </div>
 </section>
 
 <main class="layout">
   <section aria-labelledby="titulo-menu">
-    <h2 id="titulo-menu">¿Qué te tienta hoy?</h2>
-    <p class="subtitulo">Porciones generosas y favoritos de todos los días.</p>
+    <h2 id="titulo-menu">Nuestra carta a las brasas</h2>
+    <p class="subtitulo">Cortes clásicos, achuras, guarniciones y algo dulce para cerrar.</p>
     <nav class="filtros" aria-label="Categorías del menú" id="filtros"></nav>
     <div class="productos" id="productos"></div>
   </section>
@@ -308,7 +330,7 @@ pre {
   </aside>
 </main>
 
-<footer>Casa Oliva · Demostración de menú digital adaptable a tu negocio.</footer>
+<footer>Brasa &amp; Corte · Parrilla ficticia. Demostración de menú QR.</footer>
 </div>
 
 <dialog id="dialogo" aria-labelledby="titulo-dialogo">
@@ -322,24 +344,20 @@ pre {
 
 <script>
 // Editá estos datos para personalizar la maqueta.
-const negocio = "Casa Oliva";
+const negocio = "Brasa & Corte";
 const productos = [
-  { id: 1, nombre: "Milanesa con papas", categoria: "Platos",
-    descripcion: "Milanesa de carne con papas doradas y limón.", precio: 9500, icono: "🍽️" },
-  { id: 2, nombre: "Pollo al horno", categoria: "Platos",
-    descripcion: "Un cuarto de pollo con papas y hierbas.", precio: 8500, icono: "🍗" },
-  { id: 3, nombre: "Empanadas de carne", categoria: "Empanadas",
-    descripcion: "Porción de 3 empanadas de carne al horno.", precio: 4800, icono: "🥟" },
-  { id: 4, nombre: "Empanadas de queso", categoria: "Empanadas",
-    descripcion: "Porción de 3 empanadas de jamón y queso.", precio: 4800, icono: "🥟" },
-  { id: 5, nombre: "Ensalada de la casa", categoria: "Platos",
-    descripcion: "Hojas verdes, tomate, zanahoria y huevo.", precio: 6200, icono: "🥗" },
-  { id: 6, nombre: "Limonada fresca", categoria: "Bebidas",
-    descripcion: "Limonada con menta. Botella de 500 ml.", precio: 2500, icono: "🍋" },
-  { id: 7, nombre: "Agua mineral", categoria: "Bebidas",
-    descripcion: "Agua sin gas. Botella de 500 ml.", precio: 1800, icono: "💧" },
-  { id: 8, nombre: "Flan casero", categoria: "Postres",
-    descripcion: "Flan de vainilla con dulce de leche.", precio: 3200, icono: "🍮" }
+  { id: 1, nombre: "Bife de chorizo", categoria: "Cortes", descripcion: "Corte de 350 g aprox. a las brasas. Guarnición aparte.", precio: 19800, icono: "🥩" },
+  { id: 2, nombre: "Entraña a la parrilla", categoria: "Cortes", descripcion: "Entraña de 300 g aprox. con chimichurri de la casa.", precio: 22500, icono: "🥩" },
+  { id: 3, nombre: "Asado de tira", categoria: "Cortes", descripcion: "Tira de asado con cocción lenta, porción de 450 g aprox.", precio: 21500, icono: "🍖" },
+  { id: 4, nombre: "Vacío a las brasas", categoria: "Cortes", descripcion: "Porción jugosa de vacío, 400 g aprox.", precio: 20800, icono: "🍖" },
+  { id: 5, nombre: "Chorizo criollo", categoria: "Achuras", descripcion: "Chorizo parrillero con pan y salsa criolla.", precio: 5900, icono: "🌭" },
+  { id: 6, nombre: "Mollejas crocantes", categoria: "Achuras", descripcion: "Porción de mollejas doradas con limón.", precio: 15800, icono: "🔥" },
+  { id: 7, nombre: "Provoleta", categoria: "Entradas", descripcion: "Queso provolone fundido con orégano y oliva.", precio: 9700, icono: "🧀" },
+  { id: 8, nombre: "Papas rústicas", categoria: "Guarniciones", descripcion: "Papas doradas con romero y sal entrefina.", precio: 5600, icono: "🍟" },
+  { id: 9, nombre: "Ensalada mixta", categoria: "Guarniciones", descripcion: "Lechuga, tomate y cebolla fresca.", precio: 4900, icono: "🥗" },
+  { id: 10, nombre: "Limonada casera", categoria: "Bebidas", descripcion: "Limonada fresca de 500 ml.", precio: 3200, icono: "🍋" },
+  { id: 11, nombre: "Agua mineral", categoria: "Bebidas", descripcion: "Botella de agua sin gas de 500 ml.", precio: 2200, icono: "💧" },
+  { id: 12, nombre: "Flan con dulce de leche", categoria: "Postres", descripcion: "Flan casero con dulce de leche.", precio: 5500, icono: "🍮" }
 ];
 
 const $ = id => document.getElementById(id);
@@ -347,7 +365,7 @@ const moneda = valor => new Intl.NumberFormat("es-AR", {
   style: "currency", currency: "ARS", maximumFractionDigits: 0
 }).format(valor);
 
-const clave = "casa-oliva-demo-carrito-v1";
+const clave = "brasa-corte-demo-carrito-v1";
 let carrito = {};
 let categoriaActual = "Todos";
 let modoActual = null;
