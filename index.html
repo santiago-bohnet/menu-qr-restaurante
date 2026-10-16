@@ -444,6 +444,20 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 @media(prefers-reduced-motion:reduce) {
   #contenido-menu .filtros button {transition:none;}
 }
+
+/* Carta: máximo seis productos visibles; el resto se desplaza internamente. */
+#contenido-menu #productos {
+  overflow-y:auto;
+  overflow-x:hidden;
+  overscroll-behavior-y:contain;
+  scrollbar-width:thin;
+  scrollbar-color:#f70906 #1b1b1e;
+  align-content:start;
+  padding-right:8px;
+}
+#contenido-menu #productos::-webkit-scrollbar {width:9px;}
+#contenido-menu #productos::-webkit-scrollbar-track {background:#1b1b1e;border-radius:12px;}
+#contenido-menu #productos::-webkit-scrollbar-thumb {background:#f70906;border-radius:12px;border:2px solid #1b1b1e;}
 </style>
 </head>
 <body>
@@ -541,7 +555,25 @@ const productos = [
   { id: 9, nombre: "Ensalada mixta", categoria: "Guarniciones", descripcion: "Lechuga, tomate y cebolla fresca.", precio: 4900, icono: "🥗" },
   { id: 10, nombre: "Limonada casera", categoria: "Bebidas", descripcion: "Limonada fresca de 500 ml.", precio: 3200, icono: "🍋" },
   { id: 11, nombre: "Agua mineral", categoria: "Bebidas", descripcion: "Botella de agua sin gas de 500 ml.", precio: 2200, icono: "💧" },
-  { id: 12, nombre: "Flan con dulce de leche", categoria: "Postres", descripcion: "Flan casero con dulce de leche.", precio: 5500, icono: "🍮" }
+  { id: 12, nombre: "Flan con dulce de leche", categoria: "Postres", descripcion: "Flan casero con dulce de leche.", precio: 5500, icono: "🍮" },
+  {"id":13,"nombre":"Ojo de bife","categoria":"Cortes","descripcion":"Corte de 380 g aprox., sellado a fuego fuerte.","precio":24600,"icono":"🥩"},
+  {"id":14,"nombre":"Matambre a la pizza","categoria":"Cortes","descripcion":"Matambre tierno con salsa, muzzarella y orégano.","precio":18700,"icono":"🍖"},
+  {"id":15,"nombre":"Bondiola braseada","categoria":"Cortes","descripcion":"Bondiola jugosa con reducción de cocción.","precio":17600,"icono":"🍖"},
+  {"id":16,"nombre":"Tapa de asado","categoria":"Cortes","descripcion":"Tapa de asado asada lentamente, porción de 400 g.","precio":19900,"icono":"🥩"},
+  {"id":17,"nombre":"Riñones al provenzal","categoria":"Achuras","descripcion":"Riñones a la parrilla con ajo y perejil.","precio":8900,"icono":"🔥"},
+  {"id":18,"nombre":"Chinchulines crocantes","categoria":"Achuras","descripcion":"Porción de chinchulines dorados con limón.","precio":7900,"icono":"🔥"},
+  {"id":19,"nombre":"Morcilla criolla","categoria":"Achuras","descripcion":"Morcilla a las brasas, por unidad.","precio":5200,"icono":"🍽️"},
+  {"id":20,"nombre":"Empanadas de carne","categoria":"Entradas","descripcion":"Dos empanadas de carne cortada a cuchillo.","precio":6200,"icono":"🥟"},
+  {"id":21,"nombre":"Pan de campo con chimichurri","categoria":"Entradas","descripcion":"Pan tibio y chimichurri casero.","precio":3900,"icono":"🥖"},
+  {"id":22,"nombre":"Papas fritas clásicas","categoria":"Guarniciones","descripcion":"Porción de papas fritas doradas.","precio":5300,"icono":"🍟"},
+  {"id":23,"nombre":"Puré de calabaza","categoria":"Guarniciones","descripcion":"Puré cremoso de calabaza asada.","precio":4900,"icono":"🎃"},
+  {"id":24,"nombre":"Verduras grilladas","categoria":"Guarniciones","descripcion":"Selección de verduras a las brasas.","precio":6500,"icono":"🥦"},
+  {"id":25,"nombre":"Gaseosa 500 ml","categoria":"Bebidas","descripcion":"Gaseosa individual de 500 ml.","precio":3400,"icono":"🥤"},
+  {"id":26,"nombre":"Agua con gas","categoria":"Bebidas","descripcion":"Botella individual de 500 ml.","precio":2400,"icono":"💧"},
+  {"id":27,"nombre":"Pomelada casera","categoria":"Bebidas","descripcion":"Pomelada fresca de 500 ml.","precio":3500,"icono":"🍹"},
+  {"id":28,"nombre":"Panqueque con dulce de leche","categoria":"Postres","descripcion":"Panqueque tibio con dulce de leche.","precio":6400,"icono":"🥞"},
+  {"id":29,"nombre":"Helado artesanal","categoria":"Postres","descripcion":"Dos bochas de helado a elección.","precio":5700,"icono":"🍨"},
+  {"id":30,"nombre":"Budín de pan","categoria":"Postres","descripcion":"Budín de pan casero con caramelo.","precio":5200,"icono":"🍮"}
 ];
 
 const $ = id => document.getElementById(id);
@@ -606,6 +638,7 @@ function mostrarFiltros() {
 }
 
 function mostrarProductos() {
+  $("productos").scrollTop = 0;
   $("productos").innerHTML = productos
     .filter(p => categoriaActual === "Todos" || p.categoria === categoriaActual)
     .map(p => `
@@ -622,7 +655,20 @@ function mostrarProductos() {
         </div>
       </article>
     `).join("");
+  requestAnimationFrame(ajustarAlturaCarta);
 }
+
+/* Altura exacta de seis tarjetas: tres filas en escritorio, seis en móvil. */
+function ajustarAlturaCarta() {
+  const lista = $("productos");
+  const tarjetas = lista.querySelectorAll(".plato");
+  if (!tarjetas.length) { lista.style.maxHeight = ""; return; }
+  lista.style.maxHeight = "";
+  const ultimaVisible = tarjetas[Math.min(5, tarjetas.length - 1)];
+  const alto = ultimaVisible.offsetTop + ultimaVisible.offsetHeight - lista.offsetTop;
+  lista.style.maxHeight = Math.ceil(alto + 2) + "px";
+}
+window.addEventListener("resize", () => requestAnimationFrame(ajustarAlturaCarta));
 
 function seleccionados() {
   return productos.filter(p => carrito[p.id] > 0);
