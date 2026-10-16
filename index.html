@@ -458,6 +458,26 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 #contenido-menu #productos::-webkit-scrollbar {width:9px;}
 #contenido-menu #productos::-webkit-scrollbar-track {background:#1b1b1e;border-radius:12px;}
 #contenido-menu #productos::-webkit-scrollbar-thumb {background:#f70906;border-radius:12px;border:2px solid #1b1b1e;}
+
+/* Altura estable: 6 tarjetas completas, sin cálculos JS al cambiar de modalidad. */
+#contenido-menu #productos {
+  grid-auto-rows: 335px;
+  max-height: calc(335px * 2 + 18px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  align-content: start;
+}
+#contenido-menu #productos .plato { min-height: 0; height: 100%; }
+@media(max-width:1020px) {
+  #contenido-menu #productos { max-height: calc(335px * 3 + 18px * 2); }
+}
+@media(max-width:600px) {
+  #contenido-menu #productos {
+    grid-template-columns: minmax(0,1fr);
+    grid-auto-rows: 335px;
+    max-height: calc(335px * 6 + 10px * 5);
+  }
+}
 </style>
 </head>
 <body>
@@ -655,22 +675,7 @@ function mostrarProductos() {
         </div>
       </article>
     `).join("");
-  requestAnimationFrame(ajustarAlturaCarta);
 }
-
-/* Altura exacta de seis tarjetas: tres filas en escritorio, seis en móvil. */
-function ajustarAlturaCarta() {
-  const lista = $("productos");
-  const tarjetas = lista.querySelectorAll(".plato");
-  if (!tarjetas.length) { lista.style.maxHeight = ""; return; }
-  lista.style.maxHeight = "";
-  const ultimaVisible = tarjetas[Math.min(5, tarjetas.length - 1)];
-  // Medir ambas posiciones en el mismo sistema de coordenadas.
-  // offsetTop puede referirse a otro contenedor y producir alturas negativas.
-  const alto = ultimaVisible.getBoundingClientRect().bottom - lista.getBoundingClientRect().top;
-  lista.style.maxHeight = Math.max(180, Math.ceil(alto + 4)) + "px";
-}
-window.addEventListener("resize", () => requestAnimationFrame(ajustarAlturaCarta));
 
 function seleccionados() {
   return productos.filter(p => carrito[p.id] > 0);
