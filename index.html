@@ -624,7 +624,7 @@ const moneda = valor => new Intl.NumberFormat("es-AR", {
 
 const clave = "brasa-corte-demo-carrito-v1";
 let carrito = {};
-let categoriaActual = "Todos";
+let categoriaActual = "Entradas";
 let modoActual = null;
 
 function elegirModo(modo) {
@@ -669,7 +669,7 @@ try {
   carrito = {};
 }
 
-const categorias = ["Todos", ...new Set(productos.map(p => p.categoria))];
+const categorias = ["Entradas", "Cortes", "Achuras", "Guarniciones", "Bebidas", "Postres"];
 
 function mostrarFiltros() {
   $("filtros").innerHTML = categorias.map(categoria => `
@@ -681,7 +681,7 @@ function mostrarFiltros() {
 function mostrarProductos() {
   $("productos").scrollTop = 0;
   $("productos").innerHTML = productos
-    .filter(p => categoriaActual === "Todos" || p.categoria === categoriaActual)
+    .filter(p => p.categoria === categoriaActual)
     .map(p => `
       <article class="plato">
         <div class="ilustracion" aria-hidden="true">${p.icono}</div>
