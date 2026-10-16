@@ -313,7 +313,7 @@ pre {
 
 <dialog id="dialogo" aria-labelledby="titulo-dialogo">
   <h2 id="titulo-dialogo">Así se vería tu mensaje</h2>
-  <p class="nota">Vista previa de demostración. No se envió ningún pedido.</p>
+  <p class="nota">Vista previa de demostración. No se envió ningún pedido. Este pedido se guarda solamente en la sesión de este navegador.</p>
   <pre id="mensaje"></pre>
   <button class="principal" id="copiar" type="button">Copiar mensaje de ejemplo</button>
   <p class="nota" id="estado-copia" role="status"></p>
@@ -561,7 +561,30 @@ $("formulario").addEventListener("submit", evento => {
     "El pedido queda pendiente de confirmación del comercio."
   ].filter(linea => linea !== "").join("\n");
 
-  $("estado-copia").textContent = "";
+  const pedido = {
+    id: "DEMO-" + Date.now(),
+    fecha: new Date().toISOString(),
+    modalidad: modoActual,
+    mesa: entrega ? null : mesa,
+    direccion: entrega ? direccion : null,
+    productos: seleccionados().map(p => ({
+      id: p.id,
+      nombre: p.nombre,
+      cantidad: carrito[p.id],
+      precioUnitario: p.precio,
+      importe: p.precio * carrito[p.id]
+    })),
+    aclaraciones,
+    subtotal: subtotal(),
+    estado: "simulacion"
+  };
+  try {
+    // Los datos quedan solo en esta pestaña durante la sesión.
+    sessionStorage.setItem("menu-qr-ultimo-pedido-demo-v1", JSON.stringify(pedido));
+    $("estado-copia").textContent = "Pedido de demostración guardado en esta sesión. No se envió al restaurante.";
+  } catch {
+    $("estado-copia").textContent = "No se pudo guardar el pedido en este navegador. Podés copiar el resumen.";
+  }
   $("dialogo").showModal();
 });
 
