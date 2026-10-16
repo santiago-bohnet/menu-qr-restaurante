@@ -285,6 +285,23 @@ dialog { background:#19191d; color:#f7f1ed; border:1px solid #514249; }
 dialog::backdrop { background:#050506d9; }
 pre { background:#262328; color:#f8eeeb; }
 .secundario { color:#edaa98; }
+
+/* Ajuste final: negro neutro, sin marrones ni degradados café. */
+:root { --verde:#111113; --crema:#050506; --texto:#f5f5f5; }
+html,body { background:#050506 !important; color:#f5f5f5; }
+.pantalla-inicial { background:#0c0c0e !important; border-color:#28282c; box-shadow:none !important; }
+.opcion { background:#151517 !important; color:#f5f5f5; border-color:#343438; }
+.opcion:hover,.opcion:focus-visible { background:#202023 !important; border-color:#ba3939; }
+.hero { background:#0d0d10 !important; border-color:#2f2f35; box-shadow:none !important; }
+.sello { background:#19191b !important; border-color:#ba3939; color:#f5f5f5; }
+.plato,.carrito,dialog { background:#141416 !important; border-color:#303034; color:#f5f5f5; }
+.plato .ilustracion,.plato:nth-child(2n) .ilustracion,.plato:nth-child(3n) .ilustracion { background:#1f1f22 !important; }
+input,select,textarea,pre { background:#202023 !important; border-color:#444449; color:#f5f5f5; }
+.filtros button,.cambiar-modo,.cantidad button { background:#1b1b1e !important; color:#f0eeee; border-color:#3b3b40; }
+.filtros button[aria-pressed="true"],.agregar,.principal { background:#9a2828 !important; border-color:#9a2828; color:white; }
+.demo { background:#151517; color:#ddd; border-bottom:1px solid #303034; }
+.marca span,header a,.secundario { color:#e77878; }
+.descripcion,.subtitulo,.nota,.vacio,footer { color:#bcbcc0; }
 </style>
 </head>
 <body>
