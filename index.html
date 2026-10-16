@@ -302,6 +302,58 @@ input,select,textarea,pre { background:#202023 !important; border-color:#444449;
 .demo { background:#151517; color:#ddd; border-bottom:1px solid #303034; }
 .marca span,header a,.secundario { color:#e77878; }
 .descripcion,.subtitulo,.nota,.vacio,footer { color:#bcbcc0; }
+
+/* Fachada visual basada en la referencia elegida: parrilla nocturna y fuego diagonal. */
+body { background:#050505 !important; font-family:Arial,Helvetica,sans-serif; }
+#contenido-menu { position:relative; isolation:isolate; }
+#contenido-menu::before { content:""; pointer-events:none; position:absolute; z-index:-1; inset:0;
+ background:linear-gradient(90deg,rgba(0,0,0,.98) 0%,rgba(0,0,0,.77) 35%,rgba(0,0,0,.20) 78%),
+ url("https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=1800&q=85") center top / cover no-repeat;
+ opacity:.62; }
+header { max-width:1350px; padding:25px 28px; }
+.marca { font:700 clamp(22px,3vw,38px)/1 Georgia,serif; letter-spacing:1px;color:#faf6f1; }
+.marca span { color:#faf6f1; }
+.marca-fuego { color:#c31920 !important; margin-right:12px; font:normal 37px/1 Arial,sans-serif; }
+header a { color:#fff; background:#981116; padding:14px 22px; border-radius:24px; text-decoration:none; }
+.hero { max-width:1350px; min-height:325px; padding:35px 36px; border:0; border-radius:0; background:transparent !important; box-shadow:none; overflow:hidden; position:relative; }
+.hero h1 { font:700 clamp(36px,5.5vw,70px)/.98 Georgia,serif; letter-spacing:-1px; margin:12px 0; color:#f5f0e8; }
+.hero .etiqueta { color:#e33130;letter-spacing:4px; }
+.hero p { max-width:480px; color:#cbc7c5;font-size:18px; line-height:1.5; }
+.hero-copy { position:relative; z-index:2; }
+.hero-visual { position:absolute;right:-5%;top:-22%;width:66%;height:135%;transform:rotate(-23deg);
+ background:url("https://images.unsplash.com/photo-1558030006-450675393462?auto=format&fit=crop&w=1300&q=80") center / cover no-repeat;
+ filter:saturate(1.25) contrast(1.15); opacity:.83; mask-image:linear-gradient(90deg,transparent,#000 45%); }
+.layout { max-width:1350px;grid-template-columns:minmax(0,1fr) 350px;gap:24px;margin:10px auto; }
+#titulo-menu {font:700 27px Georgia,serif;}
+.filtros {gap:10px;margin:15px 0 25px;}
+.filtros button {border-radius:30px!important;padding:12px 20px;background:#070708e8!important;}
+.filtros button[aria-pressed="true"] {background:#a31319!important;}
+.productos {grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;}
+.plato {border:1px solid #36363a!important;border-radius:16px;background:#0d0d0fee!important;overflow:hidden;}
+.plato .ilustracion {height:154px;background:#141414!important;font-size:0; position:relative;}
+.plato .ilustracion::before {content:""; position:absolute; inset:0;background:url("https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=640&q=78") center / cover no-repeat;}
+.plato:nth-child(2n) .ilustracion::before { background-image:url("https://images.unsplash.com/photo-1558030006-450675393462?auto=format&fit=crop&w=640&q=78");}
+.plato:nth-child(3n) .ilustracion::before { background-image:url("https://images.unsplash.com/photo-1432139555190-58524dae6a55?auto=format&fit=crop&w=640&q=78");}
+.contenido h3 {font:700 21px Georgia,serif;}
+.descripcion {color:#bfbaba;min-height:60px;}
+.precio {font-size:19px;}
+.agregar,.principal {background:#a31319!important;border-radius:10px;}
+.carrito {top:16px;background:#09090beF!important;border:1px solid #7e181b!important;border-radius:17px;padding:24px;box-shadow:0 12px 40px #0009!important;}
+.carrito h2 {font:700 30px Georgia,serif;}
+@media(max-width:1020px){.productos{grid-template-columns:repeat(2,minmax(0,1fr));}}
+@media(max-width:720px){
+ .hero{min-height:290px;padding:27px 21px;}
+ .hero-visual{width:85%;right:-35%;opacity:.55;}
+ .hero p{font-size:15px;max-width:260px;}
+ .layout{display:block;}
+ .productos{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;}
+ .plato .ilustracion{height:120px;}
+ .contenido h3{font-size:17px;}
+ .precio{font-size:16px;}
+ header{flex-wrap:wrap;gap:12px;padding:18px 15px;}
+ header a{padding:10px 13px;}
+ .carrito{margin-top:24px;}
+}
 </style>
 </head>
 <body>
@@ -318,21 +370,18 @@ input,select,textarea,pre { background:#202023 !important; border-color:#444449;
 <div class="demo">MAQUETA INTERACTIVA · Negocio y precios ficticios · Sin pedidos reales</div>
 
 <header>
-  <div class="marca">🔥 Brasa <span>&amp; Corte</span></div>
+  <div class="marca"><span class="marca-fuego">♨</span> BRASA <span>Y CORTE</span></div>
   <button type="button" id="cambiar-modo" class="cambiar-modo">Cambiar modalidad</button><a href="#carrito">Ver mi pedido <span id="contador">(0)</span></a>
 </header>
 
 <section class="hero">
-  <div>
-    <div class="etiqueta">CORTES SELECCIONADOS · FUEGO LENTO</div>
-    <h1>El sabor empieza<br>en las brasas.</h1>
-    <p>Cortes a la parrilla, achuras y guarniciones clásicas. Armá tu pedido y revisá el resumen.</p>
+  <div class="hero-copy">
+    <div class="etiqueta">PARRILLA ARGENTINA</div>
+    <h1>EL SABOR<br>DE LO NUESTRO</h1>
+    <p>Cortes seleccionados, fuego real y la mejor tradición argentina, ahora a un clic de tu mesa.</p>
     <div class="etiqueta" id="modo-titulo">MENÚ DE DEMOSTRACIÓN</div>
   </div>
-  <div class="sello" aria-hidden="true">
-    <strong>🔥</strong>
-    <span>FUEGO REAL<br>SABOR ARGENTINO</span>
-  </div>
+  <div class="hero-visual" aria-hidden="true"></div>
 </section>
 
 <main class="layout">
