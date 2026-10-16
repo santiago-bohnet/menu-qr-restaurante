@@ -501,6 +501,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 }
 
 /* Presentación de local y dirección ficticios, fuera de la carta desplazable. */
+.ubicacion-local[hidden] { display:none !important; }
 .ubicacion-local {
   max-width:1302px;
   margin:36px auto 42px;
@@ -596,7 +597,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
   </aside>
 </main>
 
-<section class="ubicacion-local" aria-labelledby="titulo-ubicacion">
+<section class="ubicacion-local" id="ubicacion-local" aria-labelledby="titulo-ubicacion" hidden>
   <div class="ubicacion-foto">
     <img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&amp;fit=crop&amp;w=1200&amp;q=85" alt="Interior cálido de un restaurante con mesas preparadas e iluminación acogedora" loading="lazy">
     <span class="ubicacion-foto-etiqueta">IMAGEN ILUSTRATIVA</span>
@@ -672,6 +673,7 @@ let modoActual = null;
 function elegirModo(modo) {
   if (modo !== "presencial" && modo !== "domicilio") return;
   modoActual = modo;
+  $("ubicacion-local").hidden = modo !== "domicilio";
   $("inicio").hidden = true;
   $("contenido-menu").hidden = false;
   $("modalidad").value = modo;
@@ -690,6 +692,7 @@ document.querySelectorAll("[data-modo]").forEach(boton => {
 });
 $("cambiar-modo").addEventListener("click", () => {
   $("contenido-menu").hidden = true;
+  $("ubicacion-local").hidden = true;
   $("inicio").hidden = false;
   modoActual = null;
   window.scrollTo({top:0,behavior:"instant"});
