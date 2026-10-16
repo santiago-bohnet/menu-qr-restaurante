@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Casa Oliva · Menú de demostración</title>
+<style>
+:root {
+  --verde: #234d3c;
+  --crema: #f7f4ec;
+  --naranja: #edac62;
+  --texto: #25362d;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--crema);
+  color: var(--texto);
+  font-family: system-ui, sans-serif;
+}
+button, input, select, textarea { font: inherit; }
+button { cursor: pointer; }
+button:focus-visible, a:focus-visible,
+input:focus-visible, select:focus-visible, textarea:focus-visible {
+  outline: 3px solid #b36b20;
+  outline-offset: 3px;
+}
+.demo {
+  background: var(--naranja);
+  padding: 9px 16px;
+  text-align: center;
+  font-size: 13px;
+}
+header {
+  max-width: 1200px;
+  margin: auto;
+  padding: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+.marca { font-size: 23px; font-weight: 850; }
+.marca span { color: #65816a; }
+header a { color: var(--verde); text-decoration: none; font-weight: 700; }
+.hero {
+  max-width: 1152px;
+  margin: 0 auto;
+  padding: 45px;
+  border-radius: 26px;
+  background: var(--verde);
+  color: white;
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  align-items: center;
+  gap: 24px;
+}
+.etiqueta {
+  font-size: 12px;
+  letter-spacing: 2px;
+  font-weight: 750;
+  color: #ecd9a9;
+}
+h1 {
+  margin: 15px 0;
+  max-width: 620px;
+  font-size: clamp(34px, 5vw, 58px);
+  line-height: 1.08;
+  letter-spacing: -2px;
+}
+.hero p { color: #d5e1d6; line-height: 1.7; max-width: 470px; }
+.sello {
+  width: 190px;
+  height: 190px;
+  border-radius: 50%;
+  background: #f0d5a7;
+  color: var(--verde);
+  display: grid;
+  place-content: center;
+  text-align: center;
+  transform: rotate(-8deg);
+  margin: auto;
+  border: 8px double var(--verde);
+}
+.sello strong { font-size: 62px; }
+.sello span { font-size: 13px; font-weight: 800; }
+.layout {
+  max-width: 1200px;
+  margin: 32px auto;
+  padding: 0 24px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: 28px;
+  align-items: start;
+}
+h2 { margin: 0 0 8px; font-size: 27px; letter-spacing: -.7px; }
+.subtitulo { color: #68756c; font-size: 14px; margin-bottom: 22px; }
+.filtros { display: flex; gap: 8px; flex-wrap: wrap; margin: 20px 0; }
+.filtros button {
+  border: 1px solid #d6ddd2;
+  background: transparent;
+  color: var(--verde);
+  border-radius: 25px;
+  padding: 10px 17px;
+}
+.filtros button[aria-pressed="true"] {
+  background: var(--verde);
+  color: white;
+  border-color: var(--verde);
+}
+.productos { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.plato {
+  background: white;
+  border: 1px solid #e4e5db;
+  border-radius: 19px;
+  overflow: hidden;
+}
+.ilustracion {
+  height: 130px;
+  display: grid;
+  place-items: center;
+  font-size: 72px;
+  background: #e9eadc;
+}
+.plato:nth-child(2n) .ilustracion { background: #f4e3cf; }
+.plato:nth-child(3n) .ilustracion { background: #e1eadb; }
+.contenido { padding: 18px; }
+.contenido h3 { margin: 0 0 8px; font-size: 18px; }
+.descripcion { min-height: 42px; margin: 0; font-size: 13px; color: #6a736b; line-height: 1.6; }
+.pie-plato { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-top: 20px; }
+.precio { font-weight: 800; }
+.agregar {
+  background: var(--verde);
+  color: white;
+  border: 0;
+  border-radius: 10px;
+  padding: 9px 12px;
+  font-size: 13px;
+}
+.carrito {
+  position: sticky;
+  top: 18px;
+  background: white;
+  border: 1px solid #e4e5db;
+  border-radius: 21px;
+  padding: 23px;
+}
+.carrito h2 { font-size: 23px; }
+.vacio { padding: 24px 0; color: #778078; font-size: 14px; }
+.linea {
+  padding: 16px 0;
+  border-bottom: 1px solid #edf0e8;
+}
+.linea-arriba { display: flex; justify-content: space-between; gap: 12px; font-size: 14px; }
+.cantidad { display: flex; align-items: center; gap: 12px; margin-top: 10px; }
+.cantidad button {
+  width: 30px;
+  height: 30px;
+  border: 1px solid #dfe5db;
+  border-radius: 8px;
+  background: #f7f8f3;
+  color: var(--verde);
+}
+.total { display: flex; justify-content: space-between; font-size: 20px; font-weight: 800; padding: 20px 0 8px; }
+.nota { color: #707a70; font-size: 12px; line-height: 1.6; }
+label { display: block; font-size: 13px; font-weight: 700; margin: 16px 0 7px; }
+input, select, textarea {
+  width: 100%;
+  padding: 11px;
+  border: 1px solid #d8dfd3;
+  border-radius: 9px;
+  background: #fff;
+  color: var(--texto);
+}
+textarea { resize: vertical; min-height: 75px; }
+.principal {
+  width: 100%;
+  padding: 14px;
+  background: var(--verde);
+  color: white;
+  border: 0;
+  border-radius: 11px;
+  font-weight: 750;
+  margin-top: 18px;
+}
+.principal:disabled { opacity: .45; cursor: default; }
+.secundario {
+  border: 0;
+  background: transparent;
+  color: var(--verde);
+  text-decoration: underline;
+  padding: 12px;
+}
+footer { text-align: center; padding: 20px 24px 35px; color: #718071; font-size: 12px; }
+dialog {
+  border: 0;
+  border-radius: 22px;
+  padding: 26px;
+  width: min(520px, calc(100% - 32px));
+  max-height: 90vh;
+  overflow: auto;
+  color: var(--texto);
+}
+dialog::backdrop { background: #102419a6; }
+pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font: 14px/1.7 system-ui, sans-serif;
+  background: #f1f4ec;
+  padding: 18px;
+  border-radius: 12px;
+}
+[hidden] { display: none !important; }
+@media (max-width: 900px) {
+  .layout { grid-template-columns: 1fr; }
+  .carrito { position: static; }
+}
+@media (max-width: 600px) {
+  header { padding: 19px 16px; }
+  .hero { margin: 0 12px; padding: 30px 24px; grid-template-columns: 1fr; }
+  .sello { display: none; }
+  .layout { padding: 0 14px; gap: 25px; }
+  .productos { gap: 10px; }
+  .contenido { padding: 13px; }
+  .contenido h3 { font-size: 16px; }
+  .pie-plato { align-items: stretch; flex-direction: column; }
+  .ilustracion { height: 110px; font-size: 60px; }
+}
+</style>
+</head>
+<body>
+<div class="demo">MAQUETA INTERACTIVA · Negocio y precios ficticios · Sin pedidos reales</div>
+
+<header>
+  <div class="marca">✳ Casa <span>Oliva</span></div>
+  <a href="#carrito">Ver mi pedido <span id="contador">(0)</span></a>
+</header>
+
+<section class="hero">
+  <div>
+    <div class="etiqueta">COCINA CASERA · HECHA CON GANAS</div>
+    <h1>Hoy cocinamos<br>por vos.</h1>
+    <p>Elegí algo rico, armá tu pedido y visualizá el resumen de tu pedido de demostración.</p>
+    <div class="etiqueta">PEDIDOS DESDE TU MESA · DEMOSTRACIÓN</div>
+  </div>
+  <div class="sello" aria-hidden="true">
+    <strong>✳</strong>
+    <span>COMIDA DE VERDAD<br>SABOR A CASA</span>
+  </div>
+</section>
+
+<main class="layout">
+  <section aria-labelledby="titulo-menu">
+    <h2 id="titulo-menu">¿Qué te tienta hoy?</h2>
+    <p class="subtitulo">Porciones generosas y favoritos de todos los días.</p>
+    <nav class="filtros" aria-label="Categorías del menú" id="filtros"></nav>
+    <div class="productos" id="productos"></div>
+  </section>
+
+  <aside class="carrito" id="carrito" aria-labelledby="titulo-carrito">
+    <h2 id="titulo-carrito">Tu pedido</h2>
+    <p class="nota">Armalo a tu gusto. Esto es una demostración.</p>
+    <div id="items"></div>
+    <div class="total"><span>Subtotal</span><span id="total">$0</span></div>
+    <p class="nota">Precios de ejemplo en pesos argentinos. Envío no incluido.</p>
+
+    <form id="formulario">
+      <label for="mesa">Número de mesa (obligatorio)</label>
+      <input id="mesa" name="mesa" type="number" min="1" max="999" step="1" required placeholder="Ej.: 7">
+
+      <label for="modalidad">¿Cómo lo recibirías?</label>
+      <select id="modalidad">
+        <option value="retiro">Retiro en el local</option>
+        <option value="entrega">Entrega a domicilio</option>
+      </select>
+
+      <div id="campo-direccion" hidden>
+        <label for="direccion">Dirección de ejemplo</label>
+        <input id="direccion" maxlength="150" placeholder="Ej.: Calle de Prueba 123">
+      </div>
+
+      <label for="aclaraciones">Aclaraciones (opcional)</label>
+      <textarea id="aclaraciones" maxlength="400"
+        placeholder="Ej.: Sin sal en las papas"></textarea>
+
+      <button class="principal" id="ver-pedido" type="submit" disabled>
+        Ver resumen del pedido
+      </button>
+    </form>
+    <p class="nota">No se enviará ningún mensaje. En un comercio real, el local debe confirmar disponibilidad, importe final y demora.</p>
+    <button class="secundario" id="vaciar" type="button" hidden>Vaciar carrito</button>
+    <p class="nota" id="estado" role="status"></p>
+  </aside>
+</main>
+
+<footer>Casa Oliva · Demostración de menú digital adaptable a tu negocio.</footer>
+
+<dialog id="dialogo" aria-labelledby="titulo-dialogo">
+  <h2 id="titulo-dialogo">Así se vería tu mensaje</h2>
+  <p class="nota">Vista previa de demostración. No se envió ningún pedido.</p>
+  <pre id="mensaje"></pre>
+  <button class="principal" id="copiar" type="button">Copiar mensaje de ejemplo</button>
+  <p class="nota" id="estado-copia" role="status"></p>
+  <button class="secundario" id="cerrar" type="button">Volver al menú</button>
+</dialog>
+
+<script>
+// Editá estos datos para personalizar la maqueta.
+const negocio = "Casa Oliva";
+const productos = [
+  { id: 1, nombre: "Milanesa con papas", categoria: "Platos",
+    descripcion: "Milanesa de carne con papas doradas y limón.", precio: 9500, icono: "🍽️" },
+  { id: 2, nombre: "Pollo al horno", categoria: "Platos",
+    descripcion: "Un cuarto de pollo con papas y hierbas.", precio: 8500, icono: "🍗" },
+  { id: 3, nombre: "Empanadas de carne", categoria: "Empanadas",
+    descripcion: "Porción de 3 empanadas de carne al horno.", precio: 4800, icono: "🥟" },
+  { id: 4, nombre: "Empanadas de queso", categoria: "Empanadas",
+    descripcion: "Porción de 3 empanadas de jamón y queso.", precio: 4800, icono: "🥟" },
+  { id: 5, nombre: "Ensalada de la casa", categoria: "Platos",
+    descripcion: "Hojas verdes, tomate, zanahoria y huevo.", precio: 6200, icono: "🥗" },
+  { id: 6, nombre: "Limonada fresca", categoria: "Bebidas",
+    descripcion: "Limonada con menta. Botella de 500 ml.", precio: 2500, icono: "🍋" },
+  { id: 7, nombre: "Agua mineral", categoria: "Bebidas",
+    descripcion: "Agua sin gas. Botella de 500 ml.", precio: 1800, icono: "💧" },
+  { id: 8, nombre: "Flan casero", categoria: "Postres",
+    descripcion: "Flan de vainilla con dulce de leche.", precio: 3200, icono: "🍮" }
+];
+
+const $ = id => document.getElementById(id);
+const moneda = valor => new Intl.NumberFormat("es-AR", {
+  style: "currency", currency: "ARS", maximumFractionDigits: 0
+}).format(valor);
+
+const clave = "casa-oliva-demo-carrito-v1";
+let carrito = {};
+let categoriaActual = "Todos";
+
+// Solo se guardan cantidades de productos en este navegador.
+// No se almacenan direcciones ni aclaraciones.
+try {
+  const guardado = JSON.parse(localStorage.getItem(clave) || "{}");
+  if (guardado && typeof guardado === "object") {
+    for (const p of productos) {
+      const cantidad = guardado[p.id];
+      if (Number.isInteger(cantidad) && cantidad > 0 && cantidad <= 99) {
+        carrito[p.id] = cantidad;
+      }
+    }
+  }
+} catch {
+  carrito = {};
+}
+
+const categorias = ["Todos", ...new Set(productos.map(p => p.categoria))];
+
+function mostrarFiltros() {
+  $("filtros").innerHTML = categorias.map(categoria => `
+    <button type="button" aria-pressed="${categoria === categoriaActual}"
+      data-categoria="${categoria}">${categoria}</button>
+  `).join("");
+}
+
+function mostrarProductos() {
+  $("productos").innerHTML = productos
+    .filter(p => categoriaActual === "Todos" || p.categoria === categoriaActual)
+    .map(p => `
+      <article class="plato">
+        <div class="ilustracion" aria-hidden="true">${p.icono}</div>
+        <div class="contenido">
+          <h3>${p.nombre}</h3>
+          <p class="descripcion">${p.descripcion}</p>
+          <div class="pie-plato">
+            <span class="precio">${moneda(p.precio)}</span>
+            <button class="agregar" type="button" data-agregar="${p.id}"
+              aria-label="Agregar ${p.nombre}">+ Agregar</button>
+          </div>
+        </div>
+      </article>
+    `).join("");
+}
+
+function seleccionados() {
+  return productos.filter(p => carrito[p.id] > 0);
+}
+
+function subtotal() {
+  return seleccionados().reduce((total, p) => total + p.precio * carrito[p.id], 0);
+}
+
+function mostrarCarrito() {
+  const elegidos = seleccionados();
+  const unidades = elegidos.reduce((total, p) => total + carrito[p.id], 0);
+
+  $("items").innerHTML = elegidos.length ? elegidos.map(p => `
+    <div class="linea">
+      <div class="linea-arriba">
+        <strong>${p.nombre}</strong>
+        <span>${moneda(p.precio * carrito[p.id])}</span>
+      </div>
+      <div class="cantidad">
+        <button type="button" data-id="${p.id}" data-cambio="-1"
+          aria-label="Quitar una unidad de ${p.nombre}">−</button>
+        <span>${carrito[p.id]}</span>
+        <button type="button" data-id="${p.id}" data-cambio="1"
+          aria-label="Sumar una unidad de ${p.nombre}"
+          ${carrito[p.id] >= 99 ? "disabled" : ""}>+</button>
+      </div>
+    </div>
+  `).join("") : '<p class="vacio">Tu próxima comida empieza acá.<br>Agregá un plato del menú.</p>';
+
+  $("contador").textContent = `(${unidades})`;
+  $("total").textContent = moneda(subtotal());
+  $("ver-pedido").disabled = elegidos.length === 0;
+  $("vaciar").hidden = elegidos.length === 0;
+
+  try {
+    localStorage.setItem(clave, JSON.stringify(carrito));
+  } catch {
+    $("estado").textContent = "El navegador no permite guardar el carrito al cerrar o recargar.";
+  }
+}
+
+function cambiarCantidad(id, cambio) {
+  const producto = productos.find(p => p.id === id);
+  if (!producto) return;
+
+  const anterior = carrito[id] || 0;
+  const nueva = Math.max(0, Math.min(99, anterior + cambio));
+  if (nueva === anterior) {
+    $("estado").textContent = "Máximo de demostración: 99 unidades por producto.";
+    return;
+  }
+  if (nueva === 0) delete carrito[id];
+  else carrito[id] = nueva;
+
+  $("estado").textContent = `${producto.nombre}: ${nueva} unidades en el pedido.`;
+  mostrarCarrito();
+}
+
+$("filtros").addEventListener("click", evento => {
+  const boton = evento.target.closest("[data-categoria]");
+  if (!boton) return;
+  categoriaActual = boton.dataset.categoria;
+  for (const filtro of $("filtros").querySelectorAll("button")) {
+    filtro.setAttribute("aria-pressed", String(filtro === boton));
+  }
+  mostrarProductos();
+});
+
+$("productos").addEventListener("click", evento => {
+  const boton = evento.target.closest("[data-agregar]");
+  if (boton) cambiarCantidad(Number(boton.dataset.agregar), 1);
+});
+
+$("items").addEventListener("click", evento => {
+  const boton = evento.target.closest("[data-cambio]");
+  if (!boton) return;
+
+  const id = Number(boton.dataset.id);
+  const cambio = Number(boton.dataset.cambio);
+  cambiarCantidad(id, cambio);
+
+  // Mantener el foco después de actualizar los controles.
+  const siguiente = $("items").querySelector(
+    `button[data-id="${id}"][data-cambio="${cambio}"]:not(:disabled)`
+  ) || $("items").querySelector(`button[data-id="${id}"]:not(:disabled)`);
+  if (siguiente) siguiente.focus();
+  else $("productos").querySelector(`[data-agregar="${id}"]`)?.focus();
+});
+
+$("vaciar").addEventListener("click", () => {
+  carrito = {};
+  mostrarCarrito();
+  $("estado").textContent = "Carrito vacío.";
+  $("productos").querySelector("button")?.focus();
+});
+
+$("modalidad").addEventListener("change", () => {
+  const entrega = $("modalidad").value === "entrega";
+  $("campo-direccion").hidden = !entrega;
+  $("direccion").required = entrega;
+});
+
+$("formulario").addEventListener("submit", evento => {
+  evento.preventDefault();
+  if (!seleccionados().length) return;
+
+  const entrega = $("modalidad").value === "entrega";
+  const direccion = $("direccion").value.trim();
+  if (entrega && !direccion) {
+    $("direccion").setCustomValidity("Escribí una dirección de ejemplo.");
+    $("direccion").reportValidity();
+    return;
+  }
+
+  const lineas = seleccionados().map(p =>
+    `• ${carrito[p.id]} × ${p.nombre}: ${moneda(p.precio * carrito[p.id])}`
+  );
+
+  const mesa = Number($("mesa").value);
+  if (!Number.isInteger(mesa) || mesa < 1 || mesa > 999) {
+    $("mesa").setCustomValidity("Ingresá un número de mesa entre 1 y 999.");
+    $("mesa").reportValidity();
+    return;
+  }
+
+  const aclaraciones = $("aclaraciones").value.trim();
+  $("mensaje").textContent = [
+    "DEMOSTRACIÓN — NO ES UN PEDIDO REAL",
+    `Mesa: ${mesa}`,
+    "",
+    `Hola, ${negocio}. Quisiera consultar por este pedido:`,
+    "",
+    ...lineas,
+    "",
+    `Subtotal de productos: ${moneda(subtotal())}`,
+    entrega ? `Entrega en: ${direccion}` : "Modalidad: retiro en el local",
+    entrega ? "Costo de envío: a confirmar por el comercio." : "",
+    aclaraciones ? `Aclaraciones: ${aclaraciones}` : "",
+    "",
+    "¿Me confirman disponibilidad, importe final, forma de pago y demora?",
+    "El pedido queda pendiente de confirmación del comercio."
+  ].filter(linea => linea !== "").join("\n");
+
+  $("estado-copia").textContent = "";
+  $("dialogo").showModal();
+});
+
+$("mesa").addEventListener("input", () => $("mesa").setCustomValidity(""));
+
+$("direccion").addEventListener("input", () => {
+  $("direccion").setCustomValidity("");
+});
+
+$("cerrar").addEventListener("click", () => $("dialogo").close());
+
+$("copiar").addEventListener("click", async () => {
+  try {
+    await navigator.clipboard.writeText($("mensaje").textContent);
+    $("estado-copia").textContent = "Mensaje copiado. No se envió a ningún comercio.";
+  } catch {
+    $("estado-copia").textContent = "Podés seleccionar el texto de arriba y copiarlo manualmente.";
+  }
+});
+
+mostrarFiltros();
+mostrarProductos();
+mostrarCarrito();
+</script>
+</body>
+</html>
