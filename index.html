@@ -557,7 +557,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 }
 
 /* Vista 3D y realidad aumentada opcional en los cortes. */
-#contenido-menu #productos .plato .contenido {grid-template-rows:auto minmax(0,1fr) auto auto;}
+#contenido-menu #productos .plato .contenido {grid-template-rows:auto minmax(0,1fr) auto;}
 .ver-ra {justify-self:start;align-self:end;background:#221417;border:1px solid #e92b28;color:#fff;border-radius:8px;padding:6px 9px;font-size:12px;font-weight:700;margin-top:7px;min-height:30px;}
 .ver-ra:hover,.ver-ra:focus-visible {background:#8d1618;}
 #dialogo-ra {width:min(94vw,660px);max-height:94dvh;overflow-y:auto;border:1px solid #d32626;border-radius:18px;background:#101013;color:#f7f7f7;padding:22px;box-shadow:0 18px 70px #000b;}
@@ -570,6 +570,35 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 #visor-ra {width:100%;height:min(48vh,400px);background:radial-gradient(circle at center,#393035,#141416);border-radius:12px;}
 .ra-activar {position:absolute;bottom:15px;left:50%;transform:translateX(-50%);white-space:nowrap;background:#f70906;color:#fff;border:0;border-radius:12px;padding:12px 16px;font-weight:800;box-shadow:0 3px 15px #0008;}
 @media(max-width:600px) {#dialogo-ra {padding:14px;} #visor-ra {height:43dvh;} #contenido-menu #productos .ver-ra {font-size:11px;padding:6px;}}
+
+/* El acceso 3D se superpone a la foto: visible también en tarjetas móviles angostas. */
+#contenido-menu #productos .plato .ilustracion {position:relative;}
+#contenido-menu #productos .plato .ilustracion .ver-ra {
+  position:absolute;
+  z-index:3;
+  right:7px;
+  bottom:8px;
+  display:block;
+  width:auto;
+  max-width:calc(100% - 14px);
+  min-height:32px;
+  margin:0;
+  padding:7px 9px;
+  background:#c80b0b;
+  color:#fff;
+  border:1px solid #fff7;
+  border-radius:8px;
+  font:700 12px/1.2 Arial,sans-serif;
+  text-align:center;
+  white-space:normal;
+  box-shadow:0 2px 12px #000b;
+}
+@media(max-width:600px) {
+  #contenido-menu #productos .plato .ilustracion .ver-ra {
+    right:5px;bottom:6px;max-width:calc(100% - 10px);
+    font-size:11px;padding:7px 5px;
+  }
+}
 </style>
 <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.1.0/model-viewer.min.js"></script>
 </head>
@@ -784,7 +813,9 @@ function mostrarProductos() {
     .filter(p => p.categoria === categoriaActual)
     .map(p => `
       <article class="plato">
-        <div class="ilustracion" aria-hidden="true">${p.icono}</div>
+        <div class="ilustracion">
+          <span aria-hidden="true">${p.icono}</span>
+        </div>
         <div class="contenido">
           <h3>${p.nombre}</h3>
           <p class="descripcion">${p.descripcion}</p>
