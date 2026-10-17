@@ -693,8 +693,8 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
     <div><span class="ra-eyebrow">EXPERIENCIA 3D · DEMOSTRACIÓN</span><h2 id="titulo-ra">Ver plato en 3D</h2></div>
     <button type="button" id="cerrar-ra" class="ra-cerrar" aria-label="Cerrar vista 3D">✕</button>
   </div>
-  <p class="ra-aviso">Modelo de carne ilustrativo, no una reproducción exacta del plato ni de su tamaño. La realidad aumentada depende de la compatibilidad de tu celular.</p>
-  <model-viewer id="visor-ra" alt="Modelo tridimensional ilustrativo de carne" camera-controls auto-rotate ar ar-modes="webxr scene-viewer quick-look" shadow-intensity="1" exposure="1" interaction-prompt="auto" loading="eager">
+  <p class="ra-aviso">Modelo de carne ilustrativo, no una reproducción exacta del plato ni de su tamaño. Desactivamos el zoom 3D y solicitamos escala fija en RA, pero algunos visores externos pueden permitir ajustes. La escala no está calibrada con una porción real.</p>
+  <model-viewer id="visor-ra" alt="Modelo tridimensional ilustrativo de carne" camera-controls disable-zoom auto-rotate ar ar-scale="fixed" ar-modes="webxr scene-viewer quick-look" shadow-intensity="1" exposure="1" interaction-prompt="auto" loading="eager">
     <button slot="ar-button" class="ra-activar" type="button">📱 Ver con mi cámara (RA)</button>
   </model-viewer>
   <p id="estado-ra" class="ra-aviso" role="status">Arrastrá para girar el modelo. En celulares compatibles, tocá «Ver con mi cámara».</p>
@@ -1021,7 +1021,7 @@ $("productos").addEventListener("click", evento => {
   const plato = productos.find(p => p.id === Number(boton.dataset.verRa));
   if (!plato) return;
   $("titulo-ra").textContent = plato.nombre + " · vista 3D";
-  $("estado-ra").textContent = "Modelo ilustrativo. Arrastrá para girarlo; si tu celular es compatible, usá «Ver con mi cámara».";
+  $("estado-ra").textContent = "Modelo ilustrativo: podés girarlo, pero no hacer zoom. En RA se solicita escala fija; todavía no representa dimensiones reales.";
   $("visor-ra").setAttribute("src", modeloRa);
   $("dialogo-ra").showModal();
 });
