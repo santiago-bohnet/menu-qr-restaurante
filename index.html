@@ -712,7 +712,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 <script>
 // Editá estos datos para personalizar la maqueta.
 const negocio = "Brasa & Corte";
-const productos = [
+let productos = [
   { id: 1, nombre: "Bife de chorizo", categoria: "Cortes", descripcion: "Corte de 350 g aprox. a las brasas. Guarnición aparte.", precio: 19800, icono: "🥩" },
   { id: 2, nombre: "Entraña a la parrilla", categoria: "Cortes", descripcion: "Entraña de 300 g aprox. con chimichurri de la casa.", precio: 22500, icono: "🥩" },
   { id: 3, nombre: "Asado de tira", categoria: "Cortes", descripcion: "Tira de asado con cocción lenta, porción de 450 g aprox.", precio: 21500, icono: "🍖" },
@@ -746,6 +746,18 @@ const productos = [
 ];
 
 const $ = id => document.getElementById(id);
+const modoMuestra = new URLSearchParams(location.search).get("vista") === "muestra";
+const claveCatalogo = "brasa-corte-catalogo-demo-v1";
+function sincronizarCatalogo() {
+  try {
+    const datos = JSON.parse(localStorage.getItem(claveCatalogo));
+    if (!Array.isArray(datos)) return;
+    const validos = datos.filter(p => p && Number.isSafeInteger(p.id) && typeof p.nombre === "string" && typeof p.categoria === "string" && Number.isFinite(p.precio));
+    if (validos.length) productos = validos;
+  } catch {}
+}
+sincronizarCatalogo();
+
 const moneda = valor => new Intl.NumberFormat("es-AR", {
   style: "currency", currency: "ARS", maximumFractionDigits: 0
 }).format(valor);
@@ -815,7 +827,7 @@ function mostrarProductos() {
     .map(p => `
       <article class="plato">
         <div class="ilustracion">
-          <span aria-hidden="true">${p.icono}</span>
+          ${p.foto ? `<img src="${p.foto}" alt="Foto de ${p.nombre.replace(/[&<>"\x27]/g, "")}" style="height:100%;width:100%;object-fit:cover">` : `<span aria-hidden="true">${p.icono || "🍽️"}</span>`}
         </div>
         <div class="contenido">
           <h3>${p.nombre}</h3>
@@ -823,8 +835,8 @@ function mostrarProductos() {
           ${p.categoria === "Cortes" ? `<button class="ver-ra" type="button" data-ver-ra="${p.id}" aria-label="Ver demostración 3D de ${p.nombre}">◈ Ver en 3D / RA</button>` : ""}
           <div class="pie-plato">
             <span class="precio">${moneda(p.precio)}</span>
-            <button class="agregar" type="button" data-agregar="${p.id}"
-              aria-label="Agregar ${p.nombre}">+ Agregar</button>
+            <button class="agregar" type="button" data-agregar="${p.id}" ${p.disponible === false || modoMuestra ? "disabled" : ""}
+              aria-label="Agregar ${p.nombre}">${p.disponible === false ? "Agotado" : modoMuestra ? "Solo muestra" : "+ Agregar"}</button>
           </div>
         </div>
       </article>
@@ -832,7 +844,7 @@ function mostrarProductos() {
 }
 
 function seleccionados() {
-  return productos.filter(p => carrito[p.id] > 0);
+  return productos.filter(p => p.disponible !== false && carrito[p.id] > 0);
 }
 
 function subtotal() {
@@ -874,7 +886,7 @@ function mostrarCarrito() {
 
 function cambiarCantidad(id, cambio) {
   const producto = productos.find(p => p.id === id);
-  if (!producto) return;
+  if (!producto || producto.disponible === false || modoMuestra) return;
 
   const anterior = carrito[id] || 0;
   const nueva = Math.max(0, Math.min(99, anterior + cambio));
@@ -1055,6 +1067,29 @@ $("visor-ra").addEventListener("error", () => {
 $("cerrar-ra").addEventListener("click", () => $("dialogo-ra").close());
 $("dialogo-ra").addEventListener("close", () => $("visor-ra").removeAttribute("src"));
 
+if (modoMuestra) {
+  $("inicio").hidden = true;
+  $("contenido-menu").hidden = false;
+  $("cambiar-modo").hidden = true;
+  $("carrito").hidden = true;
+  document.querySelector('header a[href="#carrito"]').hidden = true;
+  $("modo-titulo").textContent = "CARTA DE MUESTRA · SIN PEDIDOS";
+  $("ubicacion-local").hidden = false;
+  const aviso = document.createElement("p");
+  aviso.className = "demo";
+  aviso.textContent = "Carta para consultar platos y precios. En esta vista no se pueden realizar pedidos.";
+  $("titulo-menu").before(aviso);
+}
+window.addEventListener("storage", e => {
+  if (e.key !== claveCatalogo) return;
+  sincronizarCatalogo();
+  for (const id of Object.keys(carrito)) {
+    if (!productos.some(p => p.id === Number(id) && p.disponible !== false)) delete carrito[id];
+  }
+  mostrarFiltros();
+  mostrarProductos();
+  mostrarCarrito();
+});
 mostrarFiltros();
 mostrarProductos();
 mostrarCarrito();
