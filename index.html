@@ -605,16 +605,42 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 .pedido-columna .cuenta-separada{grid-column:auto;grid-row:auto;width:100%}
 @media(max-width:900px){.pedido-columna{grid-column:1;grid-row:auto}}
 /* Llamas de parrilla: borde inferior cálido, breve y sin cubrir la carta. */
-/* Fuego de parrilla: las bases están pegadas a los cuatro bordes y las puntas apuntan al centro. */
-.flame-transition{position:fixed;inset:0;z-index:1000;pointer-events:none;opacity:0;visibility:hidden;width:100vw;height:100vh}
-.flame-transition.active{visibility:visible;animation:flame-reveal 3.4s ease-in-out both}
-.flame-transition canvas{display:block;width:100%;height:100%}
-@keyframes flame-reveal{0%{opacity:0}12%{opacity:1}75%{opacity:.9}100%{opacity:0}}
+.flame-transition{position:fixed;inset:0;z-index:1000;pointer-events:none;visibility:hidden;opacity:0;mix-blend-mode:screen}
+.flame-transition.active{visibility:visible;animation:fire-scene 3.4s ease-out both}
+.flame-film{position:absolute;overflow:hidden;mix-blend-mode:screen}
+.flame-film.bottom,.flame-film.top{left:0;width:100%;height:clamp(80px,16vh,160px)}
+.flame-film.bottom{bottom:0}.flame-film.top{top:0;transform:rotate(180deg)}
+.flame-film.left,.flame-film.right{top:0;height:100%;width:clamp(80px,15vh,150px)}
+.flame-film.left{left:0}.flame-film.right{right:0;transform:rotate(180deg)}
+.flame-film video{display:block;position:absolute;object-fit:cover;object-position:center bottom;mix-blend-mode:screen}
+.flame-film.bottom video,.flame-film.top video{width:100%;height:225%;left:0;bottom:0}
+.flame-film.left video,.flame-film.right video{width:100vh;height:225%;left:0;bottom:0;transform-origin:left bottom;transform:rotate(90deg)}
+@keyframes fire-scene{0%{opacity:0}15%{opacity:1}68%{opacity:.9}100%{opacity:0}}
 @media(prefers-reduced-motion:reduce){.flame-transition.active{visibility:hidden;animation:none}}
 </style>
 <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.1.0/model-viewer.min.js"></script>
 </head>
-<body><div id="flame-transition" class="flame-transition" aria-hidden="true"><div class="flame-side top"><svg viewBox="0 0 1100 105" preserveAspectRatio="none" aria-hidden="true"><g class="flame-tongues"><g transform="translate(0 0)"><path fill="#a51205" stroke="#8d1406" stroke-width="2" d="M0 100 C-4 70 18 69 16 42 C35 57 23 75 37 79 C31 49 56 38 48 14 C73 36 59 54 69 67 C78 55 91 42 83 29 C115 66 105 88 110 100 Z"/><path fill="#f44d08" d="M6 100 C7 82 24 79 21 61 C40 81 43 88 43 65 C55 51 61 39 55 28 C72 46 64 72 74 78 C84 67 90 60 91 52 C104 77 98 92 103 100 Z"/><path fill="#ffb416" d="M13 100 C20 86 30 91 31 72 C47 88 51 97 52 77 C62 65 61 54 62 47 C77 77 69 90 80 90 C92 78 92 84 96 100Z"/><path fill="#fff47c" d="M27 100 Q34 91 34 84 Q49 105 57 100 Q65 83 66 70 Q76 97 86 100Z"/></g><g transform="translate(110 0)"><path fill="#a51205" stroke="#8d1406" stroke-width="2" d="M0 100 C-4 70 18 69 16 42 C35 57 23 75 37 79 C31 49 56 38 48 31 C73 53 59 54 69 67 C78 55 91 42 83 29 C115 66 105 88 110 100 Z"/><<div id="flame-transition" class="flame-transition" aria-hidden="true"><canvas id="fire-canvas"></canvas></div>RGENTINA</div>
+<body><div id="flame-transition" class="flame-transition" aria-hidden="true"><div class="flame-film top"><video muted playsinline loop preload="auto"><source src="https://videos.pexels.com/video-files/9667220/9667220-hd_1920_1080_25fps.mp4" type="video/mp4"></video></div><div class="flame-film right"><video muted playsinline loop preload="auto"><source src="https://videos.pexels.com/video-files/9667220/9667220-hd_1920_1080_25fps.mp4" type="video/mp4"></video></div><div class="flame-film bottom"><video muted playsinline loop preload="auto"><source src="https://videos.pexels.com/video-files/9667220/9667220-hd_1920_1080_25fps.mp4" type="video/mp4"></video></div><div class="flame-film left"><video muted playsinline loop preload="auto"><source src="https://videos.pexels.com/video-files/9667220/9667220-hd_1920_1080_25fps.mp4" type="video/mp4"></video></div></div>
+<section class="pantalla-inicial" id="inicio">
+  <p class="etiqueta" style="color:var(--verde)">PARRILLA ARGENTINA · MENÚ DEMO</p>
+  <h1>El fuego está encendido.</h1>
+  <p>¿Te sentás a nuestra mesa o disfrutás la parrilla en casa?</p>
+  <div class="opciones">
+    <button type="button" class="opcion" data-modo="presencial"><span aria-hidden="true">🍽️</span>Comer en el local</button>
+    <button type="button" class="opcion" data-modo="domicilio"><span aria-hidden="true">🛵</span>Pedir a domicilio</button>
+  </div>
+</section>
+<div id="contenido-menu" hidden>
+<div class="demo">MAQUETA INTERACTIVA · Negocio y precios ficticios · Sin pedidos reales</div>
+
+<header>
+  <div class="marca"><span class="marca-fuego">♨</span> BRASA <span>Y CORTE</span></div>
+  <button type="button" id="cambiar-modo" class="cambiar-modo">Cambiar modalidad</button><a href="#carrito">Ver mi pedido <span id="contador">(0)</span></a>
+</header>
+
+<section class="hero">
+  <div class="hero-copy">
+    <div class="etiqueta">PARRILLA ARGENTINA</div>
     <h1>EL SABOR<br>DE LO NUESTRO</h1>
     <p>Cortes seleccionados, fuego real y la mejor tradición argentina, ahora a un clic de tu mesa.</p>
     <div class="etiqueta" id="modo-titulo">MENÚ DE DEMOSTRACIÓN</div>
@@ -797,61 +823,14 @@ function elegirModo(modo) {
   window.scrollTo({top:0,behavior:"instant"});
 }
 
-
-/* Fuego fotográfico simulado: partículas orgánicas y mezcla luminosa, no iconos SVG. */
-let fireAnimation=0,fireParticles=[],fireUntil=0;
+let timerFuego;
 function iniciarFuegoParrilla(){
- const root=$("flame-transition"),canvas=$("fire-canvas"),ctx=canvas.getContext("2d");
- if(!ctx||window.matchMedia("(prefers-reduced-motion: reduce)").matches)return;
- cancelAnimationFrame(fireAnimation);
- root.classList.remove("active");void root.offsetWidth;root.classList.add("active");
- const dpr=Math.min(devicePixelRatio||1,1.5),w=innerWidth,h=innerHeight;
- canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);
- ctx.setTransform(dpr,0,0,dpr,0,0);
- const r=(a,b)=>a+Math.random()*(b-a),size=Math.min(110,Math.max(62,Math.min(w,h)*.14));
- fireParticles=[];
- // La base de cada llama nace EXACTAMENTE del borde y se desplaza hacia el interior.
- for(let side=0;side<4;side++){
-  const count=Math.round((side<2?w:h)/5);
-  for(let i=0;i<count;i++){
-   const t=r(0,side<2?w:h),z=r(0,1),depth=r(4,size);
-   const x=side===0||side===1?t:side===2?0:w;
-   const y=side===2||side===3?t:side===0?0:h;
-   fireParticles.push({side,x,y,offset:depth,seed:r(0,100),phase:r(0,6.28),speed:r(1,3.4),width:r(9,23)*(1-z*.4),height:r(24,70),hue:r(17,37)});
-  }
- }
- const start=performance.now(),duration=3400;
- function draw(now){
-  const elapsed=(now-start)/1000;
-  ctx.clearRect(0,0,w,h);
-  ctx.globalCompositeOperation="lighter";
-  for(const p of fireParticles){
-   const sway=Math.sin(elapsed*p.speed*5+p.phase)*p.width*.4+Math.sin(elapsed*3+p.seed)*9;
-   const reach=p.offset*(.55+.45*Math.sin(elapsed*p.speed*2+p.phase)**2);
-   let x=p.x,y=p.y,dx=0,dy=0;
-   if(p.side===0){y=0;dx=sway;dy=1}
-   if(p.side===1){y=h;dx=sway;dy=-1}
-   if(p.side===2){x=0;dx=1;dy=sway/Math.max(reach,1)}
-   if(p.side===3){x=w;dx=-1;dy=sway/Math.max(reach,1)}
-   const tipx=x+dx*reach+(p.side<2?sway:0),tipy=y+dy*reach+(p.side>=2?sway:0);
-   const gr=ctx.createLinearGradient(x,y,tipx,tipy);
-   gr.addColorStop(0,"rgba(255,77,6,.78)");
-   gr.addColorStop(.18,"rgba(255,122,13,.86)");
-   gr.addColorStop(.42,"rgba(255,174,23,.78)");
-   gr.addColorStop(.68,"rgba(255,107,6,.49)");
-   gr.addColorStop(1,"rgba(244,38,0,0)");
-   ctx.beginPath();ctx.moveTo(x-p.width*(p.side<2?1:0),y-p.width*(p.side>=2?1:0));
-   ctx.quadraticCurveTo((x+tipx)/2+sway*.9,(y+tipy)/2+sway*.35,tipx,tipy);
-   ctx.quadraticCurveTo((x+tipx)/2-sway*.5,(y+tipy)/2-sway*.4,x+p.width*(p.side<2?1:0),y+p.width*(p.side>=2?1:0));
-   ctx.closePath();ctx.fillStyle=gr;ctx.fill();
-  }
-  ctx.globalCompositeOperation="source-over";
-  if(now-start<duration)fireAnimation=requestAnimationFrame(draw);
-  else{root.classList.remove("active");ctx.clearRect(0,0,w,h)}
- }
- fireAnimation=requestAnimationFrame(draw);
+ if(matchMedia("(prefers-reduced-motion: reduce)").matches)return;
+ const capa=document.getElementById("flame-transition");
+ clearTimeout(timerFuego);capa.classList.remove("active");void capa.offsetWidth;capa.classList.add("active");
+ capa.querySelectorAll("video").forEach(video=>{try{video.currentTime=0}catch{}video.play().catch(()=>{});});
+ timerFuego=setTimeout(()=>{capa.classList.remove("active");capa.querySelectorAll("video").forEach(video=>video.pause())},3400);
 }
-
 document.querySelectorAll("[data-modo]").forEach(boton => {
   boton.addEventListener("click", () => {elegirModo(boton.dataset.modo);iniciarFuegoParrilla();});
 });
