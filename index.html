@@ -600,6 +600,10 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
   }
 }
 .cuenta-separada{grid-column:2;grid-row:2;min-width:0}.cuenta-separada #cuenta-cliente{margin:0!important;background:#141416!important;border:1px solid #444047!important;border-radius:21px!important;padding:23px!important}.cuenta-separada strong{font-size:20px}.cuenta-separada .principal{margin-top:12px!important}@media(max-width:900px){.cuenta-separada{grid-column:1;grid-row:auto}}
+.pedido-columna{grid-column:2;grid-row:1;display:flex;flex-direction:column;align-self:start;gap:18px;min-width:0}
+.pedido-columna .carrito{position:static!important;top:auto!important;margin:0!important;width:100%}
+.pedido-columna .cuenta-separada{grid-column:auto;grid-row:auto;width:100%}
+@media(max-width:900px){.pedido-columna{grid-column:1;grid-row:auto}}
 /* Llamas de parrilla: borde inferior cálido, breve y sin cubrir la carta. */
 .flame-transition{position:fixed;inset:auto 0 0;z-index:1000;height:clamp(65px,13vh,125px);pointer-events:none;opacity:0;visibility:hidden;overflow:hidden}
 .flame-transition.active{visibility:visible;animation:grill-enter 2.6s ease-in-out both}
@@ -649,6 +653,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
     <div class="productos" id="productos"></div>
   </section>
 
+  <div class="pedido-columna">
   <aside class="carrito" id="carrito" aria-labelledby="titulo-carrito">
     <h2 id="titulo-carrito">Tu pedido</h2>
     <p class="nota">Armalo a tu gusto. Esto es una demostración.</p>
@@ -685,6 +690,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 <button type="button" id="pedir-cuenta" class="principal" style="margin-top:6px">🧾 Pedir la cuenta</button>
 <p id="estado-cuenta" class="nota" role="status" aria-live="polite"></p>
 </div></section>
+</div>
 </main>
 
 <section class="ubicacion-local" id="ubicacion-local" aria-labelledby="titulo-ubicacion" hidden>
