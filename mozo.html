@@ -24,9 +24,8 @@ dialog{background:#19191e;border:1px solid #514b57;border-radius:18px;color:whit
 <div class="stats"><div class="stat"><strong id="count-tables">0</strong><span>Mesas ocupadas</span></div><div class="stat"><strong id="count-active">0</strong><span>Pedidos activos</span></div><div class="stat"><strong id="count-ready">0</strong><span>Listos para llevar</span></div></div>
 <div class="toolbar"><div class="tabs" aria-label="Vistas"><button class="btn" data-view="mesas" aria-pressed="true">Mesas</button><button class="btn" data-view="pedidos" aria-pressed="false">Pedidos</button></div><span class="muted" id="updated"></span></div>
 <p role="status" aria-live="polite" id="feedback"></p>
-<section id="mesas-view"><h2>Mesas</h2><p class="legend">Tocá una mesa para habilitarla o deshabilitarla. Mantenela presionada para abrir «Liberar mesa» (en PC también sirve clic derecho). 🔴 Deshabilitada · 🟢 Habilitada · 🟡 Reservada.</p><div id="mesa-controls"></div><button id="generate-qr" class="btn primary" type="button">▦ Generar QR</button><div id="tables" class="hide"></div></section>
+<section id="mesas-view"><h2>Mesas</h2><p class="legend">Tocá una mesa: habilitarla también la ocupa; deshabilitarla también la libera. 🔴 Deshabilitada · 🟢 Habilitada · 🟡 Reservada.</p><div id="mesa-controls"></div><button id="generate-qr" class="btn primary" type="button">▦ Generar QR</button><div id="tables" class="hide"></div></section>
 <dialog id="qr-dialog" aria-labelledby="qr-modal-title"><div class="modal-head"><h2 id="qr-modal-title">Elegí una mesa</h2><button id="close-qr" class="btn small" type="button" aria-label="Cerrar">✕</button></div><p class="legend">🔴 Deshabilitada · 🟢 Habilitada · 🟡 Reservada. Al generar el QR, la mesa pasa a Ocupada.</p><div id="tiles"></div><div id="qr-result" class="hide"><h3 id="qr-description"></h3><div id="qr-code" aria-label="Código QR"></div><p><a id="qr-link" href="#" target="_blank" rel="noopener noreferrer">Abrir enlace de la carta</a></p><button class="btn small" id="download-qr" type="button">Descargar QR</button></div><p class="count">⚠️ QR demostrativo: no autoriza pedidos ni caduca. La seguridad real requiere servidor.</p></dialog>
-<dialog id="release-dialog" aria-labelledby="release-title"><div class="modal-head"><h2 id="release-title">Mesa</h2><button id="release-close" class="btn small" type="button">✕</button></div><p id="release-detail" class="muted"></p><div class="actions"><button id="release-confirm" class="btn primary" type="button">Liberar mesa</button><button id="release-cancel" class="btn secondary" type="button">Cancelar</button></div></dialog>
 <section id="pedidos-view" class="hide"><div id="orders"></div></section>
 </main>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -38,7 +37,7 @@ const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&
 const states=["Nuevo","Confirmado","Preparando","Listo","Entregado","Cancelado"];
 const mesaStates=["Libre","Ocupada","Reservada"];
 const read=()=>{try{const s=JSON.parse(localStorage.getItem(KEY));return s&&Array.isArray(s.mesas)&&Array.isArray(s.pedidos)&&Array.isArray(s.productos)?s:null}catch{return null}};
-let state=read();let view="mesas";let selectedTable="";let qrHref="";let holdTimer=null,holdStarted=null,suppressTileClick=false,releaseId=null;
+let state=read();let view="mesas";let selectedTable="";let qrHref="";
 const say=t=>{$("feedback").textContent=t};
 const stamp=()=>{$("updated").textContent="Actualizado: "+new Date().toLocaleTimeString("es-AR",{hour:"2-digit",minute:"2-digit"})};
 const safeId=x=>String(x);
@@ -84,42 +83,17 @@ document.addEventListener("change",e=>{
 });
 document.addEventListener("click",e=>{
  const b=e.target.closest("button");if(!b)return;
- if(b.dataset.toggleTable){if(suppressTileClick){suppressTileClick=false;return}const id=b.dataset.toggleTable;update(s=>{const m=s.mesas.find(x=>safeId(x.id)===id);if(!m)return false;m.habilitada=m.habilitada!==true});return}
+ if(b.dataset.toggleTable){const id=b.dataset.toggleTable;update(s=>{const m=s.mesas.find(x=>safeId(x.id)===id);if(!m)return false;
+ const next=m.habilitada!==true;
+ if(!next&&s.pedidos.some(p=>safeId(p.mesa)===id&&!["Entregado","Cancelado"].includes(p.estado))){say("No se puede liberar la mesa "+id+" mientras tenga pedidos activos.");return false}
+ m.habilitada=next;m.estado=next?"Ocupada":"Libre";
+ });return}
  if(b.dataset.view){view=b.dataset.view;for(const tab of document.querySelectorAll("[data-view]"))tab.setAttribute("aria-pressed",String(tab.dataset.view===view));$("mesas-view").classList.toggle("hide",view!=="mesas");$("pedidos-view").classList.toggle("hide",view!=="pedidos");return}
  if(b.dataset.showOrders){document.querySelector('[data-view="pedidos"]').click();for(const card of document.querySelectorAll("[data-order-card]"))card.classList.toggle("hide",card.dataset.orderCard!==b.dataset.showOrders);say("Pedidos de mesa "+b.dataset.showOrders+" (para mostrar todos, tocá Pedidos nuevamente).");return}
  if(b.dataset.close){const id=b.dataset.close;update(s=>{if(s.pedidos.some(p=>safeId(p.mesa)===id&&!["Entregado","Cancelado"].includes(p.estado))){say("Esta mesa todavía tiene pedidos activos.");return false}const m=s.mesas.find(x=>safeId(x.id)===id);if(!m)return false;m.estado="Libre"});return}
  if(b.dataset.next){const id=b.dataset.next;update(s=>{const p=s.pedidos.find(x=>safeId(x.id)===id);if(!p)return false;const i=states.indexOf(p.estado);if(i<0||i>=4)return false;p.estado=states[i+1]});return}
  if(b.dataset.detail){const id=b.dataset.detail;state=read();const p=state?.pedidos.find(x=>safeId(x.id)===id);if(!p)return;const chosen=prompt("Estado del pedido #"+id+":\n"+states.map((s,i)=>(i+1)+". "+s).join("\n")+"\nIngresá el número:",String(states.indexOf(p.estado)+1));if(chosen===null)return;const n=Number(chosen);if(!Number.isInteger(n)||n<1||n>states.length){say("Estado inválido.");return}update(s=>{const order=s.pedidos.find(x=>safeId(x.id)===id);if(!order)return false;order.estado=states[n-1]});}
 });
-function openRelease(id){
- const data=read(),mesa=data?.mesas.find(m=>safeId(m.id)===id);if(!mesa)return;
- releaseId=id;
- $("release-title").textContent="Mesa "+id;
- const active=data.pedidos.some(p=>safeId(p.mesa)===id&&!["Entregado","Cancelado"].includes(p.estado));
- $("release-detail").textContent=mesa.estado!=="Ocupada"?"Esta mesa no está ocupada.":active?"Tiene pedidos activos: no se puede liberar todavía.":"¿Querés marcar la mesa como Libre y deshabilitarla?";
- $("release-confirm").disabled=mesa.estado!=="Ocupada"||active;
- $("release-dialog").showModal();
-}
-$("release-close").addEventListener("click",()=>$("release-dialog").close());
-$("release-cancel").addEventListener("click",()=>$("release-dialog").close());
-$("release-confirm").addEventListener("click",()=>{
- const id=releaseId;if(!id)return;let success=false;
- update(s=>{const mesa=s.mesas.find(m=>safeId(m.id)===id);
- if(!mesa||mesa.estado!=="Ocupada"||s.pedidos.some(p=>safeId(p.mesa)===id&&!["Entregado","Cancelado"].includes(p.estado))){say("La mesa no se puede liberar porque cambió su estado o tiene pedidos activos.");return false}
- mesa.estado="Libre";mesa.habilitada=false;success=true;});
- $("release-dialog").close();if(success)say("Mesa "+id+" liberada y deshabilitada.");
-});
-const controls=$("mesa-controls");
-function clearHold(){clearTimeout(holdTimer);holdTimer=null;holdStarted=null;}
-controls.addEventListener("pointerdown",e=>{
- const tile=e.target.closest("[data-toggle-table]");if(!tile||e.button!==0)return;
- clearHold();holdStarted={id:tile.dataset.toggleTable,x:e.clientX,y:e.clientY};
- holdTimer=setTimeout(()=>{if(!holdStarted)return;const id=holdStarted.id;clearHold();suppressTileClick=true;openRelease(id)},650);
-});
-controls.addEventListener("pointermove",e=>{if(holdStarted&&Math.hypot(e.clientX-holdStarted.x,e.clientY-holdStarted.y)>14)clearHold()});
-for(const type of ["pointerup","pointercancel","pointerleave"])controls.addEventListener(type,clearHold);
-controls.addEventListener("click",e=>{if(suppressTileClick){e.preventDefault();e.stopPropagation();suppressTileClick=false;}},true);
-controls.addEventListener("contextmenu",e=>{const tile=e.target.closest("[data-toggle-table]");if(!tile)return;e.preventDefault();clearHold();openRelease(tile.dataset.toggleTable)});
 $("generate-qr").addEventListener("click",()=>{render();$("qr-dialog").showModal();$("qr-result").classList.add("hide")});
 $("close-qr").addEventListener("click",()=>{$("qr-dialog").close()});
 $("qr-dialog").addEventListener("click",e=>{if(e.target===$("qr-dialog"))$("qr-dialog").close()});
