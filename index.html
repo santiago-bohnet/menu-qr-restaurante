@@ -600,10 +600,11 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
   }
 }
 .cuenta-separada{grid-column:2;grid-row:2;min-width:0}.cuenta-separada #cuenta-cliente{margin:0!important;background:#141416!important;border:1px solid #444047!important;border-radius:21px!important;padding:23px!important}.cuenta-separada strong{font-size:20px}.cuenta-separada .principal{margin-top:12px!important}@media(max-width:900px){.cuenta-separada{grid-column:1;grid-row:auto}}
+.flame-transition{position:fixed;inset:0;z-index:9999;pointer-events:none;background:radial-gradient(ellipse at 50% 115%,#ffde77 0%,#ff7b16 17%,#b51b13 37%,#250708 65%,transparent 90%);opacity:0;transform:translateY(55%);transition:transform .55s ease-out,opacity .35s ease-out}.flame-transition.active{opacity:1;transform:translateY(0)}.flame-transition:before{content:"";position:absolute;inset:0;background:repeating-conic-gradient(from 0deg at 50% 100%,transparent 0deg 8deg,#f96618a0 11deg 17deg,transparent 23deg 32deg);filter:blur(22px);animation:fireFlicker .22s alternate infinite}@keyframes fireFlicker{to{transform:scale(1.05) translateY(-15px);opacity:.7}}@media(prefers-reduced-motion:reduce){.flame-transition,.flame-transition:before{transition:none;animation:none}}
 </style>
 <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.1.0/model-viewer.min.js"></script>
 </head>
-<body>
+<body><div id="flame-transition" class="flame-transition" aria-hidden="true"></div>
 <section class="pantalla-inicial" id="inicio">
   <p class="etiqueta" style="color:var(--verde)">PARRILLA ARGENTINA · MENÚ DEMO</p>
   <h1>El fuego está encendido.</h1>
@@ -805,7 +806,7 @@ function elegirModo(modo) {
 }
 
 document.querySelectorAll("[data-modo]").forEach(boton => {
-  boton.addEventListener("click", () => elegirModo(boton.dataset.modo));
+  boton.addEventListener("click", () => {const flame=$("flame-transition");flame.classList.add("active");setTimeout(()=>{elegirModo(boton.dataset.modo);flame.classList.remove("active")},560);});
 });
 $("cambiar-modo").addEventListener("click", () => {
   $("contenido-menu").hidden = true;
@@ -1025,6 +1026,18 @@ $("formulario").addEventListener("submit", evento => {
     $("estado-copia").textContent = "Pedido de demostración guardado en esta sesión. No se envió al restaurante.";
   } catch {
     $("estado-copia").textContent = "No se pudo guardar el pedido en este navegador. Podés copiar el resumen.";
+  }
+  // Cada envío es una comanda independiente; las siguientes son ADICIONES.
+  // Solo la demo local con mesa QR y panel inicializado puede crear avisos.
+  if(!entrega&&mesaQRValida&&!modoMuestra){
+    const panel=leerPanel(),table=panel?.mesas.find(x=>Number(x.id)===mesa);
+    if(panel&&table?.estado==="Ocupada"&&table.habilitada===true){
+      const anteriores=panel.pedidos.filter(p=>Number(p.mesa)===mesa&&p.origen==="cliente-qr");
+      const adicion=anteriores.length>0;
+      const nuevo={id:Date.now()+Math.floor(Math.random()*1000),mesa,detalle:lineas.join(" | ")+(aclaraciones?" · Nota: "+aclaraciones:""),estado:"Nuevo",hora:new Date().toLocaleTimeString("es-AR",{hour:"2-digit",minute:"2-digit"}),origen:"cliente-qr",tipo:adicion?"Adición":"Pedido inicial",adicion,numeroComanda:anteriores.length+1,fecha:new Date().toISOString()};
+      panel.pedidos.unshift(nuevo);
+      try{localStorage.setItem(clavePanel,JSON.stringify(panel));$("estado-copia").textContent=(adicion?"Adición":"Pedido inicial")+" registrada para el personal en este navegador (demo local).";carrito={};mostrarCarrito()}catch{$("estado-copia").textContent="No se pudo registrar el pedido. No se notificó al personal."}
+    }else{$("estado-copia").textContent="No se notificó al personal: la mesa no está ocupada/habilitada o se está usando otro navegador."}
   }
   $("dialogo").showModal();
 });
