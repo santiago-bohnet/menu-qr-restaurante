@@ -52,12 +52,17 @@ $("lista-mesas").addEventListener("change",e=>{if(e.target.matches("[data-numero
  const oldId=Number(e.target.dataset.numeroMesa),newId=Number(e.target.value);
  if(!Number.isInteger(newId)||newId<1||newId>999){message("Ingresá un número entre 1 y 999.");render();return;}
  if(oldId===newId)return;
- if(state.mesas.some(x=>Number(x.id)===newId)){message("La mesa "+newId+" ya existe.");render();return;}
+ const direction=newId>oldId?1:-1;
+ let available=newId;
+ const used=new Set(state.mesas.filter(x=>Number(x.id)!==oldId).map(x=>Number(x.id)));
+ while(used.has(available)&&available>=1&&available<=999)available+=direction;
+ if(available<1||available>999){message("No hay números libres en esa dirección.");render();return;}
  if(state.pedidos.some(p=>Number(p.mesa)===oldId)){message("No se puede cambiar el número de una mesa con pedidos registrados. Conservamos su historial para evitar errores.");render();return;}
  const m=state.mesas.find(x=>Number(x.id)===oldId);if(!m)return;
- m.id=newId;save();message("Mesa "+oldId+" renumerada a "+newId+".");return;
+ m.id=available;save();message("Mesa "+oldId+" renumerada a "+available+(available!==newId?" (se saltaron los números ocupados).":"."));return;
  }
  if(!e.target.matches("[data-mesa]"))return;const m=state.mesas.find(x=>x.id===Number(e.target.dataset.mesa));if(m){m.estado=e.target.value;save()}});
+$("lista-mesas").addEventListener("keydown",e=>{if(!e.target.matches("[data-numero-mesa]")||!["ArrowUp","ArrowDown"].includes(e.key))return;const el=e.target,oldId=Number(el.dataset.numeroMesa),direction=e.key==="ArrowUp"?1:-1;const used=new Set(state.mesas.filter(m=>Number(m.id)!==oldId).map(m=>Number(m.id)));let candidate=oldId+direction;while(used.has(candidate)&&candidate>=1&&candidate<=999)candidate+=direction;if(candidate<1||candidate>999){e.preventDefault();message("No hay números disponibles en esa dirección.");return;}e.preventDefault();el.value=String(candidate);el.dispatchEvent(new Event("change",{bubbles:true}));});
 $("tabla-pedidos").addEventListener("change",e=>{if(!e.target.matches("[data-pedido]"))return;const p=state.pedidos.find(x=>x.id===Number(e.target.dataset.pedido));if(p){p.estado=e.target.value;save()}});
 $("lista-mesas").addEventListener("click",e=>{const btn=e.target.closest("[data-eliminar-mesa]");if(!btn)return;const id=Number(btn.dataset.eliminarMesa);const mesa=state.mesas.find(x=>x.id===id);if(!mesa)return;if(state.pedidos.some(p=>Number(p.mesa)===id&&!["Entregado","Cancelado"].includes(p.estado))){message("No se puede eliminar una mesa con pedidos activos.");return;}if(!confirm("¿Eliminar la mesa "+id+" ("+(mesa.zona==="Afuera"?"Afuera":"Adentro")+")? Esta acción no se puede deshacer."))return;state.mesas=state.mesas.filter(x=>x.id!==id);save();message("Mesa "+id+" eliminada. Los pedidos históricos permanecen guardados.");});
 $("agregar-mesa").onclick=()=>{let next=1;const used=new Set(state.mesas.map(m=>Number(m.id)));while(used.has(next)&&next<=999)next++;if(next>999){message("Máximo 999 mesas");return;}state.mesas.push({id:next,estado:"Libre",zona:$("zona-nueva").value==="Afuera"?"Afuera":"Adentro"});save();message("Mesa agregada en la demo.")};
