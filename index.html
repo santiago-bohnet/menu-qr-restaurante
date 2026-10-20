@@ -605,19 +605,19 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 .pedido-columna .cuenta-separada{grid-column:auto;grid-row:auto;width:100%}
 @media(max-width:900px){.pedido-columna{grid-column:1;grid-row:auto}}
 /* Llamas de parrilla: borde inferior cálido, breve y sin cubrir la carta. */
-.flame-transition{position:fixed;inset:auto 0 0;z-index:1000;height:clamp(65px,13vh,125px);pointer-events:none;opacity:0;visibility:hidden;overflow:hidden}
-.flame-transition.active{visibility:visible;animation:grill-enter 2.6s ease-in-out both}
-.flame-transition::before,.flame-transition::after{content:"";position:absolute;inset:0;transform-origin:bottom center;clip-path:polygon(0 100%,0 65%,4% 32%,7% 67%,11% 10%,15% 65%,20% 25%,24% 72%,30% 4%,34% 67%,39% 35%,44% 74%,49% 10%,54% 70%,59% 27%,64% 66%,69% 8%,74% 75%,79% 30%,84% 69%,89% 12%,94% 65%,98% 30%,100% 68%,100% 100%)}
-.flame-transition::before{background:linear-gradient(to top,rgba(250,85,13,.78),rgba(255,150,30,.57) 37%,rgba(255,214,95,.32) 67%,transparent 96%);filter:blur(5px);animation:grill-flicker 1.15s ease-in-out infinite alternate}
-.flame-transition::after{inset:24% -3% 0;opacity:.7;background:linear-gradient(to top,rgba(255,118,17,.83),rgba(255,194,69,.52) 48%,transparent 100%);filter:blur(7px);transform:scaleX(-1);animation:grill-flicker-2 .87s ease-in-out infinite alternate}
-@keyframes grill-enter{0%{opacity:0;transform:translateY(55%)}15%{opacity:.85;transform:translateY(0)}67%{opacity:.72}100%{opacity:0;transform:translateY(28%)}}
-@keyframes grill-flicker{to{transform:scaleX(1.03) scaleY(.82) translateY(5%)}}
-@keyframes grill-flicker-2{to{transform:scaleX(-1.04) scaleY(.8) translateY(10%)}}
-@media(prefers-reduced-motion:reduce){.flame-transition,.flame-transition.active{animation:none!important;visibility:hidden!important}}
+.flame-transition{position:fixed;inset:auto 0 0;z-index:1000;height:105px;display:flex;justify-content:space-between;align-items:end;pointer-events:none;opacity:0;visibility:hidden}
+.flame-transition.active{visibility:visible;animation:grill-fade 2.3s ease-out both}
+.grill-flames{width:min(32vw,260px);height:100%;overflow:visible;filter:drop-shadow(0 0 9px #ff7a224b);transform-origin:bottom center;animation:grill-dance .34s ease-in-out infinite alternate}
+.grill-flames.right{transform:scaleX(-1);animation:grill-dance-right .41s ease-in-out infinite alternate}
+.grill-flames .amber{fill:#d34813}.grill-flames .orange{fill:#ef7b19}.grill-flames .gold{fill:#ffd16b}
+@keyframes grill-fade{0%{opacity:0}16%{opacity:.83}65%{opacity:.67}100%{opacity:0}}
+@keyframes grill-dance{to{transform:scaleY(.87) skewX(3deg)}}
+@keyframes grill-dance-right{to{transform:scaleX(-1) scaleY(.9) skewX(-3deg)}}
+@media(prefers-reduced-motion:reduce){.flame-transition.active{animation:none;visibility:hidden}}
 </style>
 <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.1.0/model-viewer.min.js"></script>
 </head>
-<body><div id="flame-transition" class="flame-transition" aria-hidden="true"></div>
+<body><div id="flame-transition" class="flame-transition" aria-hidden="true"><svg class="grill-flames" viewBox="0 0 260 105" preserveAspectRatio="xMinYMax meet"><path class="amber" d="M0 105V77Q11 89 16 61Q24 84 36 65Q43 58 40 33Q65 59 57 82Q77 65 82 42Q94 68 92 86Q117 69 111 27Q139 55 134 84Q156 67 158 43Q174 72 174 92Q199 72 203 54Q220 83 233 71Q244 65 250 80L260 105Z"/><path class="orange" d="M0 105V88Q20 99 29 73Q39 95 51 86Q68 73 64 56Q84 76 79 95Q103 80 105 51Q122 82 120 96Q144 86 145 68Q164 90 170 97Q189 81 190 71Q207 99 223 85Q242 94 260 89V105Z"/><path class="gold" d="M11 105Q27 98 34 90Q39 107 53 105Q71 100 73 88Q81 102 94 105Q112 98 113 79Q123 97 138 105Q157 101 161 88Q173 105 195 105Q208 98 209 92Q220 105 246 105Z"/></svg><svg class="grill-flames right" viewBox="0 0 260 105" preserveAspectRatio="xMinYMax meet"><path class="amber" d="M0 105V77Q11 89 16 61Q24 84 36 65Q43 58 40 33Q65 59 57 82Q77 65 82 42Q94 68 92 86Q117 69 111 27Q139 55 134 84Q156 67 158 43Q174 72 174 92Q199 72 203 54Q220 83 233 71Q244 65 250 80L260 105Z"/><path class="orange" d="M0 105V88Q20 99 29 73Q39 95 51 86Q68 73 64 56Q84 76 79 95Q103 80 105 51Q122 82 120 96Q144 86 145 68Q164 90 170 97Q189 81 190 71Q207 99 223 85Q242 94 260 89V105Z"/><path class="gold" d="M11 105Q27 98 34 90Q39 107 53 105Q71 100 73 88Q81 102 94 105Q112 98 113 79Q123 97 138 105Q157 101 161 88Q173 105 195 105Q208 98 209 92Q220 105 246 105Z"/></svg></div>
 <section class="pantalla-inicial" id="inicio">
   <p class="etiqueta" style="color:var(--verde)">PARRILLA ARGENTINA · MENÚ DEMO</p>
   <h1>El fuego está encendido.</h1>
