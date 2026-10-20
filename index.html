@@ -605,19 +605,25 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 .pedido-columna .cuenta-separada{grid-column:auto;grid-row:auto;width:100%}
 @media(max-width:900px){.pedido-columna{grid-column:1;grid-row:auto}}
 /* Llamas de parrilla: borde inferior cálido, breve y sin cubrir la carta. */
-.flame-transition{position:fixed;inset:auto 0 0;z-index:1000;height:105px;display:flex;justify-content:space-between;align-items:end;pointer-events:none;opacity:0;visibility:hidden}
-.flame-transition.active{visibility:visible;animation:grill-fade 2.3s ease-out both}
-.grill-flames{width:min(32vw,260px);height:100%;overflow:visible;filter:drop-shadow(0 0 9px #ff7a224b);transform-origin:bottom center;animation:grill-dance .34s ease-in-out infinite alternate}
-.grill-flames.right{transform:scaleX(-1);animation:grill-dance-right .41s ease-in-out infinite alternate}
-.grill-flames .amber{fill:#d34813}.grill-flames .orange{fill:#ef7b19}.grill-flames .gold{fill:#ffd16b}
-@keyframes grill-fade{0%{opacity:0}16%{opacity:.83}65%{opacity:.67}100%{opacity:0}}
-@keyframes grill-dance{to{transform:scaleY(.87) skewX(3deg)}}
-@keyframes grill-dance-right{to{transform:scaleX(-1) scaleY(.9) skewX(-3deg)}}
+.flame-transition{position:fixed;inset:0;z-index:1000;pointer-events:none;opacity:0;visibility:hidden;overflow:hidden}
+.flame-transition.active{visibility:visible;animation:grill-show 3s ease-in-out both}
+.flame-side{position:absolute;overflow:hidden;opacity:.84;filter:drop-shadow(0 0 7px #e46b264f);background-image:radial-gradient(ellipse at 45% 100%,#ffcc7885 0%,#fb8d324f 23%,transparent 65%);background-size:95px 95px}
+.flame-side.bottom,.flame-side.top{left:0;right:0;height:74px}
+.flame-side.bottom{bottom:0}.flame-side.top{top:0;transform:rotate(180deg)}
+.flame-side.left,.flame-side.right{top:0;bottom:0;width:70px}
+.flame-side.left{left:0}.flame-side.right{right:0;transform:rotate(180deg)}
+.flame-side svg{position:absolute;width:100%;height:100%}
+.flame-side.bottom svg,.flame-side.top svg{min-width:1100px}
+.flame-side.left svg,.flame-side.right svg{width:1100px;height:75px;left:0;top:50%;transform-origin:left center;transform:rotate(-90deg) translate(-50%,0)}
+.flame-side .amber{fill:#c94816}.flame-side .orange{fill:#ef882c}.flame-side .gold{fill:#ffd076}
+.flame-side svg{animation:grill-flicker .65s ease-in-out infinite alternate}
+@keyframes grill-show{0%{opacity:0}14%{opacity:.8}70%{opacity:.7}100%{opacity:0}}
+@keyframes grill-flicker{to{filter:brightness(1.17);opacity:.73}}
 @media(prefers-reduced-motion:reduce){.flame-transition.active{animation:none;visibility:hidden}}
 </style>
 <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.1.0/model-viewer.min.js"></script>
 </head>
-<body><div id="flame-transition" class="flame-transition" aria-hidden="true"><svg class="grill-flames" viewBox="0 0 260 105" preserveAspectRatio="xMinYMax meet"><path class="amber" d="M0 105V77Q11 89 16 61Q24 84 36 65Q43 58 40 33Q65 59 57 82Q77 65 82 42Q94 68 92 86Q117 69 111 27Q139 55 134 84Q156 67 158 43Q174 72 174 92Q199 72 203 54Q220 83 233 71Q244 65 250 80L260 105Z"/><path class="orange" d="M0 105V88Q20 99 29 73Q39 95 51 86Q68 73 64 56Q84 76 79 95Q103 80 105 51Q122 82 120 96Q144 86 145 68Q164 90 170 97Q189 81 190 71Q207 99 223 85Q242 94 260 89V105Z"/><path class="gold" d="M11 105Q27 98 34 90Q39 107 53 105Q71 100 73 88Q81 102 94 105Q112 98 113 79Q123 97 138 105Q157 101 161 88Q173 105 195 105Q208 98 209 92Q220 105 246 105Z"/></svg><svg class="grill-flames right" viewBox="0 0 260 105" preserveAspectRatio="xMinYMax meet"><path class="amber" d="M0 105V77Q11 89 16 61Q24 84 36 65Q43 58 40 33Q65 59 57 82Q77 65 82 42Q94 68 92 86Q117 69 111 27Q139 55 134 84Q156 67 158 43Q174 72 174 92Q199 72 203 54Q220 83 233 71Q244 65 250 80L260 105Z"/><path class="orange" d="M0 105V88Q20 99 29 73Q39 95 51 86Q68 73 64 56Q84 76 79 95Q103 80 105 51Q122 82 120 96Q144 86 145 68Q164 90 170 97Q189 81 190 71Q207 99 223 85Q242 94 260 89V105Z"/><path class="gold" d="M11 105Q27 98 34 90Q39 107 53 105Q71 100 73 88Q81 102 94 105Q112 98 113 79Q123 97 138 105Q157 101 161 88Q173 105 195 105Q208 98 209 92Q220 105 246 105Z"/></svg></div>
+<body><div id="flame-transition" class="flame-transition" aria-hidden="true"><div class="flame-side top"><svg viewBox="0 0 1100 105" preserveAspectRatio="none"><defs><pattern id="grill-tongues" width="150" height="105" patternUnits="userSpaceOnUse"><path class="amber" d="M0 105L0 80Q18 89 23 62Q42 87 46 38Q73 70 68 92Q95 66 99 21Q116 75 118 90Q138 68 150 83L150 105Z"/><path class="orange" d="M0 105Q18 99 26 81Q41 100 50 76Q74 99 85 90Q104 63 101 48Q120 94 150 91V105Z"/><path class="gold" d="M18 105Q28 96 37 99Q47 107 59 105Q72 91 82 103Q102 105 110 85Q118 104 150 105Z"/></pattern></defs><rect width="1100" height="105" fill="url(#grill-tongues)"/></svg></div><div class="flame-side right"><svg viewBox="0 0 1100 105" preserveAspectRatio="none"><defs><pattern id="grill-tongues" width="150" height="105" patternUnits="userSpaceOnUse"><path class="amber" d="M0 105L0 80Q18 89 23 62Q42 87 46 38Q73 70 68 92Q95 66 99 21Q116 75 118 90Q138 68 150 83L150 105Z"/><path class="orange" d="M0 105Q18 99 26 81Q41 100 50 76Q74 99 85 90Q104 63 101 48Q120 94 150 91V105Z"/><path class="gold" d="M18 105Q28 96 37 99Q47 107 59 105Q72 91 82 103Q102 105 110 85Q118 104 150 105Z"/></pattern></defs><rect width="1100" height="105" fill="url(#grill-tongues)"/></svg></div><div class="flame-side bottom"><svg viewBox="0 0 1100 105" preserveAspectRatio="none"><defs><pattern id="grill-tongues" width="150" height="105" patternUnits="userSpaceOnUse"><path class="amber" d="M0 105L0 80Q18 89 23 62Q42 87 46 38Q73 70 68 92Q95 66 99 21Q116 75 118 90Q138 68 150 83L150 105Z"/><path class="orange" d="M0 105Q18 99 26 81Q41 100 50 76Q74 99 85 90Q104 63 101 48Q120 94 150 91V105Z"/><path class="gold" d="M18 105Q28 96 37 99Q47 107 59 105Q72 91 82 103Q102 105 110 85Q118 104 150 105Z"/></pattern></defs><rect width="1100" height="105" fill="url(#grill-tongues)"/></svg></div><div class="flame-side left"><svg viewBox="0 0 1100 105" preserveAspectRatio="none"><defs><pattern id="grill-tongues" width="150" height="105" patternUnits="userSpaceOnUse"><path class="amber" d="M0 105L0 80Q18 89 23 62Q42 87 46 38Q73 70 68 92Q95 66 99 21Q116 75 118 90Q138 68 150 83L150 105Z"/><path class="orange" d="M0 105Q18 99 26 81Q41 100 50 76Q74 99 85 90Q104 63 101 48Q120 94 150 91V105Z"/><path class="gold" d="M18 105Q28 96 37 99Q47 107 59 105Q72 91 82 103Q102 105 110 85Q118 104 150 105Z"/></pattern></defs><rect width="1100" height="105" fill="url(#grill-tongues)"/></svg></div></div>
 <section class="pantalla-inicial" id="inicio">
   <p class="etiqueta" style="color:var(--verde)">PARRILLA ARGENTINA · MENÚ DEMO</p>
   <h1>El fuego está encendido.</h1>
@@ -678,7 +684,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
         placeholder="Ej.: Sin sal en las papas"></textarea>
 
       <button class="principal" id="ver-pedido" type="submit" disabled>
-        Ver resumen del pedido
+        Realizar pedido
       </button>
     </form>
     <p class="nota">No se enviará ningún mensaje. En un comercio real, el local debe confirmar disponibilidad, importe final y demora.</p>
@@ -1044,7 +1050,7 @@ $("formulario").addEventListener("submit", evento => {
   }
   // Cada envío es una comanda independiente; las siguientes son ADICIONES.
   // Solo la demo local con mesa QR y panel inicializado puede crear avisos.
-  if(!entrega&&mesaQRValida&&!modoMuestra){
+  if(!entrega&&!modoMuestra){
     const panel=leerPanel(),table=panel?.mesas.find(x=>Number(x.id)===mesa);
     if(panel&&table?.estado==="Ocupada"&&table.habilitada===true){
       const anteriores=panel.pedidos.filter(p=>Number(p.mesa)===mesa&&p.origen==="cliente-qr");
