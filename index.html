@@ -644,6 +644,11 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
     <div id="items"></div>
     <div class="total"><span>Subtotal</span><span id="total">$0</span></div>
     <p class="nota">Precios de ejemplo en pesos argentinos. Envío no incluido.</p>
+<div id="cuenta-cliente" hidden style="margin:18px 0;padding:17px;border:1px solid #804a4a;border-radius:13px;background:#231719">
+<strong>¿Terminaste de comer?</strong><p class="nota">Avisale al mozo que necesitás la cuenta.</p>
+<button type="button" id="pedir-cuenta" class="principal" style="margin-top:6px">🧾 Pedir la cuenta</button>
+<p id="estado-cuenta" class="nota" role="status" aria-live="polite"></p>
+</div>
 
     <form id="formulario">
       <div id="campo-mesa"><label for="mesa">Número de mesa (obligatorio)</label>
@@ -746,7 +751,18 @@ let productos = [
 ];
 
 const $ = id => document.getElementById(id);
-const modoMuestra = new URLSearchParams(location.search).get("vista") === "muestra";
+const parametrosQR = new URLSearchParams(location.search);
+const modoMuestra = parametrosQR.get("vista") === "muestra";
+const mesaQR = Number(parametrosQR.get("mesa"));
+const mesaQRValida = parametrosQR.has("mesa") && Number.isInteger(mesaQR) && mesaQR>=1 && mesaQR<=999;
+const clavePanel="brasa-admin-demo-v1";
+function leerPanel(){try{const x=JSON.parse(localStorage.getItem(clavePanel));return x&&Array.isArray(x.mesas)&&Array.isArray(x.pedidos)?x:null}catch{return null}}
+function actualizarEstadoCuenta(){
+ const data=leerPanel(), solicitud=data?.solicitudesCuenta?.find(x=>x.mesa===mesaQR && x.estado==="Pendiente");
+ const btn=$("pedir-cuenta");if(!btn)return;
+ btn.disabled=Boolean(solicitud);
+ $("estado-cuenta").textContent=solicitud?"Aviso enviado. El personal ya tiene tu solicitud.":"";
+}
 const claveCatalogo = "brasa-corte-catalogo-demo-v1";
 function sincronizarCatalogo() {
   try {
@@ -770,11 +786,13 @@ let modoActual = null;
 function elegirModo(modo) {
   if (modo !== "presencial" && modo !== "domicilio") return;
   modoActual = modo;
+  $("cuenta-cliente").hidden = modo !== "presencial" || modoMuestra || !mesaQRValida;
   $("ubicacion-local").hidden = modo !== "domicilio";
   $("inicio").hidden = true;
   $("contenido-menu").hidden = false;
   $("modalidad").value = modo;
-  $("campo-mesa").hidden = modo !== "presencial";
+  $("campo-mesa").hidden = modo !== "presencial" || (modo==="presencial" && mesaQRValida);
+  if(modo==="presencial" && mesaQRValida){$("mesa").value=String(mesaQR);$("mesa").readOnly=true;actualizarEstadoCuenta();}
   $("mesa").required = modo === "presencial";
   $("campo-direccion").hidden = modo !== "domicilio";
   $("direccion").required = modo === "domicilio";
@@ -1067,6 +1085,19 @@ $("visor-ra").addEventListener("error", () => {
 $("cerrar-ra").addEventListener("click", () => $("dialogo-ra").close());
 $("dialogo-ra").addEventListener("close", () => $("visor-ra").removeAttribute("src"));
 
+$("pedir-cuenta").addEventListener("click",()=>{
+ if(!mesaQRValida||modoActual!=="presencial"||modoMuestra)return;
+ const state=leerPanel();
+ if(!state){$("estado-cuenta").textContent="Esta demostración solo puede avisar al personal desde el mismo navegador y dispositivo.";return}
+ const mesa=state.mesas.find(m=>Number(m.id)===mesaQR);
+ if(!mesa || mesa.habilitada!==true || mesa.estado!=="Ocupada"){$("estado-cuenta").textContent="La mesa no está habilitada actualmente.";return}
+ state.solicitudesCuenta=Array.isArray(state.solicitudesCuenta)?state.solicitudesCuenta:[];
+ if(state.solicitudesCuenta.some(x=>Number(x.mesa)===mesaQR&&x.estado==="Pendiente")){actualizarEstadoCuenta();return}
+ state.solicitudesCuenta.push({id:Date.now(),mesa:mesaQR,zona:mesa.zona==="Afuera"?"Afuera":"Adentro",estado:"Pendiente",hora:new Date().toLocaleTimeString("es-AR",{hour:"2-digit",minute:"2-digit"})});
+ try{localStorage.setItem(clavePanel,JSON.stringify(state));actualizarEstadoCuenta()}catch{$("estado-cuenta").textContent="No se pudo enviar el aviso."}
+});
+if(mesaQRValida&&!modoMuestra){elegirModo("presencial");}
+window.addEventListener("storage",e=>{if(e.key===clavePanel&&mesaQRValida)actualizarEstadoCuenta()});
 if (modoMuestra) {
   $("inicio").hidden = true;
   $("contenido-menu").hidden = false;
