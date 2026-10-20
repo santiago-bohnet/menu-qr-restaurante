@@ -600,7 +600,16 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
   }
 }
 .cuenta-separada{grid-column:2;grid-row:2;min-width:0}.cuenta-separada #cuenta-cliente{margin:0!important;background:#141416!important;border:1px solid #444047!important;border-radius:21px!important;padding:23px!important}.cuenta-separada strong{font-size:20px}.cuenta-separada .principal{margin-top:12px!important}@media(max-width:900px){.cuenta-separada{grid-column:1;grid-row:auto}}
-.flame-transition{position:fixed;inset:0;z-index:9999;pointer-events:none;background:radial-gradient(ellipse at 50% 115%,#ffde77 0%,#ff7b16 17%,#b51b13 37%,#250708 65%,transparent 90%);opacity:0;transform:translateY(55%);transition:transform .55s ease-out,opacity .35s ease-out}.flame-transition.active{opacity:1;transform:translateY(0)}.flame-transition:before{content:"";position:absolute;inset:0;background:repeating-conic-gradient(from 0deg at 50% 100%,transparent 0deg 8deg,#f96618a0 11deg 17deg,transparent 23deg 32deg);filter:blur(22px);animation:fireFlicker .22s alternate infinite}@keyframes fireFlicker{to{transform:scale(1.05) translateY(-15px);opacity:.7}}@media(prefers-reduced-motion:reduce){.flame-transition,.flame-transition:before{transition:none;animation:none}}
+/* Llamas de parrilla: borde inferior cálido, breve y sin cubrir la carta. */
+.flame-transition{position:fixed;inset:auto 0 0;z-index:1000;height:clamp(65px,13vh,125px);pointer-events:none;opacity:0;visibility:hidden;overflow:hidden}
+.flame-transition.active{visibility:visible;animation:grill-enter 2.6s ease-in-out both}
+.flame-transition::before,.flame-transition::after{content:"";position:absolute;inset:0;transform-origin:bottom center;clip-path:polygon(0 100%,0 65%,4% 32%,7% 67%,11% 10%,15% 65%,20% 25%,24% 72%,30% 4%,34% 67%,39% 35%,44% 74%,49% 10%,54% 70%,59% 27%,64% 66%,69% 8%,74% 75%,79% 30%,84% 69%,89% 12%,94% 65%,98% 30%,100% 68%,100% 100%)}
+.flame-transition::before{background:linear-gradient(to top,rgba(250,85,13,.78),rgba(255,150,30,.57) 37%,rgba(255,214,95,.32) 67%,transparent 96%);filter:blur(5px);animation:grill-flicker 1.15s ease-in-out infinite alternate}
+.flame-transition::after{inset:24% -3% 0;opacity:.7;background:linear-gradient(to top,rgba(255,118,17,.83),rgba(255,194,69,.52) 48%,transparent 100%);filter:blur(7px);transform:scaleX(-1);animation:grill-flicker-2 .87s ease-in-out infinite alternate}
+@keyframes grill-enter{0%{opacity:0;transform:translateY(55%)}15%{opacity:.85;transform:translateY(0)}67%{opacity:.72}100%{opacity:0;transform:translateY(28%)}}
+@keyframes grill-flicker{to{transform:scaleX(1.03) scaleY(.82) translateY(5%)}}
+@keyframes grill-flicker-2{to{transform:scaleX(-1.04) scaleY(.8) translateY(10%)}}
+@media(prefers-reduced-motion:reduce){.flame-transition,.flame-transition.active{animation:none!important;visibility:hidden!important}}
 </style>
 <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.1.0/model-viewer.min.js"></script>
 </head>
@@ -806,7 +815,7 @@ function elegirModo(modo) {
 }
 
 document.querySelectorAll("[data-modo]").forEach(boton => {
-  boton.addEventListener("click", () => {const flame=$("flame-transition");flame.classList.add("active");setTimeout(()=>{elegirModo(boton.dataset.modo);flame.classList.remove("active")},560);});
+  boton.addEventListener("click", () => {elegirModo(boton.dataset.modo);const flame=$("flame-transition");flame.classList.remove("active");void flame.offsetWidth;flame.classList.add("active");});
 });
 $("cambiar-modo").addEventListener("click", () => {
   $("contenido-menu").hidden = true;
