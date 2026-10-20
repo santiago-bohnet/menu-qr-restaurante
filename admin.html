@@ -50,5 +50,11 @@ $("form-producto").addEventListener("submit",async e=>{e.preventDefault();const 
 $("lista-mesas").addEventListener("change",e=>{if(!e.target.matches("[data-mesa]"))return;const m=state.mesas.find(x=>x.id===Number(e.target.dataset.mesa));if(m){m.estado=e.target.value;save()}});
 $("tabla-pedidos").addEventListener("change",e=>{if(!e.target.matches("[data-pedido]"))return;const p=state.pedidos.find(x=>x.id===Number(e.target.dataset.pedido));if(p){p.estado=e.target.value;save()}});
 $("agregar-mesa").onclick=()=>{const next=Math.max(0,...state.mesas.map(m=>m.id))+1;if(next>999){message("Máximo 999 mesas");return;}state.mesas.push({id:next,estado:"Libre"});save();message("Mesa agregada en la demo.")};
-render();
+// Crear el estado compartido desde la primera apertura, aunque nadie haya editado nada.
+if(!localStorage.getItem(key)){save();}
+else {render();}
+window.addEventListener("storage",e=>{
+ if(e.key!==key)return;
+ try{const incoming=JSON.parse(e.newValue);if(incoming&&Array.isArray(incoming.mesas)&&Array.isArray(incoming.productos)&&Array.isArray(incoming.pedidos)){state=incoming;render();}}catch{}
+});
 </script></body></html>
