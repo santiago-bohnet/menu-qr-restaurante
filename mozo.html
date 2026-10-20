@@ -25,10 +25,10 @@ h1{font-size:clamp(26px,4vw,36px);margin:0}h2{font-size:22px;margin:0}.muted{col
 <div class="toolbar"><div class="tabs" aria-label="Vistas"><button class="btn" data-view="mesas" aria-pressed="true">Mesas</button><button class="btn" data-view="pedidos" aria-pressed="false">Pedidos</button></div><span class="muted" id="updated"></span></div>
 <p role="status" aria-live="polite" id="feedback"></p>
 <section id="mesas-view">
-<p class="legend">Tocá un cuadrado para habilitar o deshabilitar pedidos: <b>🔴 Rojo = deshabilitada</b> · <b>🟢 Verde = habilitada</b>. Las mesas empiezan deshabilitadas.</p>
+<p class="legend">Seleccioná una mesa para habilitarla automáticamente. <b>🔴 Rojo = deshabilitada</b> · <b>🟢 Verde = habilitada</b>. Tocá de nuevo una mesa verde para deshabilitarla.</p>
 <div class="mesa-grid" id="tiles"></div>
 <div class="qr-panel"><h2>Generar QR de mesa</h2><p class="muted">Elegí una mesa habilitada para generar su QR de demostración.</p>
-<div class="qr-row"><label for="qr-table">Mesa correspondiente<select id="qr-table"><option value="">Seleccionar mesa</option></select></label>
+<div class="qr-row"><label for="qr-table">Mesa seleccionada<select id="qr-table"><option value="">Seleccionar mesa</option></select></label>
 <button id="generate-qr" class="btn primary" type="button">▦ Generar QR</button></div>
 <div id="qr-result" class="hide"><div id="qr-code" aria-label="Código QR"></div><span id="qr-description"></span><a id="qr-link" href="#" target="_blank" rel="noopener noreferrer">Abrir enlace de la carta</a><button class="btn small" id="download-qr" type="button">Descargar QR</button></div>
 <p class="count">⚠️ QR demostrativo: el enlace identifica una mesa, pero no autoriza pedidos ni caduca. La validación segura requiere servidor y sesión de mesa.</p></div>
@@ -62,9 +62,9 @@ function render(){
  // Solo se habilita explícitamente: la ausencia de la propiedad equivale a false.
  $("tiles").innerHTML=state.mesas.map(m=>'<button type="button" class="tile '+(m.habilitada===true?'on':'')+(selectedTable===safeId(m.id)?' selected':'')+'" data-toggle-table="'+esc(m.id)+'" aria-pressed="'+(m.habilitada===true)+'" aria-label="Mesa '+esc(m.id)+', '+(m.habilitada===true?'habilitada':'deshabilitada')+'"><span>'+esc(m.id)+'</span><small>'+(m.habilitada===true?'Habilitada':'Deshabilitada')+'</small></button>').join("")||'<p class="empty">Todavía no hay mesas.</p>';
  const enabled=state.mesas.filter(m=>m.habilitada===true);
- $("qr-table").innerHTML='<option value="">Elegir mesa habilitada</option>'+enabled.map(m=>'<option value="'+esc(m.id)+'" '+(selectedTable===safeId(m.id)?'selected':'')+'>Mesa '+esc(m.id)+'</option>').join("");
  if(!enabled.some(m=>safeId(m.id)===selectedTable))selectedTable="";
- $("generate-qr").disabled=enabled.length===0;
+ $("qr-table").innerHTML='<option value="">Elegir mesa habilitada</option>'+enabled.map(m=>'<option value="'+esc(m.id)+'" '+(selectedTable===safeId(m.id)?'selected':'')+'>Mesa '+esc(m.id)+'</option>').join("");
+ $("generate-qr").disabled=!selectedTable;
  $("count-tables").textContent=state.mesas.filter(m=>m.estado==="Ocupada").length;
  $("count-active").textContent=open.length;
  $("count-ready").textContent=open.filter(p=>p.estado==="Listo").length;
@@ -93,7 +93,7 @@ document.addEventListener("change",e=>{
 });
 document.addEventListener("click",e=>{
  const b=e.target.closest("button");if(!b)return;
- if(b.dataset.toggleTable){const id=b.dataset.toggleTable;selectedTable=id;update(s=>{const m=s.mesas.find(x=>safeId(x.id)===id);if(!m)return false;m.habilitada=m.habilitada!==true});$("qr-result").classList.add("hide");return}
+ if(b.dataset.toggleTable){const id=b.dataset.toggleTable;update(s=>{const m=s.mesas.find(x=>safeId(x.id)===id);if(!m)return false;m.habilitada=m.habilitada!==true;selectedTable=m.habilitada?id:"";});$("qr-result").classList.add("hide");return}
  if(b.dataset.view){view=b.dataset.view;for(const tab of document.querySelectorAll("[data-view]"))tab.setAttribute("aria-pressed",String(tab.dataset.view===view));$("mesas-view").classList.toggle("hide",view!=="mesas");$("pedidos-view").classList.toggle("hide",view!=="pedidos");return}
  if(b.dataset.showOrders){document.querySelector('[data-view="pedidos"]').click();for(const card of document.querySelectorAll("[data-order-card]"))card.classList.toggle("hide",card.dataset.orderCard!==b.dataset.showOrders);say("Pedidos de mesa "+b.dataset.showOrders+" (para mostrar todos, tocá Pedidos nuevamente).");return}
  if(b.dataset.close){const id=b.dataset.close;update(s=>{if(s.pedidos.some(p=>safeId(p.mesa)===id&&!["Entregado","Cancelado"].includes(p.estado))){say("Esta mesa todavía tiene pedidos activos.");return false}const m=s.mesas.find(x=>safeId(x.id)===id);if(!m)return false;m.estado="Libre"});return}
