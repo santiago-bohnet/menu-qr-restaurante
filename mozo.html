@@ -22,10 +22,11 @@ dialog{background:#19191e;border:1px solid #514b57;border-radius:18px;color:whit
 <div class="notice"><strong>Modo demostración:</strong> los datos solo se comparten con el panel administrador cuando abrís ambas páginas en el <strong>mismo navegador y origen</strong>. No hay sincronización entre celulares, inicio de sesión ni QR temporal seguro. No usar para recibir pedidos reales.</div>
 <div class="topline"><div><h1>Servicio de mesas</h1><p class="lead muted">Ocupación, pedidos y entregas desde el celular.</p></div><button class="btn small" id="refresh" type="button">↻ Actualizar</button></div>
 <div class="stats"><div class="stat"><strong id="count-tables">0</strong><span>Mesas ocupadas</span></div><div class="stat"><strong id="count-active">0</strong><span>Pedidos activos</span></div><div class="stat"><strong id="count-ready">0</strong><span>Listos para llevar</span></div></div>
-<div class="toolbar"><div class="tabs" aria-label="Vistas"><button class="btn" data-view="mesas" aria-pressed="true">Mesas</button><button class="btn" data-view="pedidos" aria-pressed="false">Pedidos</button></div><span class="muted" id="updated"></span></div>
+<div class="toolbar"><div class="tabs" aria-label="Vistas"><button class="btn" data-view="mesas" aria-pressed="true">Mesas</button><button class="btn" data-view="pedidos" aria-pressed="false">Pedidos</button><button class="btn" data-view="avisos" aria-pressed="false">🧾 Cuentas <span id="badge-cuentas">0</span></button></div><span class="muted" id="updated"></span></div>
 <p role="status" aria-live="polite" id="feedback"></p>
 <section id="mesas-view"><h2>Mesas</h2><p class="legend">Tocá una mesa: habilitarla también la ocupa; deshabilitarla también la libera. 🔴 Deshabilitada · 🟢 Habilitada · 🟡 Reservada.</p><div id="mesa-controls"></div><button id="generate-qr" class="btn primary" type="button">▦ Generar QR</button><div id="tables" class="hide"></div></section>
 <dialog id="qr-dialog" aria-labelledby="qr-modal-title"><div class="modal-head"><h2 id="qr-modal-title">Elegí una mesa</h2><button id="close-qr" class="btn small" type="button" aria-label="Cerrar">✕</button></div><p class="legend">🔴 Deshabilitada · 🟢 Habilitada · 🟡 Reservada. Al generar el QR, la mesa pasa a Ocupada.</p><div id="tiles"></div><div id="qr-result" class="hide"><h3 id="qr-description"></h3><div id="qr-code" aria-label="Código QR"></div><p><a id="qr-link" href="#" target="_blank" rel="noopener noreferrer">Abrir enlace de la carta</a></p><button class="btn small" id="download-qr" type="button">Descargar QR</button></div><p class="count">⚠️ QR demostrativo: no autoriza pedidos ni caduca. La seguridad real requiere servidor.</p></dialog>
+<section id="avisos-view" class="hide"><h2>Solicitudes de cuenta</h2><div id="cuentas-mozo"></div></section>
 <section id="pedidos-view" class="hide"><div id="orders"></div></section>
 </main>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -55,6 +56,10 @@ function render(){
  const group=(kind,qr)=>{const subset=state.mesas.filter(x=>(x.zona==="Afuera"?"Afuera":"Adentro")===kind);return '<div class="zone"><h3>'+kind+' <span class="count">('+subset.length+')</span></h3><div class="mesa-grid">'+subset.map(x=>{const reserved=x.estado==="Reservada",enabled=x.habilitada===true,status=reserved?"Reservada":enabled?"Habilitada":"Deshabilitada";return '<button type="button" class="tile '+(reserved?"reserved":enabled?"on":"")+'" '+(qr?'data-qr-table':'data-toggle-table')+'="'+esc(x.id)+'" aria-label="Mesa '+esc(x.id)+', '+kind+', '+status+'"><span>'+esc(x.id)+'</span><small>'+status+'</small><span class="table-strip '+(x.estado==='Ocupada'?'occupied':reserved?'reserved-strip':'')+'">'+(x.estado==='Ocupada'?'Ocupada':reserved?'Reservada':'Libre')+'</span></button>'}).join("")+'</div>'+(subset.length?'':'<p class="count">Sin mesas en esta zona.</p>')+'</div>'};
  $("mesa-controls").innerHTML=group("Adentro",false)+group("Afuera",false);
  $("tiles").innerHTML=group("Adentro",true)+group("Afuera",true);
+ const cuentas=Array.isArray(state.solicitudesCuenta)?state.solicitudesCuenta:[];
+ const pendientes=cuentas.filter(x=>x.estado==="Pendiente");
+ $("badge-cuentas").textContent=pendientes.length;
+ $("cuentas-mozo").innerHTML=pendientes.map(x=>'<article class="order"><h3>🧾 Mesa '+esc(x.mesa)+' · '+esc(x.zona||"Adentro")+'</h3><p class="count">Solicitada a las '+esc(x.hora)+'</p><button class="btn primary" data-atender-cuenta="'+esc(x.id)+'">Marcar atendida</button></article>').join("")||'<p class="empty">No hay cuentas solicitadas.</p>';
  $("count-tables").textContent=state.mesas.filter(m=>m.estado==="Ocupada").length;
  $("count-active").textContent=open.length;
  $("count-ready").textContent=open.filter(p=>p.estado==="Listo").length;
@@ -88,7 +93,8 @@ document.addEventListener("click",e=>{
  if(!next&&s.pedidos.some(p=>safeId(p.mesa)===id&&!["Entregado","Cancelado"].includes(p.estado))){say("No se puede liberar la mesa "+id+" mientras tenga pedidos activos.");return false}
  m.habilitada=next;m.estado=next?"Ocupada":"Libre";
  });return}
- if(b.dataset.view){view=b.dataset.view;for(const tab of document.querySelectorAll("[data-view]"))tab.setAttribute("aria-pressed",String(tab.dataset.view===view));$("mesas-view").classList.toggle("hide",view!=="mesas");$("pedidos-view").classList.toggle("hide",view!=="pedidos");return}
+ if(b.dataset.atenderCuenta){const id=b.dataset.atenderCuenta;update(s=>{const x=s.solicitudesCuenta?.find(x=>safeId(x.id)===id);if(!x)return false;x.estado="Atendida"});return}
+ if(b.dataset.view){view=b.dataset.view;for(const tab of document.querySelectorAll("[data-view]"))tab.setAttribute("aria-pressed",String(tab.dataset.view===view));$("mesas-view").classList.toggle("hide",view!=="mesas");$("pedidos-view").classList.toggle("hide",view!=="pedidos");$("avisos-view").classList.toggle("hide",view!=="avisos");return}
  if(b.dataset.showOrders){document.querySelector('[data-view="pedidos"]').click();for(const card of document.querySelectorAll("[data-order-card]"))card.classList.toggle("hide",card.dataset.orderCard!==b.dataset.showOrders);say("Pedidos de mesa "+b.dataset.showOrders+" (para mostrar todos, tocá Pedidos nuevamente).");return}
  if(b.dataset.close){const id=b.dataset.close;update(s=>{if(s.pedidos.some(p=>safeId(p.mesa)===id&&!["Entregado","Cancelado"].includes(p.estado))){say("Esta mesa todavía tiene pedidos activos.");return false}const m=s.mesas.find(x=>safeId(x.id)===id);if(!m)return false;m.estado="Libre"});return}
  if(b.dataset.next){const id=b.dataset.next;update(s=>{const p=s.pedidos.find(x=>safeId(x.id)===id);if(!p)return false;const i=states.indexOf(p.estado);if(i<0||i>=4)return false;p.estado=states[i+1]});return}
@@ -106,4 +112,5 @@ $("download-qr").addEventListener("click",()=>{
 $("refresh").addEventListener("click",()=>{render();say("Datos recargados.")});
 window.addEventListener("storage",e=>{if(e.key===KEY){render();say("Cambios recibidos de otra pestaña.")}});
 render();
+setInterval(()=>{if(!document.hidden)render()},3500);
 </script></body></html>
