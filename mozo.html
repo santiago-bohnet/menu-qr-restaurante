@@ -24,7 +24,7 @@ dialog{background:#19191e;border:1px solid #514b57;border-radius:18px;color:whit
 <div class="stats"><div class="stat"><strong id="count-tables">0</strong><span>Mesas ocupadas</span></div><div class="stat"><strong id="count-active">0</strong><span>Pedidos activos</span></div><div class="stat"><strong id="count-ready">0</strong><span>Listos para llevar</span></div></div>
 <div class="toolbar"><div class="tabs" aria-label="Vistas"><button class="btn" data-view="mesas" aria-pressed="true">Mesas</button><button class="btn" data-view="pedidos" aria-pressed="false">Pedidos</button></div><span class="muted" id="updated"></span></div>
 <p role="status" aria-live="polite" id="feedback"></p>
-<section id="mesas-view"><p class="muted">Elegí una mesa para generar su QR.</p><button id="generate-qr" class="btn primary" type="button">▦ Generar QR</button><div id="tables" class="hide"></div></section>
+<section id="mesas-view"><h2>Mesas</h2><p class="legend">Tocá una mesa para habilitarla o deshabilitarla. 🔴 Deshabilitada · 🟢 Habilitada · 🟡 Reservada.</p><div id="mesa-controls" class="mesa-grid"></div><button id="generate-qr" class="btn primary" type="button">▦ Generar QR</button><div id="tables" class="hide"></div></section>
 <dialog id="qr-dialog" aria-labelledby="qr-modal-title"><div class="modal-head"><h2 id="qr-modal-title">Elegí una mesa</h2><button id="close-qr" class="btn small" type="button" aria-label="Cerrar">✕</button></div><p class="legend">🔴 Deshabilitada · 🟢 Habilitada · 🟡 Reservada. Elegir una mesa genera su QR sin cambiar su estado.</p><div class="mesa-grid" id="tiles"></div><div id="qr-result" class="hide"><h3 id="qr-description"></h3><div id="qr-code" aria-label="Código QR"></div><p><a id="qr-link" href="#" target="_blank" rel="noopener noreferrer">Abrir enlace de la carta</a></p><button class="btn small" id="download-qr" type="button">Descargar QR</button></div><p class="count">⚠️ QR demostrativo: no autoriza pedidos ni caduca. La seguridad real requiere servidor.</p></dialog>
 <section id="pedidos-view" class="hide"><div id="orders"></div></section>
 </main>
@@ -50,8 +50,9 @@ function save(){
 }
 function render(){
  state=read();stamp();
- if(!state){$("tiles").innerHTML='<p class="empty">Abrí primero admin.html para crear las mesas.</p>';$("tables").innerHTML='<p class="empty">Abrí primero admin.html en este mismo navegador para inicializar mesas y pedidos.</p>';$("orders").innerHTML='<p class="empty">Todavía no hay datos de pedidos.</p>';return}
+ if(!state){$("mesa-controls").innerHTML='<p class="empty">No hay mesas cargadas.</p>';$("tiles").innerHTML='<p class="empty">Abrí primero admin.html para crear las mesas.</p>';$("tables").innerHTML='<p class="empty">Abrí primero admin.html en este mismo navegador para inicializar mesas y pedidos.</p>';$("orders").innerHTML='<p class="empty">Todavía no hay datos de pedidos.</p>';return}
  const open=state.pedidos.filter(p=>!["Entregado","Cancelado"].includes(p.estado));
+ $("mesa-controls").innerHTML=state.mesas.map(m=>{const reserved=m.estado==="Reservada",on=m.habilitada===true;const status=reserved?"Reservada":on?"Habilitada":"Deshabilitada";return '<button type="button" class="tile '+(reserved?"reserved":on?"on":"")+'" data-toggle-table="'+esc(m.id)+'" aria-pressed="'+on+'" aria-label="Mesa '+esc(m.id)+', '+status+'"><span>'+esc(m.id)+'</span><small>'+status+'</small></button>'}).join("")||'<p class="empty">No hay mesas cargadas.</p>';
  // Solo se habilita explícitamente: la ausencia de la propiedad equivale a false.
  $("tiles").innerHTML=state.mesas.map(m=>{const reserved=m.estado==="Reservada";const status=reserved?"Reservada":m.habilitada===true?"Habilitada":"Deshabilitada";const cls=reserved?"reserved":m.habilitada===true?"on":"";return '<button type="button" class="tile '+cls+'" data-qr-table="'+esc(m.id)+'" aria-label="Generar QR para mesa '+esc(m.id)+', '+status+'"><span>'+esc(m.id)+'</span><small>'+status+'</small></button>'}).join("")||'<p class="empty">No hay mesas creadas en Administración.</p>';
  $("count-tables").textContent=state.mesas.filter(m=>m.estado==="Ocupada").length;
@@ -82,6 +83,7 @@ document.addEventListener("change",e=>{
 });
 document.addEventListener("click",e=>{
  const b=e.target.closest("button");if(!b)return;
+ if(b.dataset.toggleTable){const id=b.dataset.toggleTable;update(s=>{const m=s.mesas.find(x=>safeId(x.id)===id);if(!m)return false;m.habilitada=m.habilitada!==true});return}
  if(b.dataset.view){view=b.dataset.view;for(const tab of document.querySelectorAll("[data-view]"))tab.setAttribute("aria-pressed",String(tab.dataset.view===view));$("mesas-view").classList.toggle("hide",view!=="mesas");$("pedidos-view").classList.toggle("hide",view!=="pedidos");return}
  if(b.dataset.showOrders){document.querySelector('[data-view="pedidos"]').click();for(const card of document.querySelectorAll("[data-order-card]"))card.classList.toggle("hide",card.dataset.orderCard!==b.dataset.showOrders);say("Pedidos de mesa "+b.dataset.showOrders+" (para mostrar todos, tocá Pedidos nuevamente).");return}
  if(b.dataset.close){const id=b.dataset.close;update(s=>{if(s.pedidos.some(p=>safeId(p.mesa)===id&&!["Entregado","Cancelado"].includes(p.estado))){say("Esta mesa todavía tiene pedidos activos.");return false}const m=s.mesas.find(x=>safeId(x.id)===id);if(!m)return false;m.estado="Libre"});return}
