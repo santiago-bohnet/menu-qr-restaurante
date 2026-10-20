@@ -599,6 +599,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
     font-size:11px;padding:7px 5px;
   }
 }
+.cuenta-separada{grid-column:2;grid-row:2;min-width:0}.cuenta-separada #cuenta-cliente{margin:0!important;background:#141416!important;border:1px solid #444047!important;border-radius:21px!important;padding:23px!important}.cuenta-separada strong{font-size:20px}.cuenta-separada .principal{margin-top:12px!important}@media(max-width:900px){.cuenta-separada{grid-column:1;grid-row:auto}}
 </style>
 <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.1.0/model-viewer.min.js"></script>
 </head>
@@ -644,11 +645,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
     <div id="items"></div>
     <div class="total"><span>Subtotal</span><span id="total">$0</span></div>
     <p class="nota">Precios de ejemplo en pesos argentinos. Envío no incluido.</p>
-<div id="cuenta-cliente" hidden style="margin:18px 0;padding:17px;border:1px solid #804a4a;border-radius:13px;background:#231719">
-<strong>¿Terminaste de comer?</strong><p class="nota">Avisale al mozo que necesitás la cuenta.</p>
-<button type="button" id="pedir-cuenta" class="principal" style="margin-top:6px">🧾 Pedir la cuenta</button>
-<p id="estado-cuenta" class="nota" role="status" aria-live="polite"></p>
-</div>
+
 
     <form id="formulario">
       <div id="campo-mesa"><label for="mesa">Número de mesa (obligatorio)</label>
@@ -673,6 +670,11 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
     <button class="secundario" id="vaciar" type="button" hidden>Vaciar carrito</button>
     <p class="nota" id="estado" role="status"></p>
   </aside>
+  <section class="cuenta-separada" aria-label="Solicitar cuenta"><div id="cuenta-cliente" hidden style="margin:18px 0;padding:17px;border:1px solid #804a4a;border-radius:13px;background:#231719">
+<strong>¿Terminaste de comer?</strong><p class="nota">Avisale al mozo que necesitás la cuenta.</p>
+<button type="button" id="pedir-cuenta" class="principal" style="margin-top:6px">🧾 Pedir la cuenta</button>
+<p id="estado-cuenta" class="nota" role="status" aria-live="polite"></p>
+</div></section>
 </main>
 
 <section class="ubicacion-local" id="ubicacion-local" aria-labelledby="titulo-ubicacion" hidden>
