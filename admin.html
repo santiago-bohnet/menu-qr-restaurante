@@ -31,6 +31,16 @@ const catalogKey="brasa-corte-catalogo-demo-v1";
 const defaults=()=>({productos:initial,mesas:Array.from({length:8},(_,i)=>({id:i+1,estado:"Libre"})),pedidos:[]});
 let state=defaults();
 try{const saved=JSON.parse(localStorage.getItem(key));if(saved&&Array.isArray(saved.productos)&&Array.isArray(saved.mesas)&&Array.isArray(saved.pedidos))state=saved;}catch{}
+// Pedido ficticio de muestra: se agrega una sola vez por navegador, sin borrar pedidos existentes.
+const seedKey="brasa-pedido-muestra-oct26-v1";
+try{
+ if(!localStorage.getItem(seedKey)){
+  const pedido={id:1761450000001,mesa:1,detalle:"2 × Bife de chorizo · 1 × Papas rústicas · 2 × Limonada casera",estado:"Nuevo",hora:"20:35",adicion:false};
+  if(!state.pedidos.some(p=>p.id===pedido.id))state.pedidos.unshift(pedido);
+  localStorage.setItem(key,JSON.stringify(state));
+  localStorage.setItem(seedKey,"1");
+ }
+}catch{}
 const money=v=>new Intl.NumberFormat("es-AR",{style:"currency",currency:"ARS",maximumFractionDigits:0}).format(v);
 const safe=v=>String(v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const message=m=>{$("toast").textContent=m};
