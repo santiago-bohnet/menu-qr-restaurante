@@ -605,7 +605,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 .pedido-columna .cuenta-separada{grid-column:auto;grid-row:auto;width:100%}
 @media(max-width:900px){.pedido-columna{grid-column:1;grid-row:auto}}
 /* Múltiples columnas de llamas superpuestas, sin una única llama aislada. */
-.flame-transition{position:fixed;inset:0;z-index:2147483647;pointer-events:none;visibility:hidden;background:#050101;overflow:hidden;isolation:isolate}
+.flame-transition{position:fixed;inset:0;z-index:2147483647;pointer-events:none;visibility:hidden;background:transparent;overflow:hidden;isolation:isolate}
 .flame-transition.active{visibility:visible}
 .flame-film{position:absolute;bottom:-8%;height:118%;width:38%;overflow:hidden;mix-blend-mode:screen;mask-image:linear-gradient(to right,transparent,#000 20%,#000 80%,transparent)}
 .flame-film:nth-child(1){left:-10%;transform:scaleX(-1)}
@@ -880,9 +880,9 @@ let timerFuego;
 function iniciarFuegoParrilla(){
  if(matchMedia("(prefers-reduced-motion: reduce)").matches){$("inicio").hidden=true;$("contenido-menu").hidden=false;return;}
  const capa=document.getElementById("flame-transition");
- clearTimeout(timerFuego);$("inicio").hidden=true;$("contenido-menu").hidden=true;capa.classList.add("active");
+ clearTimeout(timerFuego);$("inicio").hidden=true;$("contenido-menu").hidden=false;capa.classList.add("active");
  capa.querySelectorAll("video").forEach(video=>{try{video.currentTime=0}catch{}video.play().catch(()=>{});});
- timerFuego=setTimeout(()=>{$("contenido-menu").hidden=false;window.scrollTo({top:0,behavior:"instant"});capa.classList.remove("active");capa.querySelectorAll("video").forEach(video=>video.pause());},2400);
+ timerFuego=setTimeout(()=>{$("contenido-menu").hidden=false;window.scrollTo({top:0,behavior:"instant"});capa.classList.remove("active");capa.querySelectorAll("video").forEach(video=>video.pause());},1900);
 }
 document.querySelectorAll("[data-modo]").forEach(boton => {
   boton.addEventListener("click", () => {elegirModo(boton.dataset.modo);iniciarFuegoParrilla();});
