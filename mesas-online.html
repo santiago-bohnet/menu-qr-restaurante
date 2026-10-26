@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="es" data-staff-role="staff"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Mesas online · Brasa & Corte</title>
+<script src="./supabase-config.js"></script><script src="./auth-guard.js"></script>
+<style>body{font:16px system-ui;background:#101013;color:#f5eeee;margin:0;padding:24px}main{max-width:960px;margin:auto}h1{color:#ff5757}.note{background:#352125;border:1px solid #7c3434;border-radius:10px;padding:14px}button,select{font:inherit;border:1px solid #76515a;border-radius:8px;background:#29242b;color:white;padding:10px;cursor:pointer}button{background:#b72e35}button:disabled{opacity:.5}.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:15px;margin:25px 0}.card{background:#242026;border:1px solid #56404a;border-radius:14px;padding:16px}.card h2{margin-top:0}label{display:block;margin:10px 0}select{width:100%}a{color:#ff9b9b}.muted{color:#c7b8ba}#status{min-height:30px}</style></head><body><main><p><a href="./admin.html">Administración</a> · <a href="./mozo.html">Panel de mozos</a></p><h1>Mesas sincronizadas · Supabase</h1><p class="note">Estas son las mesas de la base de datos real. Los paneles anteriores todavía muestran datos de demostración; los pedidos por QR siguen deshabilitados en producción hasta configurar autorizaciones temporales.</p><p id="status" role="status">Conectando…</p><div id="tools" hidden><button id="add">Agregar mesa</button><button id="reload">Actualizar</button></div><div id="grid" class="grid"></div></main>
+<script type="module">
+import{createClient}from"https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+const db=createClient(window.BRASA_SUPABASE.url,window.BRASA_SUPABASE.publishableKey),status=document.querySelector("#status"),grid=document.querySelector("#grid"),tools=document.querySelector("#tools");
+let role=null,rows=[];
+const esc=x=>String(x).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+async function load(){
+ const{data:{user}}=await db.auth.getUser();if(!user){location.replace("./login.html");return}
+ const p=await db.from("staff").select("role,active").eq("user_id",user.id).maybeSingle();
+ if(p.error||!p.data?.active){location.replace("./login.html");return}
+ role=p.data.role;tools.hidden=false;document.querySelector("#add").hidden=role!=="admin";
+ const result=await db.from("restaurant_tables").select("number,status,enabled").order("number");
+ if(result.error){status.textContent="Error: "+result.error.message;return}
+ rows=result.data;status.textContent=rows.length+" mesas cargadas desde Supabase · "+new Date().toLocaleTimeString("es-AR");
+ grid.innerHTML=rows.map(t=>'<article class="card" data-number="'+t.number+'"><h2>Mesa '+t.number+'</h2><label>Estado<select data-status><option '+(t.status==="Libre"?"selected":"")+'>Libre</option><option '+(t.status==="Ocupada"?"selected":"")+'>Ocupada</option><option '+(t.status==="Reservada"?"selected":"")+'>Reservada</option></select></label><label><input type="checkbox" data-enabled '+(t.enabled?"checked":"")+'> Habilitada</label><button data-save>Guardar en Supabase</button></article>').join("")||'<p>No hay mesas. Un administrador puede agregar la primera.</p>';
+}
+grid.addEventListener("click",async e=>{
+ const btn=e.target.closest("[data-save]");if(!btn)return;
+ const card=btn.closest("[data-number]");btn.disabled=true;status.textContent="Guardando…";
+ const{error}=await db.rpc("set_table_state",{p_number:Number(card.dataset.number),p_status:card.querySelector("[data-status]").value,p_enabled:card.querySelector("[data-enabled]").checked});
+ status.textContent=error?"Error: "+error.message:"Mesa actualizada para todos los dispositivos.";btn.disabled=false;if(!error)await load();
+});
+document.querySelector("#add").onclick=async()=>{
+ if(role!=="admin")return;const used=new Set(rows.map(x=>x.number));let number=1;while(used.has(number)&&number<=999)number++;
+ if(number>999){status.textContent="Se alcanzó el máximo de mesas.";return}
+ const{error}=await db.from("restaurant_tables").insert({number,status:"Libre",enabled:false});
+ if(error){status.textContent="Error: "+error.message;return}await load();
+};
+document.querySelector("#reload").onclick=load;
+await load();setInterval(()=>{if(!document.hidden)load()},8000);
+</script></body></html>
