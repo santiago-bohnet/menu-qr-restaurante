@@ -604,17 +604,22 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 .pedido-columna .carrito{position:static!important;top:auto!important;margin:0!important;width:100%}
 .pedido-columna .cuenta-separada{grid-column:auto;grid-row:auto;width:100%}
 @media(max-width:900px){.pedido-columna{grid-column:1;grid-row:auto}}
-/* Transición cinematográfica: una sola toma de fuego a pantalla completa, sin franjas. */
+/* Múltiples columnas de llamas superpuestas, sin una única llama aislada. */
 .flame-transition{position:fixed;inset:0;z-index:2147483647;pointer-events:none;visibility:hidden;background:#050101;overflow:hidden;isolation:isolate}
 .flame-transition.active{visibility:visible}
-.flame-film{position:absolute;inset:0;overflow:hidden}
-.flame-film video{display:block;width:100%;height:100%;object-fit:cover;object-position:center center;filter:saturate(1.4) contrast(1.12) brightness(1.14)}
-.flame-transition::after{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at center,transparent 40%,rgba(0,0,0,.22) 100%)}
+.flame-film{position:absolute;bottom:-8%;height:118%;width:38%;overflow:hidden;mix-blend-mode:screen;mask-image:linear-gradient(to right,transparent,#000 20%,#000 80%,transparent)}
+.flame-film:nth-child(1){left:-10%;transform:scaleX(-1)}
+.flame-film:nth-child(2){left:8%;bottom:-18%;height:125%}
+.flame-film:nth-child(3){left:29%;bottom:-5%;height:120%;transform:scaleX(-1)}
+.flame-film:nth-child(4){left:51%;bottom:-16%;height:128%}
+.flame-film:nth-child(5){left:73%;transform:scaleX(-1)}
+.flame-film video{display:block;width:100%;height:100%;object-fit:cover;object-position:center center;filter:saturate(1.5) contrast(1.2) brightness(1.24)}
+.flame-transition::after{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at center,transparent 35%,rgba(0,0,0,.12) 100%)}
 @media(prefers-reduced-motion:reduce){.flame-transition.active{visibility:hidden;animation:none}}
 </style>
 <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.1.0/model-viewer.min.js"></script>
 </head>
-<body><div id="flame-transition" class="flame-transition" aria-hidden="true"><div class="flame-film"><video muted playsinline loop preload="auto"><source src="https://videos.pexels.com/video-files/9667220/9667220-hd_1920_1080_25fps.mp4" type="video/mp4"></video></div></div>
+<body><div id="flame-transition" class="flame-transition" aria-hidden="true"><div class="flame-film"><video muted playsinline loop preload="auto"><source src="https://videos.pexels.com/video-files/9667220/9667220-hd_1920_1080_25fps.mp4" type="video/mp4"></video></div><div class="flame-film"><video muted playsinline loop preload="auto"><source src="https://videos.pexels.com/video-files/9667220/9667220-hd_1920_1080_25fps.mp4" type="video/mp4"></video></div><div class="flame-film"><video muted playsinline loop preload="auto"><source src="https://videos.pexels.com/video-files/9667220/9667220-hd_1920_1080_25fps.mp4" type="video/mp4"></video></div><div class="flame-film"><video muted playsinline loop preload="auto"><source src="https://videos.pexels.com/video-files/9667220/9667220-hd_1920_1080_25fps.mp4" type="video/mp4"></video></div><div class="flame-film"><video muted playsinline loop preload="auto"><source src="https://videos.pexels.com/video-files/9667220/9667220-hd_1920_1080_25fps.mp4" type="video/mp4"></video></div></div>
 <section class="pantalla-inicial" id="inicio">
   <p class="etiqueta" style="color:var(--verde)">PARRILLA ARGENTINA · MENÚ DEMO</p>
   <h1>El fuego está encendido.</h1>
