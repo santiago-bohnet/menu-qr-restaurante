@@ -606,15 +606,15 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 @media(max-width:900px){.pedido-columna{grid-column:1;grid-row:auto}}
 /* Llamas de parrilla: borde inferior cálido, breve y sin cubrir la carta. */
 .flame-transition{position:fixed;inset:0;z-index:2147483647;pointer-events:none;visibility:hidden;opacity:0;isolation:isolate}
-.flame-transition.active{visibility:visible;animation:fire-scene 3.4s ease-out both}
+.flame-transition.active{visibility:visible;animation:fire-scene 2.4s ease-out both}
 .flame-film{position:absolute;overflow:hidden;mix-blend-mode:screen;opacity:1}
-.flame-film.bottom,.flame-film.top{left:0;width:100%;height:clamp(145px,29vh,300px)}
+.flame-film.bottom,.flame-film.top{left:0;width:100%;height:clamp(185px,38vh,410px)}
 .flame-film.bottom{bottom:0}.flame-film.top{top:0;transform:rotate(180deg)}
-.flame-film.left,.flame-film.right{top:0;height:100%;width:clamp(140px,26vh,270px)}
+.flame-film.left,.flame-film.right{top:0;height:100%;width:clamp(180px,34vh,350px)}
 .flame-film.left{left:0}.flame-film.right{right:0;transform:rotate(180deg)}
 .flame-film video{display:block;position:absolute;object-fit:cover;object-position:center bottom;mix-blend-mode:screen}
-.flame-film.bottom video,.flame-film.top video{width:100%;height:180%;left:0;bottom:0;filter:saturate(1.35) brightness(1.2)}
-.flame-film.left video,.flame-film.right video{width:100vh;height:180%;left:0;bottom:0;transform-origin:left bottom;transform:rotate(90deg);filter:saturate(1.35) brightness(1.2)}
+.flame-film.bottom video,.flame-film.top video{width:100%;height:180%;left:0;bottom:0;filter:saturate(1.55) brightness(1.38)}
+.flame-film.left video,.flame-film.right video{width:100vh;height:180%;left:0;bottom:0;transform-origin:left bottom;transform:rotate(90deg);filter:saturate(1.55) brightness(1.38)}
 @keyframes fire-scene{0%{opacity:0}15%{opacity:1}68%{opacity:.9}100%{opacity:0}}
 @media(prefers-reduced-motion:reduce){.flame-transition.active{visibility:hidden;animation:none}}
 </style>
@@ -863,8 +863,7 @@ function elegirModo(modo) {
   modoActual = modo;
   $("cuenta-cliente").hidden = modo !== "presencial" || modoMuestra || !mesaQRValida;
   $("ubicacion-local").hidden = modo !== "domicilio";
-  $("inicio").hidden = true;
-  $("contenido-menu").hidden = false;
+  // La carta se revela únicamente cuando termina la transición de fuego.
   $("modalidad").value = modo;
   $("campo-mesa").hidden = modo !== "presencial";
   $("mesa-asignada").textContent = mesaQRValida ? "Mesa "+mesaQR+" asignada automáticamente por el QR del mozo." : "Escaneá el QR generado por el mozo para realizar pedidos en el local.";
@@ -880,11 +879,11 @@ function elegirModo(modo) {
 
 let timerFuego;
 function iniciarFuegoParrilla(){
- if(matchMedia("(prefers-reduced-motion: reduce)").matches)return;
+ if(matchMedia("(prefers-reduced-motion: reduce)").matches){$("inicio").hidden=true;$("contenido-menu").hidden=false;return;}
  const capa=document.getElementById("flame-transition");
  clearTimeout(timerFuego);capa.classList.remove("active");void capa.offsetWidth;capa.classList.add("active");
  capa.querySelectorAll("video").forEach(video=>{try{video.currentTime=0}catch{}video.play().catch(()=>{});});
- timerFuego=setTimeout(()=>{capa.classList.remove("active");capa.querySelectorAll("video").forEach(video=>video.pause())},3400);
+ timerFuego=setTimeout(()=>{capa.classList.remove("active");capa.querySelectorAll("video").forEach(video=>video.pause());$("inicio").hidden=true;$("contenido-menu").hidden=false;window.scrollTo({top:0,behavior:"instant"});},2400);
 }
 document.querySelectorAll("[data-modo]").forEach(boton => {
   boton.addEventListener("click", () => {elegirModo(boton.dataset.modo);iniciarFuegoParrilla();});
