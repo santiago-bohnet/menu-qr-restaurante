@@ -666,14 +666,12 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 
 
     <form id="formulario">
-      <div id="campo-mesa"><label for="mesa">Número de mesa (obligatorio)</label>
-      <input id="mesa" name="mesa" type="number" min="1" max="999" step="1" required placeholder="Ej.: 7"></div>
+      <div id="campo-mesa" hidden><p class="nota" id="mesa-asignada">La mesa se identifica automáticamente desde el QR del mozo.</p></div>
 
       <input id="modalidad" type="hidden" value="presencial">
 
       <div id="campo-direccion" hidden>
-        <label for="direccion">Dirección de ejemplo</label>
-        <input id="direccion" maxlength="150" placeholder="Ej.: Calle de Prueba 123">
+        <label for="nombre-entrega">Nombre y apellido</label><input id="nombre-entrega" maxlength="90" autocomplete="name" required disabled placeholder="Nombre de quien recibe"><label for="telefono-entrega">Teléfono</label><input id="telefono-entrega" type="tel" maxlength="25" autocomplete="tel" required disabled placeholder="Ej.: 299 555 1234"><label for="direccion">Dirección de entrega</label><input id="direccion" maxlength="150" autocomplete="street-address" placeholder="Calle y número"><label for="referencias-entrega">Referencias (opcional)</label><textarea id="referencias-entrega" maxlength="220" placeholder="Piso, departamento, entre calles, timbre..."></textarea><label for="zona-envio">Zona de envío (valores ficticios)</label><select id="zona-envio" disabled><option value="centro">Zona cercana — $2.000</option><option value="media">Zona intermedia — $3.500</option><option value="lejana">Zona alejada — $5.500</option></select><p class="nota" id="costo-envio">Envío estimado: $2.000 · Total estimado: $0</p><label for="metodo-pago">Método de pago</label><select id="metodo-pago" disabled><option value="efectivo">Efectivo</option><option value="transferencia">Transferencia</option><option value="tarjeta">Tarjeta al recibir (sujeto a disponibilidad)</option></select>
       </div>
 
       <label for="aclaraciones">Aclaraciones (opcional)</label>
@@ -852,6 +850,9 @@ const moneda = valor => new Intl.NumberFormat("es-AR", {
   style: "currency", currency: "ARS", maximumFractionDigits: 0
 }).format(valor);
 
+const zonasEnvio={centro:2000,media:3500,lejana:5500}; // Tarifas de demostración: configurar según comercio.
+function actualizarCostoEnvio(){const costo=zonasEnvio[$("zona-envio").value]??0;$("costo-envio").textContent=`Envío estimado: ${moneda(costo)} · Total estimado: ${moneda(subtotal()+costo)}. El comercio debe confirmar la zona.`}
+$("zona-envio").addEventListener("change",actualizarCostoEnvio);
 const clave = "brasa-corte-demo-carrito-v1";
 let carrito = {};
 let categoriaActual = "Entradas";
@@ -865,14 +866,15 @@ function elegirModo(modo) {
   $("inicio").hidden = true;
   $("contenido-menu").hidden = false;
   $("modalidad").value = modo;
-  $("campo-mesa").hidden = modo !== "presencial" || (modo==="presencial" && mesaQRValida);
-  if(modo==="presencial" && mesaQRValida){$("mesa").value=String(mesaQR);$("mesa").readOnly=true;actualizarEstadoCuenta();}
-  $("mesa").required = modo === "presencial";
+  $("campo-mesa").hidden = modo !== "presencial";
+  $("mesa-asignada").textContent = mesaQRValida ? "Mesa "+mesaQR+" asignada automáticamente por el QR del mozo." : "Escaneá el QR generado por el mozo para realizar pedidos en el local.";
+  if(modo==="presencial" && mesaQRValida) actualizarEstadoCuenta();
   $("campo-direccion").hidden = modo !== "domicilio";
   $("direccion").required = modo === "domicilio";
   $("modo-titulo").textContent = modo === "presencial" ? "CONSUMO EN EL LOCAL · DEMOSTRACIÓN" : "PEDIDO A DOMICILIO · DEMOSTRACIÓN";
-  $("mesa").setCustomValidity("");
+  for(const id of ["nombre-entrega","telefono-entrega","zona-envio","metodo-pago"]) $(id).disabled = modo !== "domicilio";
   $("direccion").setCustomValidity("");
+  actualizarCostoEnvio();
   window.scrollTo({top:0,behavior:"instant"});
 }
 
@@ -974,6 +976,7 @@ function mostrarCarrito() {
 
   $("contador").textContent = `(${unidades})`;
   $("total").textContent = moneda(subtotal());
+  actualizarCostoEnvio();
   $("ver-pedido").disabled = elegidos.length === 0;
   $("vaciar").hidden = elegidos.length === 0;
 
@@ -1057,13 +1060,15 @@ $("formulario").addEventListener("submit", evento => {
     `• ${carrito[p.id]} × ${p.nombre}: ${moneda(p.precio * carrito[p.id])}`
   );
 
-  const mesa = Number($("mesa").value);
-  if (!entrega && (!Number.isInteger(mesa) || mesa < 1 || mesa > 999)) {
-    $("mesa").setCustomValidity("Ingresá un número de mesa entre 1 y 999.");
-    $("mesa").reportValidity();
-    return;
-  }
+  const mesa = mesaQRValida ? mesaQR : null;
+  if (!entrega && !mesaQRValida) { $("estado").textContent="Para pedir en el local, escaneá el QR que genera el mozo para tu mesa."; return; }
 
+  const nombreEntrega=entrega?$("nombre-entrega").value.trim():"";
+  const telefonoEntrega=entrega?$("telefono-entrega").value.trim():"";
+  const referenciasEntrega=entrega?$("referencias-entrega").value.trim():"";
+  const zonaEntrega=entrega?$("zona-envio").value:"";
+  const metodoPago=entrega?$("metodo-pago").value:"";
+  const costoEntrega=entrega?(zonasEnvio[zonaEntrega]??0):0;
   const aclaraciones = $("aclaraciones").value.trim();
   $("mensaje").textContent = [
     "DEMOSTRACIÓN — NO ES UN PEDIDO REAL",
@@ -1075,7 +1080,10 @@ $("formulario").addEventListener("submit", evento => {
     "",
     `Subtotal de productos: ${moneda(subtotal())}`,
     entrega ? `Entrega en: ${direccion}` : "Modalidad: consumo en el local",
-    entrega ? "Costo de envío: a confirmar por el comercio." : "",
+    entrega ? `Recibe: ${nombreEntrega} · Teléfono: ${telefonoEntrega}` : "",
+    entrega && referenciasEntrega ? `Referencias: ${referenciasEntrega}` : "",
+    entrega ? `Zona: ${zonaEntrega} · Pago: ${metodoPago}` : "",
+    entrega ? `Envío estimado: ${moneda(costoEntrega)} · Total estimado: ${moneda(subtotal()+costoEntrega)}` : "",
     aclaraciones ? `Aclaraciones: ${aclaraciones}` : "",
     "",
     "¿Me confirman disponibilidad, importe final, forma de pago y demora?",
@@ -1088,6 +1096,12 @@ $("formulario").addEventListener("submit", evento => {
     modalidad: modoActual,
     mesa: entrega ? null : mesa,
     direccion: entrega ? direccion : null,
+    nombreEntrega: entrega ? nombreEntrega : null,
+    telefonoEntrega: entrega ? telefonoEntrega : null,
+    referenciasEntrega: entrega ? referenciasEntrega : null,
+    zonaEntrega: entrega ? zonaEntrega : null,
+    costoEntrega,
+    metodoPago: entrega ? metodoPago : null,
     productos: seleccionados().map(p => ({
       id: p.id,
       nombre: p.nombre,
@@ -1121,7 +1135,7 @@ $("formulario").addEventListener("submit", evento => {
   $("dialogo").showModal();
 });
 
-$("mesa").addEventListener("input", () => $("mesa").setCustomValidity(""));
+
 
 $("direccion").addEventListener("input", () => {
   $("direccion").setCustomValidity("");
