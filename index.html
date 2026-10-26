@@ -604,23 +604,17 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 .pedido-columna .carrito{position:static!important;top:auto!important;margin:0!important;width:100%}
 .pedido-columna .cuenta-separada{grid-column:auto;grid-row:auto;width:100%}
 @media(max-width:900px){.pedido-columna{grid-column:1;grid-row:auto}}
-/* Llamas de parrilla: borde inferior cálido, breve y sin cubrir la carta. */
-.flame-transition{position:fixed;inset:0;z-index:2147483647;pointer-events:none;visibility:hidden;opacity:1;background:#050101;isolation:isolate;overflow:hidden}
-.flame-transition.active{visibility:visible;animation:none}
-.flame-film{position:absolute;overflow:hidden;mix-blend-mode:screen;opacity:1}
-.flame-film.bottom,.flame-film.top{left:0;width:100%;height:clamp(185px,42vh,450px)}
-.flame-film.bottom{bottom:0}.flame-film.top{top:0;transform:rotate(180deg)}
-.flame-film.left,.flame-film.right{top:0;height:100%;width:clamp(180px,36vw,380px)}
-.flame-film.left{left:0}.flame-film.right{right:0;transform:rotate(180deg)}
-.flame-film video{display:block;position:absolute;object-fit:cover;object-position:center bottom;mix-blend-mode:screen}
-.flame-film.bottom video,.flame-film.top video{width:100%;height:180%;left:0;bottom:0;filter:saturate(1.55) brightness(1.38)}
-.flame-film.left video,.flame-film.right video{width:100vh;height:180%;left:0;bottom:0;transform-origin:left bottom;transform:rotate(90deg);filter:saturate(1.55) brightness(1.38)}
-/* Fondo opaco durante la transición: ningún cartel aparece detrás de las llamas. */
+/* Transición cinematográfica: una sola toma de fuego a pantalla completa, sin franjas. */
+.flame-transition{position:fixed;inset:0;z-index:2147483647;pointer-events:none;visibility:hidden;background:#050101;overflow:hidden;isolation:isolate}
+.flame-transition.active{visibility:visible}
+.flame-film{position:absolute;inset:0;overflow:hidden}
+.flame-film video{display:block;width:100%;height:100%;object-fit:cover;object-position:center center;filter:saturate(1.4) contrast(1.12) brightness(1.14)}
+.flame-transition::after{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at center,transparent 40%,rgba(0,0,0,.22) 100%)}
 @media(prefers-reduced-motion:reduce){.flame-transition.active{visibility:hidden;animation:none}}
 </style>
 <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.1.0/model-viewer.min.js"></script>
 </head>
-<body><div id="flame-transition" class="flame-transition" aria-hidden="true"><div class="flame-film top"><video muted playsinline loop preload="auto"><source src="https://videos.pexels.com/video-files/9667220/9667220-hd_1920_1080_25fps.mp4" type="video/mp4"></video></div><div class="flame-film right"><video muted playsinline loop preload="auto"><source src="https://videos.pexels.com/video-files/9667220/9667220-hd_1920_1080_25fps.mp4" type="video/mp4"></video></div><div class="flame-film bottom"><video muted playsinline loop preload="auto"><source src="https://videos.pexels.com/video-files/9667220/9667220-hd_1920_1080_25fps.mp4" type="video/mp4"></video></div><div class="flame-film left"><video muted playsinline loop preload="auto"><source src="https://videos.pexels.com/video-files/9667220/9667220-hd_1920_1080_25fps.mp4" type="video/mp4"></video></div></div>
+<body><div id="flame-transition" class="flame-transition" aria-hidden="true"><div class="flame-film"><video muted playsinline loop preload="auto"><source src="https://videos.pexels.com/video-files/9667220/9667220-hd_1920_1080_25fps.mp4" type="video/mp4"></video></div></div>
 <section class="pantalla-inicial" id="inicio">
   <p class="etiqueta" style="color:var(--verde)">PARRILLA ARGENTINA · MENÚ DEMO</p>
   <h1>El fuego está encendido.</h1>
