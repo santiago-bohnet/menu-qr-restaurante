@@ -732,6 +732,12 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
   <pre id="mensaje"></pre>
   <button class="principal" id="copiar" type="button">Copiar mensaje de ejemplo</button>
   <p class="nota" id="estado-copia" role="status"></p>
+  <div id="seguimiento-pedido" style="margin:14px 0;padding:15px;border:1px solid #d51f35;border-radius:12px;background:#23171b" hidden>
+    <h3 style="margin:0 0 8px">📦 Seguimiento de tu pedido</h3>
+    <p id="seguimiento-detalle" aria-live="polite">Estado: Nuevo</p>
+    <button class="principal" type="button" id="activar-notificaciones">🔔 Activar notificaciones de mi pedido</button>
+    <p id="permiso-notificaciones" class="nota" role="status">Opcional. Podés seguir tu pedido sin permitir notificaciones.</p>
+  </div>
   <button class="secundario" id="cerrar" type="button">Volver al menú</button>
 </dialog>
 
@@ -785,13 +791,35 @@ function actualizarEstadoCuenta(){
  $("estado-cuenta").textContent=solicitud?"Aviso enviado. El personal ya tiene tu solicitud.":"";
 }
 // Avisos de estado para pedidos QR en esta demo local (mismo navegador).
+const seguimientoKey="brasa-seguimiento-pedidos-v1";
+function idsSeguimiento(){try{return JSON.parse(localStorage.getItem(seguimientoKey))||[]}catch{return []}}
+function guardarSeguimiento(id){const ids=idsSeguimiento();if(!ids.includes(id)){ids.push(id);localStorage.setItem(seguimientoKey,JSON.stringify(ids.slice(-30)))}}
+function pintarSeguimiento(){
+ const cont=document.getElementById("seguimiento-pedido");if(!cont)return;
+ const ids=idsSeguimiento(),panel=leerPanel();
+ const pedidos=(panel?.pedidos||[]).filter(p=>ids.includes(p.id)&&Number(p.mesa)===mesaQR);
+ cont.hidden=!pedidos.length;
+ if(!pedidos.length)return;
+ const p=pedidos[0];
+ document.getElementById("seguimiento-detalle").textContent="Pedido #"+p.id+" · Mesa "+p.mesa+" · Estado: "+p.estado;
+ const b=document.getElementById("activar-notificaciones");
+ b.hidden=!("Notification" in window)||Notification.permission==="granted";
+ document.getElementById("permiso-notificaciones").textContent=!("Notification" in window)?"Este navegador no admite notificaciones. El seguimiento sigue disponible.":Notification.permission==="granted"?"Notificaciones permitidas en este dispositivo (envío remoto pendiente de backend).":Notification.permission==="denied"?"Notificaciones bloqueadas. Podés habilitarlas en la configuración del navegador.":"Opcional: autorizá los avisos del navegador. El seguimiento funciona sin este permiso.";
+}
+document.getElementById("activar-notificaciones").addEventListener("click",async()=>{
+ if(!("Notification" in window))return;
+ try{await Notification.requestPermission()}catch{}
+ pintarSeguimiento();
+});
 const estadosAvisables=new Set(["Confirmado","Preparando","Listo"]);
 const estadosVistos=new Map();
 let avisosInicializados=false;
 function revisarEstadoPedidos(){
  if(!mesaQRValida||modoMuestra)return;
  const panel=leerPanel();if(!panel)return;
- const pedidos=panel.pedidos.filter(p=>Number(p.mesa)===mesaQR&&p.origen==="cliente-qr");
+ const ids=idsSeguimiento();
+ const pedidos=panel.pedidos.filter(p=>Number(p.mesa)===mesaQR&&p.origen==="cliente-qr"&&ids.includes(p.id));
+ pintarSeguimiento();
  if(!avisosInicializados){pedidos.forEach(p=>estadosVistos.set(String(p.id),p.estado));avisosInicializados=true;return}
  for(const p of pedidos){
   const id=String(p.id),anterior=estadosVistos.get(id);
@@ -1087,7 +1115,7 @@ $("formulario").addEventListener("submit", evento => {
       const adicion=anteriores.length>0;
       const nuevo={id:Date.now()+Math.floor(Math.random()*1000),mesa,detalle:lineas.join(" | ")+(aclaraciones?" · Nota: "+aclaraciones:""),estado:"Nuevo",hora:new Date().toLocaleTimeString("es-AR",{hour:"2-digit",minute:"2-digit"}),origen:"cliente-qr",tipo:adicion?"Adición":"Pedido inicial",adicion,numeroComanda:anteriores.length+1,fecha:new Date().toISOString()};
       panel.pedidos.unshift(nuevo);
-      try{localStorage.setItem(clavePanel,JSON.stringify(panel));$("estado-copia").textContent=(adicion?"Adición":"Pedido inicial")+" registrada para el personal en este navegador (demo local).";carrito={};mostrarCarrito()}catch{$("estado-copia").textContent="No se pudo registrar el pedido. No se notificó al personal."}
+      try{localStorage.setItem(clavePanel,JSON.stringify(panel));guardarSeguimiento(nuevo.id);pintarSeguimiento();$("estado-copia").textContent=(adicion?"Adición":"Pedido inicial")+" registrada para el personal en este navegador (demo local).";carrito={};mostrarCarrito()}catch{$("estado-copia").textContent="No se pudo registrar el pedido. No se notificó al personal."}
     }else{$("estado-copia").textContent="No se notificó al personal: la mesa no está ocupada/habilitada o se está usando otro navegador."}
   }
   $("dialogo").showModal();
