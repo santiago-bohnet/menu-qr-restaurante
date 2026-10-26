@@ -71,7 +71,7 @@ function render(){
  }).join("")||'<p class="empty">No hay mesas configuradas. Agregalas desde Administración.</p>';
  $("orders").innerHTML=[...state.pedidos].reverse().map(p=>{
  const next=p.estado==="Nuevo"?"Confirmado":p.estado==="Confirmado"?"Preparando":p.estado==="Preparando"?"Listo":p.estado==="Listo"?"Entregado":null;
- return '<article class="order" data-order-card="'+esc(p.mesa)+'"><div class="topline"><h3>Pedido #'+esc(p.id)+' · Mesa '+esc(p.mesa)+'</h3><span class="badge">'+esc(p.estado)+'</span></div><p>'+(p.adicion?'<span class="badge" style="background:#4d1923;color:#ffb6c0">➕ ADICIÓN #'+esc(p.numeroComanda)+' · NUEVA COMANDA</span><br>':'<span class="badge">PEDIDO INICIAL</span><br>')+esc(p.detalle)+'</p><p class="count">'+esc(p.hora)+'</p><div class="actions">'+(next?'<button class="btn primary small" data-next="'+esc(p.id)+'">Marcar '+esc(next)+'</button>':'')+'<button class="btn small secondary" data-detail="'+esc(p.id)+'">Cambiar estado</button></div></article>'
+ return '<article class="order" data-order-card="'+esc(p.mesa)+'"><div class="topline"><h3>Pedido #'+esc(p.id)+' · Mesa '+esc(p.mesa)+'</h3><span class="badge">'+esc(p.estado)+'</span></div><p>'+(p.adicion?'<span class="badge" style="background:#4d1923;color:#ffb6c0">➕ ADICIÓN #'+esc(p.numeroComanda)+' · NUEVA COMANDA</span><br>':'<span class="badge">PEDIDO INICIAL</span><br>')+esc(p.detalle)+'</p><p class="count">'+esc(p.hora)+'</p><div class="actions">'+(next?'<button class="btn primary small" data-next="'+esc(p.id)+'">Marcar '+esc(next)+'</button>':'')+'<label class="muted" style="min-width:190px">Estado del pedido<select aria-label="Estado del pedido '+esc(p.id)+'" data-order-status="'+esc(p.id)+'">'+states.map(st=>'<option value="'+esc(st)+'" '+(st===p.estado?'selected':'')+'>'+esc(st)+'</option>').join('')+'</select></label></div></article>'
  }).join("")||'<p class="empty">Sin pedidos todavía. Se pueden simular desde Administración.</p>';
 }
 function update(mutator){
@@ -80,7 +80,9 @@ function update(mutator){
  if(mutator(state)===false)return;save()
 }
 document.addEventListener("change",e=>{
- const el=e.target;if(!el.matches("[data-table]"))return;
+ const el=e.target;
+ if(el.matches("[data-order-status]")){const id=el.dataset.orderStatus,next=el.value;if(!states.includes(next))return;update(s=>{const p=s.pedidos.find(x=>safeId(x.id)===id);if(!p)return false;p.estado=next});return}
+ if(!el.matches("[data-table]"))return;
  const id=el.dataset.table, next=el.value;
  if(!mesaStates.includes(next))return;
  update(s=>{const m=s.mesas.find(x=>safeId(x.id)===id);if(!m)return false;
@@ -99,7 +101,7 @@ document.addEventListener("click",e=>{
  if(b.dataset.showOrders){document.querySelector('[data-view="pedidos"]').click();for(const card of document.querySelectorAll("[data-order-card]"))card.classList.toggle("hide",card.dataset.orderCard!==b.dataset.showOrders);say("Pedidos de mesa "+b.dataset.showOrders+" (para mostrar todos, tocá Pedidos nuevamente).");return}
  if(b.dataset.close){const id=b.dataset.close;update(s=>{if(s.pedidos.some(p=>safeId(p.mesa)===id&&!["Entregado","Cancelado"].includes(p.estado))){say("Esta mesa todavía tiene pedidos activos.");return false}const m=s.mesas.find(x=>safeId(x.id)===id);if(!m)return false;m.estado="Libre"});return}
  if(b.dataset.next){const id=b.dataset.next;update(s=>{const p=s.pedidos.find(x=>safeId(x.id)===id);if(!p)return false;const i=states.indexOf(p.estado);if(i<0||i>=4)return false;p.estado=states[i+1]});return}
- if(b.dataset.detail){const id=b.dataset.detail;state=read();const p=state?.pedidos.find(x=>safeId(x.id)===id);if(!p)return;const chosen=prompt("Estado del pedido #"+id+":\n"+states.map((s,i)=>(i+1)+". "+s).join("\n")+"\nIngresá el número:",String(states.indexOf(p.estado)+1));if(chosen===null)return;const n=Number(chosen);if(!Number.isInteger(n)||n<1||n>states.length){say("Estado inválido.");return}update(s=>{const order=s.pedidos.find(x=>safeId(x.id)===id);if(!order)return false;order.estado=states[n-1]});}
+
 });
 $("generate-qr").addEventListener("click",()=>{render();$("qr-dialog").showModal();$("qr-result").classList.add("hide")});
 $("close-qr").addEventListener("click",()=>{$("qr-dialog").close()});
