@@ -784,6 +784,31 @@ function actualizarEstadoCuenta(){
  btn.disabled=Boolean(solicitud);
  $("estado-cuenta").textContent=solicitud?"Aviso enviado. El personal ya tiene tu solicitud.":"";
 }
+// Avisos de estado para pedidos QR en esta demo local (mismo navegador).
+const estadosAvisables=new Set(["Confirmado","Preparando","Listo"]);
+const estadosVistos=new Map();
+let avisosInicializados=false;
+function revisarEstadoPedidos(){
+ if(!mesaQRValida||modoMuestra)return;
+ const panel=leerPanel();if(!panel)return;
+ const pedidos=panel.pedidos.filter(p=>Number(p.mesa)===mesaQR&&p.origen==="cliente-qr");
+ if(!avisosInicializados){pedidos.forEach(p=>estadosVistos.set(String(p.id),p.estado));avisosInicializados=true;return}
+ for(const p of pedidos){
+  const id=String(p.id),anterior=estadosVistos.get(id);
+  estadosVistos.set(id,p.estado);
+  if(anterior===undefined||anterior===p.estado||!estadosAvisables.has(p.estado))continue;
+  const texto=p.estado==="Confirmado"?"Tu pedido fue confirmado.":p.estado==="Preparando"?"Están preparando tu pedido.":"¡Tu pedido está listo!";
+  let aviso=document.getElementById("aviso-estado-pedido");
+  if(!aviso){aviso=document.createElement("div");aviso.id="aviso-estado-pedido";aviso.setAttribute("role","status");aviso.setAttribute("aria-live","polite");aviso.style.cssText="position:fixed;bottom:18px;left:50%;transform:translateX(-50%);z-index:99999;background:#251419;color:#fff;border:2px solid #d51f35;box-shadow:0 8px 30px #0009;border-radius:14px;padding:16px 22px;max-width:calc(100vw - 30px);font:600 16px system-ui,sans-serif;text-align:center";document.body.appendChild(aviso)}
+  aviso.textContent="🔔 Mesa "+mesaQR+": "+texto;
+  clearTimeout(revisarEstadoPedidos.timer);revisarEstadoPedidos.timer=setTimeout(()=>aviso.remove(),9000);
+  if("Notification" in window&&Notification.permission==="granted"){try{new Notification("Estado de tu pedido",{body:texto,tag:"pedido-"+id+"-"+p.estado})}catch{}}
+ }
+}
+window.addEventListener("storage",e=>{if(e.key===clavePanel)revisarEstadoPedidos()});
+setInterval(()=>{if(!document.hidden)revisarEstadoPedidos()},2500);
+document.addEventListener("visibilitychange",()=>{if(!document.hidden)revisarEstadoPedidos()});
+revisarEstadoPedidos();
 const claveCatalogo = "brasa-corte-catalogo-demo-v1";
 function sincronizarCatalogo() {
   try {
