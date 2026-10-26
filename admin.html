@@ -91,4 +91,4 @@ window.addEventListener("storage",e=>{
  try{const incoming=JSON.parse(e.newValue);if(incoming&&Array.isArray(incoming.mesas)&&Array.isArray(incoming.productos)&&Array.isArray(incoming.pedidos)){state=incoming;render();}}catch{}
 });
 setInterval(()=>{if(document.hidden)return;const raw=localStorage.getItem(key);if(!raw)return;try{const updated=JSON.parse(raw);if(JSON.stringify(updated)!==JSON.stringify(state)&&Array.isArray(updated.mesas)){state=updated;render()}}catch{}},3500);
-</script></body></html>
+</script><script src="./supabase-mesas-sync.js"></script></body></html>
