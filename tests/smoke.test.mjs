@@ -69,3 +69,12 @@ test("Delivery público sin QR, separado del mozo y administrado",()=>{
  assert.match(adminJs,/data-delivery-order/);
  assert.match(read("pedidos-reales.js"),/eq\("kind","local"\)/);
 });
+
+test("Autorización conserva destino admin y permite cambio de cuenta",()=>{
+ const guard=read("auth-guard.js"),login=read("login.html");
+ assert.match(guard,/admin_required/);
+ assert.match(guard,/encodeURIComponent\(next\)/);
+ assert.match(login,/id="switch-account"/);
+ assert.match(login,/auth\.signOut\(\)/);
+ assert.match(login,/requested==="admin.html"&&data.role!=="admin"/);
+});
