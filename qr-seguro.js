@@ -40,6 +40,18 @@
    if(info)info.textContent="🔐 QR válido hasta 4 horas; generar otro revoca el anterior. Al liberar la mesa, deja de autorizar pedidos.";
    if(typeof say==="function")say("QR seguro generado para mesa "+number+" · habilitada y ocupada.");
    generated=true;
+   // Actualizar inmediatamente la tarjeta del diálogo, sin depender del render general.
+   // El panel principal y el modal usan tarjetas distintas.
+   const tile=tiles.querySelector('[data-qr-table="'+number+'"]');
+   if(tile){
+    tile.classList.add("on");
+    tile.classList.remove("reserved");
+    tile.setAttribute("aria-label","Mesa "+number+", Habilitada y Ocupada");
+    const small=tile.querySelector("small");
+    if(small)small.textContent="Habilitada";
+    const strip=tile.querySelector(".table-strip");
+    if(strip){strip.textContent="Ocupada";strip.classList.add("occupied");strip.classList.remove("reserved-strip")}
+   }
   }catch(err){alert("No se pudo generar el QR seguro: "+err.message)}
   finally{
    button.disabled=false;
