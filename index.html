@@ -743,6 +743,7 @@ const negocio = "Brasa & Corte";
 let productos = [];
 
 const $ = id => document.getElementById(id);
+const escHtml=value=>String(value??"").replace(/[&<>"\x27]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","\x27":"&#39;"}[c]));
 const parametrosQR = new URLSearchParams(location.search);
 const modoMuestra = parametrosQR.get("vista") === "muestra" || !parametrosQR.has("token");
 const mesaQR = Number(parametrosQR.get("mesa"));
@@ -805,7 +806,7 @@ try {
   if (guardado && typeof guardado === "object") {
     for (const p of productos) {
       const cantidad = guardado[p.id];
-      if (Number.isInteger(cantidad) && cantidad > 0 && cantidad <= 99) {
+      if (Number.isInteger(cantidad) && cantidad > 0 && cantidad <= 20) {
         carrito[p.id] = cantidad;
       }
     }
@@ -819,7 +820,7 @@ const categorias = [];
 function mostrarFiltros() {
   $("filtros").innerHTML = categorias.map(categoria => `
     <button type="button" aria-pressed="${categoria === categoriaActual}"
-      data-categoria="${categoria}">${categoria}</button>
+      data-categoria="${escHtml(categoria)}">${escHtml(categoria)}</button>
   `).join("");
 }
 
@@ -830,16 +831,16 @@ function mostrarProductos() {
     .map(p => `
       <article class="plato">
         <div class="ilustracion">
-          ${p.foto ? `<img src="${p.foto}" alt="Foto de ${p.nombre.replace(/[&<>"\x27]/g, "")}" style="height:100%;width:100%;object-fit:cover">` : `<span aria-hidden="true">${p.icono || "🍽️"}</span>`}
+          ${p.foto ? `<img src="${escHtml(p.foto)}" alt="Foto de ${escHtml(p.nombre)}" style="height:100%;width:100%;object-fit:cover">` : `<span aria-hidden="true">${p.icono || "🍽️"}</span>`}
         </div>
         <div class="contenido">
-          <h3>${p.nombre}</h3>
-          <p class="descripcion">${p.descripcion}</p>
-          ${p.categoria === "Cortes" ? `<button class="ver-ra" type="button" data-ver-ra="${p.id}" aria-label="Ver demostración 3D de ${p.nombre}">◈ Ver en 3D / RA</button>` : ""}
+          <h3>${escHtml(p.nombre)}</h3>
+          <p class="descripcion">${escHtml(p.descripcion)}</p>
+          ${p.categoria === "Cortes" ? `<button class="ver-ra" type="button" data-ver-ra="${p.id}" aria-label="Ver demostración 3D de ${escHtml(p.nombre)}">◈ Ver en 3D / RA</button>` : ""}
           <div class="pie-plato">
             <span class="precio">${moneda(p.precio)}</span>
             <button class="agregar" type="button" data-agregar="${p.id}" ${p.disponible === false || modoMuestra ? "disabled" : ""}
-              aria-label="Agregar ${p.nombre}">${p.disponible === false ? "Agotado" : modoMuestra ? "Solo muestra" : "+ Agregar"}</button>
+              aria-label="Agregar ${escHtml(p.nombre)}">${p.disponible === false ? "Agotado" : modoMuestra ? "Solo muestra" : "+ Agregar"}</button>
           </div>
         </div>
       </article>
@@ -861,16 +862,16 @@ function mostrarCarrito() {
   $("items").innerHTML = elegidos.length ? elegidos.map(p => `
     <div class="linea">
       <div class="linea-arriba">
-        <strong>${p.nombre}</strong>
+        <strong>${escHtml(p.nombre)}</strong>
         <span>${moneda(p.precio * carrito[p.id])}</span>
       </div>
       <div class="cantidad">
         <button type="button" data-id="${p.id}" data-cambio="-1"
-          aria-label="Quitar una unidad de ${p.nombre}">−</button>
+          aria-label="Quitar una unidad de ${escHtml(p.nombre)}">−</button>
         <span>${carrito[p.id]}</span>
         <button type="button" data-id="${p.id}" data-cambio="1"
-          aria-label="Sumar una unidad de ${p.nombre}"
-          ${carrito[p.id] >= 99 ? "disabled" : ""}>+</button>
+          aria-label="Sumar una unidad de ${escHtml(p.nombre)}"
+          ${carrito[p.id] >= 20 || unidades>=60 ? "disabled" : ""}>+</button>
       </div>
     </div>
   `).join("") : '<p class="vacio">Tu próxima comida empieza acá.<br>Agregá un plato del menú.</p>';
@@ -989,7 +990,7 @@ $("productos").addEventListener("click", evento => {
   $("titulo-ra").textContent = plato.nombre + " · vista 3D";
   $("estado-ra").textContent = "En Android: elegí «Ver en tu espacio» en el visor, detectá la mesa y colocá el plato. Sin ese paso el modelo no se ancla." ;
   visorRa.scale = "1 1 1";
-  visorRa.setAttribute("src", modeloRa);
+  visorRa.setAttribute("src", /^https:\/\//.test(plato.modelo||"")?plato.modelo:modeloRa);
   $("dialogo-ra").showModal();
 });
 $("visor-ra").addEventListener("ar-status", evento => {
