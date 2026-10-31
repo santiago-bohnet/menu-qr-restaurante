@@ -60,6 +60,12 @@ const escapeHtml=value=>String(value??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<
   }catch(err){say("⚠️ "+err.message)}
   finally{writing=false;await refresh(true)}
  }
+ document.addEventListener("brasa:table-updated",e=>{
+  const {number,status:nextStatus,enabled}=e.detail||{};
+  const table=tables.find(t=>t.number===Number(number));
+  if(table){table.status=nextStatus;table.enabled=enabled;render()}
+  refresh(true);
+ });
  document.addEventListener("click",e=>{
   const button=e.target.closest("button");
   if(!button)return;
