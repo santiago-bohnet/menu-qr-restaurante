@@ -73,7 +73,7 @@
   }
   return originalShow.apply(this,args);
  };
- if(orderId)showTracking();
+ // Escuchar el pedido confirmado sin depender de modificar APIs nativas.\n window.addEventListener("brasa:pedido-creado",e=>{\n   orderId=Number(e.detail?.id);\n   if(!Number.isInteger(orderId))return;\n   sessionStorage.setItem(key,String(orderId));\n   states.set(orderId,"Nuevo");\n   showTracking();\n   check();\n });\n if(orderId)showTracking();
  await check();
  setInterval(()=>{if(!document.hidden)check()},4000);
  document.addEventListener("visibilitychange",()=>{if(!document.hidden)check()});
