@@ -7,6 +7,17 @@
  const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
  const statuses=["Nuevo","Confirmado","Preparando","Listo","Entregado","Cancelado"];
  let lastIds="";
+ async function deliverPush(){
+  try{
+   const {data:{session}}=await db.auth.getSession();
+   if(!session?.access_token)return;
+   const response=await fetch(window.BRASA_SUPABASE.url+"/functions/v1/send-order-push",{
+    method:"POST",headers:{"Authorization":"Bearer "+session.access_token,"apikey":window.BRASA_SUPABASE.publishableKey,"Content-Type":"application/json"},
+    body:"{}"
+   });
+   if(!response.ok)console.warn("Push pendiente:",response.status,await response.text());
+  }catch(err){console.warn("Push no enviado:",err.message)}
+ }
  async function refresh(){
   try{
    const {data,error}=await db.from("orders").select("id,status,created_at,subtotal,restaurant_tables(number),order_items(product_name,quantity)").order("created_at",{ascending:false}).limit(100);
@@ -30,11 +41,13 @@
   el.disabled=true;
   const {error}=await db.rpc("staff_update_order_status",{p_order_id:Number(el.dataset.realOrderStatus),p_status:el.value});
   if(error)alert("No se pudo cambiar el estado: "+error.message);
+  if(!error)await deliverPush();
   el.disabled=false;await refresh();
  });
  // El render de la demo sobrescribe el listado: restaurarlo periódicamente.
  await refresh();
  setInterval(()=>{if(!document.hidden)refresh()},3500);
+ setInterval(()=>{if(!document.hidden)deliverPush()},20000);
  document.getElementById("refresh")?.addEventListener("click",()=>setTimeout(refresh,150));
  document.querySelector('[data-view="pedidos"]')?.addEventListener("click",()=>setTimeout(refresh,30));
 })();
