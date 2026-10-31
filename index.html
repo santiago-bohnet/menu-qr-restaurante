@@ -1251,5 +1251,42 @@ mostrarFiltros();
 mostrarProductos();
 mostrarCarrito();
 </script>
-</body>
+<script>
+/* Pedidos reales: QR validado en servidor, sin pantalla de copiar o reenviar. */
+(async function(){
+ const token=new URLSearchParams(location.search).get("token");
+ if(!token)return;
+ const {createClient}=await import("https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm");
+ const db=createClient(window.BRASA_SUPABASE.url,window.BRASA_SUPABASE.publishableKey);
+ const form=document.getElementById("formulario");
+ let sending=false;
+ form.addEventListener("submit",async function(e){
+  e.preventDefault();e.stopImmediatePropagation();
+  if(sending)return;
+  const selected=seleccionados();
+  if(!selected.length)return;
+  const button=document.getElementById("ver-pedido");
+  sending=true;button.disabled=true;
+  const status=document.getElementById("estado");
+  status.textContent="Enviando pedido al restaurante…";
+  try{
+   const items=selected.map(p=>({id:p.id,quantity:carrito[p.id]}));
+   const {data:id,error}=await db.rpc("place_qr_order",{p_token:token,p_items:items});
+   if(error)throw error;
+   carrito={};mostrarCarrito();
+   document.getElementById("titulo-dialogo").textContent="✅ Pedido solicitado";
+   const dialog=document.getElementById("dialogo");
+   dialog.querySelector("p.nota").textContent="Tu pedido #"+id+" fue enviado al restaurante. Podés activar las notificaciones para seguir su estado.";
+   document.getElementById("mensaje").hidden=true;
+   document.getElementById("copiar").hidden=true;
+   document.getElementById("estado-copia").textContent="Pedido #"+id+" registrado correctamente.";
+   document.getElementById("seguimiento-pedido").hidden=false;
+   document.getElementById("seguimiento-detalle").textContent="Estado: Nuevo · Pedido #"+id;
+   status.textContent="Pedido #"+id+" solicitado correctamente.";
+   dialog.showModal();
+  }catch(err){status.textContent="No se pudo solicitar el pedido: "+err.message+". Intentá nuevamente."}
+  finally{sending=false;button.disabled=false}
+ },true);
+})();
+</script></body>
 </html>
