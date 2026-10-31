@@ -1283,6 +1283,7 @@ mostrarCarrito();
    document.getElementById("seguimiento-pedido").hidden=false;
    document.getElementById("seguimiento-detalle").textContent="Estado: Nuevo · Pedido #"+id;
    status.textContent="Pedido #"+id+" solicitado correctamente.";
+   window.dispatchEvent(new CustomEvent("brasa:pedido-creado",{detail:{id}}));
    dialog.showModal();
   }catch(err){status.textContent="No se pudo solicitar el pedido: "+err.message+". Intentá nuevamente."}
   finally{sending=false;button.disabled=false}
