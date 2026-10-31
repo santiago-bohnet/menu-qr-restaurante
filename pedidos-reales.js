@@ -23,7 +23,7 @@
   if(refreshing)return;
   refreshing=true;
   try{
-   const {data,error}=await db.from("orders").select("id,status,created_at,subtotal,restaurant_tables(number),order_items(product_name,quantity)").order("created_at",{ascending:false}).limit(100);
+   const {data,error}=await db.from("orders").select("id,kind,status,created_at,subtotal,restaurant_tables(number),order_items(product_name,quantity)").order("created_at",{ascending:false}).limit(100);
    if(error)throw error;
    const active=data.filter(p=>!["Entregado","Cancelado"].includes(p.status));
    document.getElementById("count-active").textContent=active.length;
@@ -36,7 +36,7 @@
    }
    lastIds=ids;
    if(document.activeElement?.matches("[data-real-order-status]"))return;
-   const markup=data.map(p=>'<article class="order"><div class="topline"><h3>Pedido #'+p.id+' · Mesa '+esc(p.restaurant_tables?.number??"?")+'</h3><span class="badge">'+esc(p.status)+'</span></div><p>'+esc((p.order_items||[]).map(x=>x.quantity+" × "+x.product_name).join(" · "))+'</p><p class="count">'+new Date(p.created_at).toLocaleString("es-AR")+' · $'+Number(p.subtotal).toLocaleString("es-AR")+'</p><label>Estado del pedido <select data-real-order-status="'+p.id+'">'+statuses.map(st=>'<option '+(st===p.status?'selected':'')+'>'+st+'</option>').join("")+'</select></label></article>').join("")||'<p class="empty">No hay pedidos reales todavía.</p>';
+   const markup=data.map(p=>'<article class="order"><div class="topline"><h3>Pedido #'+p.id+' · Mesa '+esc(p.restaurant_tables?.number??(p.kind==="delivery"?"Domicilio":"?"))+'</h3><span class="badge">'+esc(p.status)+'</span></div><p>'+esc((p.order_items||[]).map(x=>x.quantity+" × "+x.product_name).join(" · "))+'</p><p class="count">'+new Date(p.created_at).toLocaleString("es-AR")+' · $'+Number(p.subtotal).toLocaleString("es-AR")+'</p><label>Estado del pedido <select data-real-order-status="'+p.id+'">'+statuses.map(st=>'<option '+(st===p.status?'selected':'')+'>'+st+'</option>').join("")+'</select></label></article>').join("")||'<p class="empty">No hay pedidos reales todavía.</p>';
    if(markup!==lastMarkup){box.innerHTML=markup;lastMarkup=markup;}
   }catch(err){document.getElementById("feedback").textContent="⚠️ Error al cargar pedidos reales: "+err.message}
   finally{refreshing=false}
@@ -47,9 +47,10 @@
   const {error}=await db.rpc("staff_update_order_status",{p_order_id:Number(el.dataset.realOrderStatus),p_status:el.value});
   if(error)alert("No se pudo cambiar el estado: "+error.message);
   if(!error)await deliverPush();
-  el.disabled=false;await refresh();
+  el.blur();el.disabled=false;lastMarkup="";
+  await refresh();setTimeout(refresh,250);
  });
- // El render de la demo sobrescribe el listado: restaurarlo periódicamente.
+ // Los pedidos reales son la única fuente del listado.
  await refresh();
  setInterval(()=>{if(!document.hidden)refresh()},3500);
  setInterval(()=>{if(!document.hidden)deliverPush()},20000);
