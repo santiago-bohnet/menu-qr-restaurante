@@ -55,3 +55,15 @@ test("Seguimiento recibe el evento de nuevos pedidos",()=>{
  assert.match(read("seguimiento-real.js"),/addEventListener\("brasa:pedido-creado"/);
  assert.doesNotMatch(read("seguimiento-real.js"),/HTMLDialogElement.prototype.showModal\s*=/);
 });
+
+test("Delivery público sin QR, separado del mozo y administrado",()=>{
+ const html=read("index.html");
+ const delivery=read("delivery-cliente.js");
+ const admin=read("admin.html");
+ const adminJs=read("admin-supabase.js");
+ assert.match(html,/delivery-cliente\.js/);
+ assert.match(delivery,/place_delivery_order/);
+ assert.match(admin,/id="tabla-delivery"/);
+ assert.match(adminJs,/data-delivery-order/);
+ assert.match(read("pedidos-reales.js"),/eq\("kind","local"\)/);
+});
