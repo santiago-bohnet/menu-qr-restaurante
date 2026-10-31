@@ -8,6 +8,7 @@
  const {createClient}=await import("https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm");
  const db=createClient(window.BRASA_SUPABASE.url,window.BRASA_SUPABASE.publishableKey);
  let products=[],tables=[],orders=[],bills=[],editingId=null,refreshing=false,mutating=false;
+ let deliveryBaseline=null;
  const tabs=["resumen","pedidos","delivery","cuentas","carta","mesas"];
  const titles={resumen:"Resumen",pedidos:"Pedidos de mesas",delivery:"Pedidos a domicilio",cuentas:"Cuentas",carta:"Carta digital",mesas:"Mesas"};
  document.querySelectorAll("[data-tab]").forEach(btn=>btn.addEventListener("click",()=>{
@@ -54,7 +55,14 @@
     db.from("bill_requests").select("id,status,created_at,restaurant_tables(number)").eq("status","Pendiente").order("created_at",{ascending:true})
    ]);
    for(const result of results)if(result.error)throw result.error;
-   [products,tables,orders,bills]=results.map(r=>r.data||[]);render();
+   [products,tables,orders,bills]=results.map(r=>r.data||[]);
+   const incoming=orders.filter(o=>o.kind==="delivery"&&o.status==="Nuevo").map(o=>o.id);
+   if(deliveryBaseline!==null){
+    const fresh=incoming.filter(id=>!deliveryBaseline.has(id));
+    if(fresh.length)document.dispatchEvent(new CustomEvent("brasa:new-delivery",{detail:{ids:fresh}}));
+   }
+   deliveryBaseline=new Set(incoming);
+   render();
   }catch(err){say("⚠️ No se pudieron consultar los datos: "+err.message)}
   finally{refreshing=false}
  }
