@@ -64,7 +64,7 @@ function render(){
  $("tables").innerHTML=state.mesas.map(m=>{
  const related=[];
  const badge=m.estado==="Libre"?"free":m.estado==="Reservada"?"reserved":"";
- return '<article class="card"><div class="topline"><h3>Mesa '+esc(m.id)+'</h3><span class="badge '+badge+'">'+esc(m.estado)+'</span></div><p class="count">'+'Pedidos disponibles en la pestaña Pedidos'</p><label class="muted" for="mesa-'+esc(m.id)+'">Estado de la mesa</label><select id="mesa-'+esc(m.id)+'" data-table="'+esc(m.id)+'">'+mesaStates.map(s=>'<option '+(m.estado===s?'selected':'')+'>'+s+'</option>').join('')+'</select><div class="actions"><button class="btn small secondary" data-show-orders="'+esc(m.id)+'">Ver pedidos</button><button class="btn small" data-close="'+esc(m.id)+'" '>Liberar mesa</button></div></article>'
+ return '<article class="card"><div class="topline"><h3>Mesa '+esc(m.id)+'</h3><span class="badge '+badge+'">'+esc(m.estado)+'</span></div><p class="count">'+'Pedidos disponibles en la pestaña Pedidos'</p><label class="muted" for="mesa-'+esc(m.id)+'">Estado de la mesa</label><select id="mesa-'+esc(m.id)+'" data-table="'+esc(m.id)+'">'+mesaStates.map(s=>'<option '+(m.estado===s?'selected':'')+'>'+s+'</option>').join('')+'</select><div class="actions"><button class="btn small secondary" data-show-orders="'+esc(m.id)+'">Ver pedidos</button><button class="btn small" data-close="'+esc(m.id)+'">Liberar mesa</button></div></article>'
  }).join("")||'<p class="empty">No hay mesas configuradas. Agregalas desde Administración.</p>';
  // Los pedidos reales los dibuja exclusivamente pedidos-reales.js.
 
