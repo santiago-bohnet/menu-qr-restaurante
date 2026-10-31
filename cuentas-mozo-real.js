@@ -9,7 +9,7 @@
   refreshing=true;
   try{
   const {data,error}=await db.from("bill_requests").select("id,created_at,restaurant_tables(number)").eq("status","Pendiente").order("created_at",{ascending:true});
-  if(error){console.warn("Cuentas:",error.message);return}
+  if(error){console.warn("Cuentas:",error.message);const feedback=document.getElementById("feedback");if(feedback)feedback.textContent="⚠️ Error al cargar cuentas: "+error.message;return}
   badge.textContent=data.length;
   const ids=data.map(x=>x.id).join(",");
   if(previous!==null&&ids!==previous&&data.some(x=>!previous.split(",").includes(String(x.id)))){
@@ -26,7 +26,7 @@
   e.stopImmediatePropagation();b.disabled=true;
   const {error}=await db.rpc("handle_table_bill",{p_request_id:Number(b.dataset.realBill)});
   if(error){alert("No se pudo atender la cuenta: "+error.message);b.disabled=false}
-  else {lastMarkup="";await refresh();}
+  else {lastMarkup="";await refresh();setTimeout(refresh,250)}
  },true);
  await refresh();setInterval(()=>{if(!document.hidden)refresh()},4000);
 })();
