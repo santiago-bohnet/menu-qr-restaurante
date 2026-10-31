@@ -1,0 +1,26 @@
+{
+  "id": "./",
+  "name": "Brasa & Corte · Carta digital",
+  "short_name": "Brasa & Corte",
+  "description": "Carta digital, pedidos y avisos de Brasa & Corte",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#211513",
+  "theme_color": "#d51f35",
+  "lang": "es-AR",
+  "icons": [
+    {
+      "src": "./icono-pwa.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "./icono-pwa.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}
