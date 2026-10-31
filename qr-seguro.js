@@ -12,6 +12,7 @@
   e.preventDefault();e.stopImmediatePropagation();
   const number=Number(button.dataset.qrTable);
   button.disabled=true;
+  let generated=false;
   const oldText=button.innerHTML;
   button.setAttribute("aria-busy","true");
   try{
@@ -38,9 +39,15 @@
    const info=document.getElementById("qr-security-note");
    if(info)info.textContent="🔐 QR válido hasta 4 horas; generar otro revoca el anterior. Al liberar la mesa, deja de autorizar pedidos.";
    if(typeof say==="function")say("QR seguro generado para mesa "+number+" · habilitada y ocupada.");
-   document.dispatchEvent(new CustomEvent("brasa:table-updated",{detail:{number,status:"Ocupada",enabled:true}}));
+   generated=true;
   }catch(err){alert("No se pudo generar el QR seguro: "+err.message)}
-  finally{button.disabled=false;button.removeAttribute("aria-busy");button.innerHTML=oldText}
+  finally{
+   button.disabled=false;
+   button.removeAttribute("aria-busy");
+   button.innerHTML=oldText;
+   // Emitir después de quitar aria-busy: el panel puede reconstruir las tarjetas del modal.
+   if(generated)document.dispatchEvent(new CustomEvent("brasa:table-updated",{detail:{number,status:"Ocupada",enabled:true}}));
+  }
  },true);
  document.getElementById("download-qr")?.addEventListener("click",()=>{
   const b=document.getElementById("download-qr");
