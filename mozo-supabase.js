@@ -23,7 +23,10 @@ const escapeHtml=value=>String(value??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<
  };
  function render(){
   $("mesa-controls").innerHTML=group("Adentro",false)+group("Afuera",false);
-  if(!$("qr-dialog").open)$("tiles").innerHTML=group("Adentro",true)+group("Afuera",true);
+  // Refrescar también las mesas dentro del diálogo de QR, sin cerrarlo.
+  // Evitar reemplazar el botón pulsado mientras se genera el código.
+  const qrBusy=$("tiles").querySelector('[aria-busy="true"]');
+  if(!qrBusy)$("tiles").innerHTML=group("Adentro",true)+group("Afuera",true);
   $("count-tables").textContent=tables.filter(t=>t.status==="Ocupada").length;
   $("updated").textContent="Actualizado: "+new Date().toLocaleTimeString("es-AR",{hour:"2-digit",minute:"2-digit"});
  }
