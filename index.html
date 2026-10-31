@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
+<head>\n<script src="./supabase-config.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Brasa & Corte · Parrilla de demostración</title>
@@ -1201,7 +1201,28 @@ $("pedir-cuenta").addEventListener("click",()=>{
  state.solicitudesCuenta.push({id:Date.now(),mesa:mesaQR,zona:mesa.zona==="Afuera"?"Afuera":"Adentro",estado:"Pendiente",hora:new Date().toLocaleTimeString("es-AR",{hour:"2-digit",minute:"2-digit"})});
  try{localStorage.setItem(clavePanel,JSON.stringify(state));actualizarEstadoCuenta()}catch{$("estado-cuenta").textContent="No se pudo enviar el aviso."}
 });
-if(mesaQRValida&&!modoMuestra){elegirModo("presencial");}
+// Un QR emitido por el mozo entra directamente a «Comer aquí»; no ofrece delivery.
+if(parametrosQR.has("token")&&!modoMuestra){
+  $("inicio").hidden=true;
+  $("contenido-menu").hidden=false;
+  $("cambiar-modo").hidden=true;
+  elegirModo("presencial");
+  const token=parametrosQR.get("token");
+  (async()=>{
+    try{
+      const {createClient}=await import("https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm");
+      const db=createClient(window.BRASA_SUPABASE.url,window.BRASA_SUPABASE.publishableKey);
+      const {data,error}=await db.rpc("validate_table_qr",{p_token:token});
+      if(error)throw error;
+      if(!Number.isInteger(data)||data<1)throw Error("QR vencido o mesa no habilitada");
+      $("mesa-asignada").textContent="Mesa "+data+" asignada por el QR del mozo.";
+      $("modo-titulo").textContent="CONSUMO EN EL LOCAL · MESA "+data;
+    }catch(err){
+      $("mesa-asignada").textContent="⚠️ "+err.message+". Solicitá un QR nuevo al mozo.";
+      $("ver-pedido").disabled=true;
+    }
+  })();
+}else if(mesaQRValida&&!modoMuestra){elegirModo("presencial");}
 window.addEventListener("storage",e=>{if(e.key===clavePanel&&mesaQRValida)actualizarEstadoCuenta()});
 if (modoMuestra) {
   $("inicio").hidden = true;
