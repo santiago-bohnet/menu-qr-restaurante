@@ -23,7 +23,7 @@
   if(refreshing)return;
   refreshing=true;
   try{
-   const {data,error}=await db.from("orders").select("id,kind,status,created_at,subtotal,restaurant_tables(number),order_items(product_name,quantity)").order("created_at",{ascending:false}).limit(100);
+   const {data,error}=await db.from("orders").select("id,kind,status,created_at,subtotal,restaurant_tables(number),order_items(product_name,quantity)").eq("kind","local").order("created_at",{ascending:false}).limit(100);
    if(error)throw error;
    const active=data.filter(p=>!["Entregado","Cancelado"].includes(p.status));
    document.getElementById("count-active").textContent=active.length;
