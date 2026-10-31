@@ -21,7 +21,7 @@
  }catch(err){notify("⚠️ Sin conexión con Supabase: "+err.message);return}
  const snapshot=arr=>new Map(arr.map(t=>[Number(t.number),{number:Number(t.number),status:t.status,enabled:!!t.enabled}]));
  function local(){
-  try{const s=JSON.parse(localStorage.getItem(KEY));return s&&Array.isArray(s.mesas)?s:null}catch{return null}
+  try{const s=JSON.parse(localStorage.getItem(KEY));return s&&Array.isArray(s.mesas)?s:{mesas:[],pedidos:[],productos:[],solicitudesCuenta:[]}}catch{return {mesas:[],pedidos:[],productos:[],solicitudesCuenta:[]}}
  }
  function project(t,old){
   return {...(old||{}),id:Number(t.number),estado:t.status,habilitada:!!t.enabled,zona:old?.zona||"Adentro"};
@@ -35,7 +35,7 @@
   if(busy)return;
   try{
    const remote=await fetchTables(),saved=local();
-   if(!saved){notify("⚠️ Faltan datos de demo para mostrar las mesas.");return}
+   if(!saved){notify("⚠️ No se pudo leer el almacenamiento local.");return}
    const byId=new Map(saved.mesas.map(m=>[Number(m.id),m]));
    saved.mesas=remote.map(t=>project(t,byId.get(Number(t.number))));
    localStorage.setItem(KEY,JSON.stringify(saved));
