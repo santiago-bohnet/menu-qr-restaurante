@@ -630,7 +630,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
   </div>
 </section>
 <div id="contenido-menu" hidden>
-<div class="demo">Carta digital · Los pedidos requieren un QR de mesa vigente</div>
+<div class="demo">Pedidos en mesa con QR seguro · Delivery sin QR, sujeto a confirmación del local</div>
 
 <header>
   <div class="marca"><span class="marca-fuego">♨</span> BRASA <span>Y CORTE</span></div>
@@ -658,7 +658,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
   <div class="pedido-columna">
   <aside class="carrito" id="carrito" aria-labelledby="titulo-carrito">
     <h2 id="titulo-carrito">Tu pedido</h2>
-    <p class="nota">Elegí los platos que quieras. Los pedidos requieren un QR vigente.</p>
+    <p class="nota">Para comer en el local necesitás el QR del mozo. Para delivery podés solicitar el pedido desde tu casa.</p>
     <div id="items"></div>
     <div class="total"><span>Subtotal</span><span id="total">$0</span></div>
     <p class="nota">Precios de ejemplo en pesos argentinos. Envío no incluido.</p>
@@ -670,7 +670,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
       <input id="modalidad" type="hidden" value="presencial">
 
       <div id="campo-direccion" hidden>
-        <label for="nombre-entrega">Nombre y apellido</label><input id="nombre-entrega" maxlength="90" autocomplete="name" required disabled placeholder="Nombre de quien recibe"><label for="telefono-entrega">Teléfono</label><input id="telefono-entrega" type="tel" maxlength="25" autocomplete="tel" required disabled placeholder="Ej.: 299 555 1234"><label for="direccion">Dirección de entrega</label><input id="direccion" maxlength="150" autocomplete="street-address" placeholder="Calle y número"><label for="referencias-entrega">Referencias (opcional)</label><textarea id="referencias-entrega" maxlength="220" placeholder="Piso, departamento, entre calles, timbre..."></textarea><label for="zona-envio">Zona de envío (valores ficticios)</label><select id="zona-envio" disabled><option value="centro">Zona cercana — $2.000</option><option value="media">Zona intermedia — $3.500</option><option value="lejana">Zona alejada — $5.500</option></select><p class="nota" id="costo-envio">Envío estimado: $2.000 · Total estimado: $0</p><label for="metodo-pago">Método de pago</label><select id="metodo-pago" disabled><option value="efectivo">Efectivo</option><option value="transferencia">Transferencia</option><option value="tarjeta">Tarjeta al recibir (sujeto a disponibilidad)</option></select>
+        <label for="nombre-entrega">Nombre y apellido</label><input id="nombre-entrega" maxlength="90" autocomplete="name" required disabled placeholder="Nombre de quien recibe"><label for="telefono-entrega">Teléfono</label><input id="telefono-entrega" type="tel" maxlength="25" autocomplete="tel" required disabled placeholder="Ej.: 299 555 1234"><label for="direccion">Dirección de entrega</label><input id="direccion" maxlength="150" autocomplete="street-address" placeholder="Calle y número"><label for="referencias-entrega">Referencias (opcional)</label><textarea id="referencias-entrega" maxlength="220" placeholder="Piso, departamento, entre calles, timbre..."></textarea><label for="zona-envio">Zona de entrega</label><select id="zona-envio" disabled><option value="centro">Zona cercana</option><option value="media">Zona intermedia</option><option value="lejana">Zona alejada</option></select><p class="nota" id="costo-envio">Envío y total final a confirmar por el restaurante.</p><label for="metodo-pago">Método de pago</label><select id="metodo-pago" disabled><option value="efectivo">Efectivo</option><option value="transferencia">Transferencia</option><option value="tarjeta">Tarjeta al recibir (sujeto a disponibilidad)</option></select>
       </div>
 
       <label for="aclaraciones">Aclaraciones (opcional)</label>
@@ -746,7 +746,7 @@ let productos = [];
 const $ = id => document.getElementById(id);
 const escHtml=value=>String(value??"").replace(/[&<>"\x27]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","\x27":"&#39;"}[c]));
 const parametrosQR = new URLSearchParams(location.search);
-const modoMuestra = parametrosQR.get("vista") === "muestra" || !parametrosQR.has("token");
+const modoMuestra = parametrosQR.get("vista") === "muestra";
 const mesaQR = Number(parametrosQR.get("mesa"));
 const mesaQRValida = false; // El parámetro mesa no concede autorización.
 // Pedidos y cuentas: Supabase.
@@ -754,8 +754,8 @@ const moneda = valor => new Intl.NumberFormat("es-AR", {
   style: "currency", currency: "ARS", maximumFractionDigits: 0
 }).format(valor);
 
-const zonasEnvio={centro:2000,media:3500,lejana:5500}; // Tarifas de demostración: configurar según comercio.
-function actualizarCostoEnvio(){const costo=zonasEnvio[$("zona-envio").value]??0;$("costo-envio").textContent=`Envío estimado: ${moneda(costo)} · Total estimado: ${moneda(subtotal()+costo)}. El comercio debe confirmar la zona.`}
+const zonasEnvio={centro:null,media:null,lejana:null}; // El costo definitivo debe confirmarlo el comercio.
+function actualizarCostoEnvio(){$("costo-envio").textContent=`Productos: ${moneda(subtotal())} · Envío y total final a confirmar por el restaurante antes de aceptar el pedido.`}
 $("zona-envio").addEventListener("change",actualizarCostoEnvio);
 const clave = "brasa-corte-carrito-v2";
 let carrito = {};
@@ -774,10 +774,13 @@ function elegirModo(modo) {
   
   $("campo-direccion").hidden = modo !== "domicilio";
   $("direccion").required = modo === "domicilio";
-  $("modo-titulo").textContent = modo === "presencial" ? "CONSUMO EN EL LOCAL" : "PEDIDO A DOMICILIO · PRÓXIMAMENTE";
+  $("nombre-entrega").required = modo === "domicilio";
+  $("telefono-entrega").required = modo === "domicilio";
+  $("modo-titulo").textContent = modo === "presencial" ? "CONSUMO EN EL LOCAL" : "PEDIDO A DOMICILIO · SOLICITAR ENTREGA";
   for(const id of ["nombre-entrega","telefono-entrega","zona-envio","metodo-pago"]) $(id).disabled = modo !== "domicilio";
   $("direccion").setCustomValidity("");
   actualizarCostoEnvio();
+  mostrarCarrito();
   window.scrollTo({top:0,behavior:"instant"});
 }
 
@@ -880,7 +883,7 @@ function mostrarCarrito() {
   $("contador").textContent = `(${unidades})`;
   $("total").textContent = moneda(subtotal());
   actualizarCostoEnvio();
-  $("ver-pedido").disabled = elegidos.length === 0 || modoMuestra;
+  $("ver-pedido").disabled = elegidos.length === 0 || modoMuestra || (modoActual === "presencial" && !parametrosQR.has("token")) || !modoActual;
   $("vaciar").hidden = elegidos.length === 0;
 
   try {
