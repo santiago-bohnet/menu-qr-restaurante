@@ -84,6 +84,9 @@
    try{const url=new URL(urlInput);if(!["https:","http:"].includes(url.protocol))throw Error();payload.image_url=url.href}
    catch{return say("Ingresá una URL de imagen válida (https://).")}
   }
+  const modelUrl=el("producto-modelo-url")?.value.trim();
+  if(modelUrl){try{const url=new URL(modelUrl);if(url.protocol!=="https:")throw Error();payload.model_url=url.href}catch{return say("La URL del modelo 3D debe ser HTTPS.")}}
+  else if(editingId)payload.model_url=null;
   const response=editingId?db.from("menu_products").update(payload).eq("id",editingId).select("id"):db.from("menu_products").insert({...payload,available:true}).select("id");
   const ok=await change(response,"Producto guardado en Supabase.");
   if(ok)editor.close();
@@ -96,6 +99,7 @@
    form.elements.nombre.value=p.name;form.elements.descripcion.value=p.description||"";
    form.elements.categoria.value=p.category;form.elements.precio.value=p.price;
    if(el("producto-imagen-url"))el("producto-imagen-url").value=p.image_url||"";
+   if(el("producto-modelo-url"))el("producto-modelo-url").value=p.model_url||"";
    el("editor-title").textContent="Editar plato";editor.showModal();
   }
   if(toggle){const p=products.find(x=>x.id===Number(toggle.dataset.toggle));if(p)change(db.from("menu_products").update({available:!p.available}).eq("id",p.id).select("id"),"Disponibilidad actualizada.")}
