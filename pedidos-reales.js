@@ -7,6 +7,7 @@
  const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
  const statuses=["Nuevo","Confirmado","Preparando","Listo","Entregado","Cancelado"];
  let lastIds="";
+ let refreshing=false;let lastMarkup="";
  async function deliverPush(){
   try{
    const {data:{session}}=await db.auth.getSession();
@@ -19,6 +20,8 @@
   }catch(err){console.warn("Push no enviado:",err.message)}
  }
  async function refresh(){
+  if(refreshing)return;
+  refreshing=true;
   try{
    const {data,error}=await db.from("orders").select("id,status,created_at,subtotal,restaurant_tables(number),order_items(product_name,quantity)").order("created_at",{ascending:false}).limit(100);
    if(error)throw error;
@@ -33,8 +36,10 @@
    }
    lastIds=ids;
    if(document.activeElement?.matches("[data-real-order-status]"))return;
-   box.innerHTML=data.map(p=>'<article class="order"><div class="topline"><h3>Pedido #'+p.id+' · Mesa '+esc(p.restaurant_tables?.number??"?")+'</h3><span class="badge">'+esc(p.status)+'</span></div><p>'+esc((p.order_items||[]).map(x=>x.quantity+" × "+x.product_name).join(" · "))+'</p><p class="count">'+new Date(p.created_at).toLocaleString("es-AR")+' · $'+Number(p.subtotal).toLocaleString("es-AR")+'</p><label>Estado del pedido <select data-real-order-status="'+p.id+'">'+statuses.map(st=>'<option '+(st===p.status?'selected':'')+'>'+st+'</option>').join("")+'</select></label></article>').join("")||'<p class="empty">No hay pedidos reales todavía.</p>';
+   const markup=data.map(p=>'<article class="order"><div class="topline"><h3>Pedido #'+p.id+' · Mesa '+esc(p.restaurant_tables?.number??"?")+'</h3><span class="badge">'+esc(p.status)+'</span></div><p>'+esc((p.order_items||[]).map(x=>x.quantity+" × "+x.product_name).join(" · "))+'</p><p class="count">'+new Date(p.created_at).toLocaleString("es-AR")+' · $'+Number(p.subtotal).toLocaleString("es-AR")+'</p><label>Estado del pedido <select data-real-order-status="'+p.id+'">'+statuses.map(st=>'<option '+(st===p.status?'selected':'')+'>'+st+'</option>').join("")+'</select></label></article>').join("")||'<p class="empty">No hay pedidos reales todavía.</p>';
+   if(markup!==lastMarkup){box.innerHTML=markup;lastMarkup=markup;}
   }catch(err){document.getElementById("feedback").textContent="⚠️ Error al cargar pedidos reales: "+err.message}
+  finally{refreshing=false}
  }
  box.addEventListener("change",async e=>{
   const el=e.target.closest("[data-real-order-status]");if(!el)return;
