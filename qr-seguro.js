@@ -37,7 +37,8 @@
    if(typeof selectedTable!=="undefined")selectedTable=String(number);
    const info=document.getElementById("qr-security-note");
    if(info)info.textContent="🔐 QR válido hasta 4 horas; generar otro revoca el anterior. Al liberar la mesa, deja de autorizar pedidos.";
-   if(typeof say==="function")say("QR seguro generado para mesa "+number);
+   if(typeof say==="function")say("QR seguro generado para mesa "+number+" · habilitada y ocupada.");
+   document.dispatchEvent(new CustomEvent("brasa:table-updated",{detail:{number,status:"Ocupada",enabled:true}}));
   }catch(err){alert("No se pudo generar el QR seguro: "+err.message)}
   finally{button.disabled=false;button.removeAttribute("aria-busy");button.innerHTML=oldText}
  },true);
