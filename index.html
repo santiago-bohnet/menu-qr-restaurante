@@ -833,16 +833,7 @@ window.addEventListener("storage",e=>{if(e.key===clavePanel)revisarEstadoPedidos
 setInterval(()=>{if(!document.hidden)revisarEstadoPedidos()},2500);
 document.addEventListener("visibilitychange",()=>{if(!document.hidden)revisarEstadoPedidos()});
 revisarEstadoPedidos();
-const claveCatalogo = "brasa-corte-catalogo-demo-v1";
-function sincronizarCatalogo() {
-  try {
-    const datos = JSON.parse(localStorage.getItem(claveCatalogo));
-    if (!Array.isArray(datos)) return;
-    const validos = datos.filter(p => p && Number.isSafeInteger(p.id) && typeof p.nombre === "string" && typeof p.categoria === "string" && Number.isFinite(p.precio));
-    if (validos.length) productos = validos;
-  } catch {}
-}
-sincronizarCatalogo();
+
 
 const moneda = valor => new Intl.NumberFormat("es-AR", {
   style: "currency", currency: "ARS", maximumFractionDigits: 0
@@ -1289,5 +1280,5 @@ mostrarCarrito();
   finally{sending=false;button.disabled=false}
  },true);
 })();
-</script><script src="./seguimiento-real.js"></script><script src="./push-cliente.js"></script><script src="./cuenta-cliente-real.js"></script><script src="./pwa-instalar.js"></script></body>
+</script><script src="./catalogo-supabase.js"></script><script src="./seguimiento-real.js"></script><script src="./push-cliente.js"></script><script src="./cuenta-cliente-real.js"></script><script src="./pwa-instalar.js"></script></body>
 </html>
