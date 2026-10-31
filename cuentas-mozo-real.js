@@ -26,7 +26,7 @@
   e.stopImmediatePropagation();b.disabled=true;
   const {error}=await db.rpc("handle_table_bill",{p_request_id:Number(b.dataset.realBill)});
   if(error){alert("No se pudo atender la cuenta: "+error.message);b.disabled=false}
-  else await refresh();
+  else {lastMarkup="";await refresh();}
  },true);
  await refresh();setInterval(()=>{if(!document.hidden)refresh()},4000);
 })();
