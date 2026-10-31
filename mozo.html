@@ -51,19 +51,20 @@ function save(){
 }
 function render(){
  state=read();stamp();
- if(!state){$("mesa-controls").innerHTML='<p class="empty">No hay mesas cargadas.</p>';$("tiles").innerHTML='<p class="empty">Abrí primero admin.html para crear las mesas.</p>';$("tables").innerHTML='<p class="empty">Abrí primero admin.html en este mismo navegador para inicializar mesas y pedidos.</p>';$("orders").innerHTML='<p class="empty">Todavía no hay datos de pedidos.</p>';return}
- const open=state.pedidos.filter(p=>!["Entregado","Cancelado"].includes(p.estado));
+ if(!state){$("mesa-controls").innerHTML='<p class="empty">No hay mesas cargadas.</p>';$("tiles").innerHTML='<p class="empty">Abrí primero admin.html para crear las mesas.</p>';$("tables").innerHTML='<p class="empty">Abrí primero admin.html en este mismo navegador para inicializar mesas y pedidos.</p>';return}
+ const open=[]; // Los pedidos reales se consultan directamente a Supabase.
  const group=(kind,qr)=>{const subset=state.mesas.filter(x=>(x.zona==="Afuera"?"Afuera":"Adentro")===kind);return '<div class="zone"><h3>'+kind+' <span class="count">('+subset.length+')</span></h3><div class="mesa-grid">'+subset.map(x=>{const reserved=x.estado==="Reservada",enabled=x.habilitada===true,status=reserved?"Reservada":enabled?"Habilitada":"Deshabilitada";return '<button type="button" class="tile '+(reserved?"reserved":enabled?"on":"")+'" '+(qr?'data-qr-table':'data-toggle-table')+'="'+esc(x.id)+'" aria-label="Mesa '+esc(x.id)+', '+kind+', '+status+'"><span>'+esc(x.id)+'</span><small>'+status+'</small><span class="table-strip '+(x.estado==='Ocupada'?'occupied':reserved?'reserved-strip':'')+'">'+(x.estado==='Ocupada'?'Ocupada':reserved?'Reservada':'Libre')+'</span></button>'}).join("")+'</div>'+(subset.length?'':'<p class="count">Sin mesas en esta zona.</p>')+'</div>'};
  $("mesa-controls").innerHTML=group("Adentro",false)+group("Afuera",false);
  $("tiles").innerHTML=group("Adentro",true)+group("Afuera",true);
- // Las cuentas reales las gestiona cuentas-mozo-real.js.\n $("count-tables").textContent=state.mesas.filter(m=>m.estado==="Ocupada").length;
+ // Las cuentas reales las gestiona cuentas-mozo-real.js.
+ $("count-tables").textContent=state.mesas.filter(m=>m.estado==="Ocupada").length;
  // Las estadísticas de pedidos reales las actualiza pedidos-reales.js.
 
 
  $("tables").innerHTML=state.mesas.map(m=>{
- const related=open.filter(p=>safeId(p.mesa)===safeId(m.id));
+ const related=[];
  const badge=m.estado==="Libre"?"free":m.estado==="Reservada"?"reserved":"";
- return '<article class="card"><div class="topline"><h3>Mesa '+esc(m.id)+'</h3><span class="badge '+badge+'">'+esc(m.estado)+'</span></div><p class="count">'+related.length+' pedido(s) activo(s)</p><label class="muted" for="mesa-'+esc(m.id)+'">Estado de la mesa</label><select id="mesa-'+esc(m.id)+'" data-table="'+esc(m.id)+'">'+mesaStates.map(s=>'<option '+(m.estado===s?'selected':'')+'>'+s+'</option>').join('')+'</select><div class="actions"><button class="btn small secondary" data-show-orders="'+esc(m.id)+'">Ver pedidos</button><button class="btn small" data-close="'+esc(m.id)+'" '+(related.length?'disabled title="Tiene pedidos activos"':'')+'>Liberar mesa</button></div></article>'
+ return '<article class="card"><div class="topline"><h3>Mesa '+esc(m.id)+'</h3><span class="badge '+badge+'">'+esc(m.estado)+'</span></div><p class="count">'+'Pedidos disponibles en la pestaña Pedidos'</p><label class="muted" for="mesa-'+esc(m.id)+'">Estado de la mesa</label><select id="mesa-'+esc(m.id)+'" data-table="'+esc(m.id)+'">'+mesaStates.map(s=>'<option '+(m.estado===s?'selected':'')+'>'+s+'</option>').join('')+'</select><div class="actions"><button class="btn small secondary" data-show-orders="'+esc(m.id)+'">Ver pedidos</button><button class="btn small" data-close="'+esc(m.id)+'" '>Liberar mesa</button></div></article>'
  }).join("")||'<p class="empty">No hay mesas configuradas. Agregalas desde Administración.</p>';
  // Los pedidos reales los dibuja exclusivamente pedidos-reales.js.
 
