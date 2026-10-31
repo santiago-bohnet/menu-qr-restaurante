@@ -1,1 +1,76 @@
-<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Acceso del personal · Brasa & Corte</title><style>body{margin:0;background:#100c0b;color:#fff1e6;font:16px system-ui;min-height:100vh;display:grid;place-items:center}main{width:min(420px,90vw);background:#241916;border:1px solid #5b3129;padding:30px;border-radius:18px}h1{color:#ff6547}label{display:block;margin:18px 0}input{display:block;width:100%;box-sizing:border-box;padding:13px;margin-top:6px;border-radius:8px;border:1px solid #aa7665;background:#130e0c;color:white;font-size:16px}button{padding:13px 17px;border:0;border-radius:9px;background:#c53524;color:white;font-weight:700;cursor:pointer;margin-right:8px;margin-bottom:8px}button.secondary{background:#543d36}p{line-height:1.5}#msg{min-height:2em}a{color:#ffb18c}</style></head><body><main><h1>🔥 Acceso del personal</h1><p>Brasa & Corte · Administradores y mozos</p><form id="form"><label>Correo electrónico<input type="email" id="email" autocomplete="email" required></label><label>Contraseña<input type="password" id="password" autocomplete="current-password" required></label><button type="submit">Iniciar sesión</button><button type="button" class="secondary" id="signup">Crear cuenta inicial</button><button type="button" class="secondary" id="reset">Olvidé mi contraseña</button><section id="new-password-section" hidden><label>Nueva contraseña (mínimo 8 caracteres)<input type="password" id="new-password" minlength="8" autocomplete="new-password"></label><button type="button" id="save-password">Guardar nueva contraseña</button></section></form><p id="msg" role="status"></p><p><a href="./index.html">Volver a la carta</a></p></main><script src="./supabase-config.js"></script><script type="module">import{createClient}from"https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";const db=createClient(window.BRASA_SUPABASE.url,window.BRASA_SUPABASE.publishableKey);const msg=document.querySelector("#msg");let recovery=false;db.auth.onAuthStateChange((event)=>{if(event==="PASSWORD_RECOVERY"){recovery=true;document.querySelector("#new-password-section").hidden=false;msg.textContent="Ingresá tu nueva contraseña y guardala."}});async function verify(){const{data:{user}}=await db.auth.getUser();if(!user)return;const{data,error}=await db.from("staff").select("role,active").eq("user_id",user.id).maybeSingle();if(error){msg.textContent="Error al comprobar permisos: "+error.message;return}if(!data?.active){msg.textContent="Cuenta creada. Falta que el administrador la autorice como mozo o administrador.";return}location.replace(data.role==="admin"?"./admin.html":"./mozo.html")}document.querySelector("#form").addEventListener("submit",async e=>{e.preventDefault();msg.textContent="Verificando…";const{error}=await db.auth.signInWithPassword({email:document.querySelector("#email").value.trim(),password:document.querySelector("#password").value});if(error){msg.textContent=error.message;return}await verify()});document.querySelector("#signup").addEventListener("click",async()=>{if(document.querySelector("#password").value.length<8){msg.textContent="Para crear una cuenta necesitás una contraseña de al menos 8 caracteres.";return}msg.textContent="Creando cuenta…";const{error}=await db.auth.signUp({email:document.querySelector("#email").value.trim(),password:document.querySelector("#password").value});msg.textContent=error?error.message:"Cuenta solicitada. Revisá tu correo para confirmarla si Supabase lo requiere. Un administrador debe autorizar el acceso.";if(!error)await verify()});document.querySelector("#reset").addEventListener("click",async()=>{const email=document.querySelector("#email").value.trim();if(!email){msg.textContent="Primero ingresá tu correo electrónico.";return}msg.textContent="Solicitando recuperación…";const{error}=await db.auth.resetPasswordForEmail(email,{redirectTo:location.origin+location.pathname});msg.textContent=error?error.message:"Si el correo está registrado, recibirás un enlace para cambiar tu contraseña. Revisá también spam."});document.querySelector("#save-password").addEventListener("click",async()=>{const password=document.querySelector("#new-password").value;if(password.length<8){msg.textContent="Usá al menos 8 caracteres.";return}const{error}=await db.auth.updateUser({password});msg.textContent=error?error.message:"Contraseña actualizada. Ya podés iniciar sesión.";if(!error){recovery=false;document.querySelector("#new-password-section").hidden=true;await db.auth.signOut()}});if(location.hash.includes("type=recovery")){document.querySelector("#new-password-section").hidden=false;msg.textContent="Ingresá tu nueva contraseña."}else verify();</script></body></html>
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Acceso del personal · Brasa & Corte</title><style>body{margin:0;background:#100c0b;color:#fff1e6;font:16px system-ui;min-height:100vh;display:grid;place-items:center}main{width:min(420px,90vw);background:#241916;border:1px solid #5b3129;padding:30px;border-radius:18px}h1{color:#ff6547}label{display:block;margin:18px 0}input{display:block;width:100%;box-sizing:border-box;padding:13px;margin-top:6px;border-radius:8px;border:1px solid #aa7665;background:#130e0c;color:white;font-size:16px}button{padding:13px 17px;border:0;border-radius:9px;background:#c53524;color:white;font-weight:700;cursor:pointer;margin-right:8px;margin-bottom:8px}button.secondary{background:#543d36}p{line-height:1.5}#msg{min-height:2em}a{color:#ffb18c}</style></head><body><main><h1>🔥 Acceso del personal</h1><p>Brasa & Corte · Administradores y mozos</p><form id="form"><label>Correo electrónico<input type="email" id="email" autocomplete="email" required></label><label>Contraseña<input type="password" id="password" autocomplete="current-password" required></label><button type="submit">Iniciar sesión</button><button type="button" class="secondary" id="signup">Crear cuenta inicial</button><button type="button" class="secondary" id="reset">Olvidé mi contraseña</button><button type="button" class="secondary" id="switch-account">🔄 Cambiar de cuenta</button><section id="new-password-section" hidden><label>Nueva contraseña (mínimo 8 caracteres)<input type="password" id="new-password" minlength="8" autocomplete="new-password"></label><button type="button" id="save-password">Guardar nueva contraseña</button></section></form><p id="msg" role="status"></p><p><a href="./index.html">Volver a la carta</a></p></main><script src="./supabase-config.js"></script><script type="module">import{createClient}from"https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+const db=createClient(window.BRASA_SUPABASE.url,window.BRASA_SUPABASE.publishableKey);
+const $=id=>document.getElementById(id);
+const msg=$("msg");
+const params=new URLSearchParams(location.search);
+const reason=params.get("reason")||"";
+const requested=["admin.html","mozo.html"].includes(params.get("next"))?params.get("next"):null;
+let recovery=false;
+function warning(){
+ if(reason==="admin_required")msg.textContent="Tenés una sesión de mozo activa. Para entrar a Administración, iniciá sesión con una cuenta que tenga permisos de administrador. Podés usar «Cambiar de cuenta».";
+ else if(reason==="permissions")msg.textContent="Esta cuenta no tiene acceso habilitado. Iniciá sesión con una cuenta del personal autorizada.";
+ else if(reason==="connection")msg.textContent="No se pudieron verificar los permisos. Revisá tu conexión e intentá nuevamente.";
+ else if(reason==="login")msg.textContent="Iniciá sesión para acceder al panel solicitado.";
+}
+db.auth.onAuthStateChange(event=>{
+ if(event==="PASSWORD_RECOVERY"){recovery=true;$("new-password-section").hidden=false;msg.textContent="Ingresá tu nueva contraseña y guardala."}
+});
+async function verify({auto=false}={}){
+ try{
+  const {data:{user},error:userError}=await db.auth.getUser();
+  if(userError||!user){if(auto)warning();return}
+  const {data,error}=await db.from("staff").select("role,active").eq("user_id",user.id).maybeSingle();
+  if(error){msg.textContent="Error al comprobar permisos: "+error.message;return}
+  if(!data?.active){msg.textContent="Esta cuenta no está habilitada como personal. Un administrador debe autorizarla.";return}
+  if(requested==="admin.html"&&data.role!=="admin"){
+   msg.textContent="La cuenta "+(user.email||"actual")+" tiene rol de mozo y no puede entrar a Administración. Iniciá sesión con una cuenta administradora.";
+   return;
+  }
+  // Evitar que una sesión antigua de mozo redirija silenciosamente a su panel.
+  if(auto&&(reason==="admin_required"||reason==="permissions")){
+   warning();
+   if(user.email)msg.textContent+=" Cuenta actual: "+user.email+".";
+   return;
+  }
+  const dest=requested||(data.role==="admin"?"admin.html":"mozo.html");
+  location.replace("./"+dest);
+ }catch(err){msg.textContent="No se pudo comprobar la sesión: "+err.message}
+}
+$("form").addEventListener("submit",async e=>{
+ e.preventDefault();msg.textContent="Verificando credenciales…";
+ const email=$("email").value.trim(),password=$("password").value;
+ const {error}=await db.auth.signInWithPassword({email,password});
+ if(error){msg.textContent="No se pudo iniciar sesión: "+error.message;return}
+ $("password").value="";
+ await verify();
+});
+$("switch-account").addEventListener("click",async()=>{
+ msg.textContent="Cerrando sesión anterior…";
+ const {error}=await db.auth.signOut();
+ if(error){msg.textContent="No se pudo cerrar la sesión: "+error.message;return}
+ $("password").value="";$("email").value="";$("email").focus();
+ msg.textContent="Sesión cerrada. Ingresá con la cuenta administradora o de mozo que quieras utilizar.";
+});
+$("signup").addEventListener("click",async()=>{
+ const email=$("email").value.trim(),password=$("password").value;
+ if(password.length<8){msg.textContent="Para crear una cuenta necesitás al menos 8 caracteres.";return}
+ msg.textContent="Creando cuenta…";
+ const {error}=await db.auth.signUp({email,password});
+ msg.textContent=error?error.message:"Cuenta solicitada. Revisá tu correo si es necesaria una confirmación. Un administrador debe autorizar el acceso.";
+ if(!error)await verify();
+});
+$("reset").addEventListener("click",async()=>{
+ const email=$("email").value.trim();if(!email){msg.textContent="Primero ingresá tu correo.";return}
+ msg.textContent="Solicitando recuperación…";
+ const {error}=await db.auth.resetPasswordForEmail(email,{redirectTo:location.origin+location.pathname});
+ msg.textContent=error?error.message:"Si el correo está registrado, vas a recibir un enlace. Revisá también spam.";
+});
+$("save-password").addEventListener("click",async()=>{
+ const password=$("new-password").value;
+ if(password.length<8){msg.textContent="Usá al menos 8 caracteres.";return}
+ const {error}=await db.auth.updateUser({password});
+ msg.textContent=error?error.message:"Contraseña actualizada. Ahora iniciá sesión.";
+ if(!error){recovery=false;$("new-password-section").hidden=true;await db.auth.signOut()}
+});
+if(location.hash.includes("type=recovery")){$("new-password-section").hidden=false;msg.textContent="Ingresá tu nueva contraseña."}
+else verify({auto:true});</script></body></html>
