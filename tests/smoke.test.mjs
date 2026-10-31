@@ -35,11 +35,13 @@ for(const [page,modules] of [
   }
  });
 }
-test("Pedidos únicamente con token QR",()=>{
+test("Pedidos en mesa con QR y delivery público sin QR",()=>{
  const html=read("index.html");
  assert.match(html,/place_qr_order/);
  assert.doesNotMatch(html,/clavePanel|sincronizarCatalogo|menu-qr-ultimo-pedido-demo/);
- assert.match(html,/modoMuestra\s*=.*!parametrosQR.has\("token"\)/);
+ assert.match(html,/modoMuestra\s*=\s*parametrosQR.get\("vista"\)\s*===\s*"muestra"/);
+ assert.match(html,/modoActual === "presencial" && !parametrosQR.has\("token"\)/);
+ assert.match(read("delivery-cliente.js"),/place_delivery_order/);
 });
 test("Panel de administración sin demo y con imágenes reales",()=>{
  assert.doesNotMatch(read("admin-supabase.js"),/localStorage/);
