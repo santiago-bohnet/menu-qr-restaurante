@@ -629,7 +629,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
   </div>
 </section>
 <div id="contenido-menu" hidden>
-<div class="demo">MAQUETA INTERACTIVA · Negocio y precios ficticios · Sin pedidos reales</div>
+<div class="demo">Carta digital · Los pedidos requieren un QR de mesa vigente</div>
 
 <header>
   <div class="marca"><span class="marca-fuego">♨</span> BRASA <span>Y CORTE</span></div>
@@ -724,7 +724,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 </dialog>
 <dialog id="dialogo" aria-labelledby="titulo-dialogo">
   <h2 id="titulo-dialogo">Así se vería tu mensaje</h2>
-  <p class="nota">Vista previa de demostración. No se envió ningún pedido. Este pedido se guarda solamente en la sesión de este navegador.</p>
+  <p class="nota">Los pedidos con QR se envían al restaurante.</p>
   <pre id="mensaje"></pre>
   <button class="principal" id="copiar" type="button">Copiar mensaje de ejemplo</button>
   <p class="nota" id="estado-copia" role="status"></p>
@@ -740,101 +740,14 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 <script>
 // Editá estos datos para personalizar la maqueta.
 const negocio = "Brasa & Corte";
-let productos = [
-  { id: 1, nombre: "Bife de chorizo", categoria: "Cortes", descripcion: "Corte de 350 g aprox. a las brasas. Guarnición aparte.", precio: 19800, icono: "🥩" },
-  { id: 2, nombre: "Entraña a la parrilla", categoria: "Cortes", descripcion: "Entraña de 300 g aprox. con chimichurri de la casa.", precio: 22500, icono: "🥩" },
-  { id: 3, nombre: "Asado de tira", categoria: "Cortes", descripcion: "Tira de asado con cocción lenta, porción de 450 g aprox.", precio: 21500, icono: "🍖" },
-  { id: 4, nombre: "Vacío a las brasas", categoria: "Cortes", descripcion: "Porción jugosa de vacío, 400 g aprox.", precio: 20800, icono: "🍖" },
-  { id: 5, nombre: "Chorizo criollo", categoria: "Achuras", descripcion: "Chorizo parrillero con pan y salsa criolla.", precio: 5900, icono: "🌭" },
-  { id: 6, nombre: "Mollejas crocantes", categoria: "Achuras", descripcion: "Porción de mollejas doradas con limón.", precio: 15800, icono: "🔥" },
-  { id: 7, nombre: "Provoleta", categoria: "Entradas", descripcion: "Queso provolone fundido con orégano y oliva.", precio: 9700, icono: "🧀" },
-  { id: 8, nombre: "Papas rústicas", categoria: "Guarniciones", descripcion: "Papas doradas con romero y sal entrefina.", precio: 5600, icono: "🍟" },
-  { id: 9, nombre: "Ensalada mixta", categoria: "Guarniciones", descripcion: "Lechuga, tomate y cebolla fresca.", precio: 4900, icono: "🥗" },
-  { id: 10, nombre: "Limonada casera", categoria: "Bebidas", descripcion: "Limonada fresca de 500 ml.", precio: 3200, icono: "🍋" },
-  { id: 11, nombre: "Agua mineral", categoria: "Bebidas", descripcion: "Botella de agua sin gas de 500 ml.", precio: 2200, icono: "💧" },
-  { id: 12, nombre: "Flan con dulce de leche", categoria: "Postres", descripcion: "Flan casero con dulce de leche.", precio: 5500, icono: "🍮" },
-  {"id":13,"nombre":"Ojo de bife","categoria":"Cortes","descripcion":"Corte de 380 g aprox., sellado a fuego fuerte.","precio":24600,"icono":"🥩"},
-  {"id":14,"nombre":"Matambre a la pizza","categoria":"Cortes","descripcion":"Matambre tierno con salsa, muzzarella y orégano.","precio":18700,"icono":"🍖"},
-  {"id":15,"nombre":"Bondiola braseada","categoria":"Cortes","descripcion":"Bondiola jugosa con reducción de cocción.","precio":17600,"icono":"🍖"},
-  {"id":16,"nombre":"Tapa de asado","categoria":"Cortes","descripcion":"Tapa de asado asada lentamente, porción de 400 g.","precio":19900,"icono":"🥩"},
-  {"id":17,"nombre":"Riñones al provenzal","categoria":"Achuras","descripcion":"Riñones a la parrilla con ajo y perejil.","precio":8900,"icono":"🔥"},
-  {"id":18,"nombre":"Chinchulines crocantes","categoria":"Achuras","descripcion":"Porción de chinchulines dorados con limón.","precio":7900,"icono":"🔥"},
-  {"id":19,"nombre":"Morcilla criolla","categoria":"Achuras","descripcion":"Morcilla a las brasas, por unidad.","precio":5200,"icono":"🍽️"},
-  {"id":20,"nombre":"Empanadas de carne","categoria":"Entradas","descripcion":"Dos empanadas de carne cortada a cuchillo.","precio":6200,"icono":"🥟"},
-  {"id":21,"nombre":"Pan de campo con chimichurri","categoria":"Entradas","descripcion":"Pan tibio y chimichurri casero.","precio":3900,"icono":"🥖"},
-  {"id":22,"nombre":"Papas fritas clásicas","categoria":"Guarniciones","descripcion":"Porción de papas fritas doradas.","precio":5300,"icono":"🍟"},
-  {"id":23,"nombre":"Puré de calabaza","categoria":"Guarniciones","descripcion":"Puré cremoso de calabaza asada.","precio":4900,"icono":"🎃"},
-  {"id":24,"nombre":"Verduras grilladas","categoria":"Guarniciones","descripcion":"Selección de verduras a las brasas.","precio":6500,"icono":"🥦"},
-  {"id":25,"nombre":"Gaseosa 500 ml","categoria":"Bebidas","descripcion":"Gaseosa individual de 500 ml.","precio":3400,"icono":"🥤"},
-  {"id":26,"nombre":"Agua con gas","categoria":"Bebidas","descripcion":"Botella individual de 500 ml.","precio":2400,"icono":"💧"},
-  {"id":27,"nombre":"Pomelada casera","categoria":"Bebidas","descripcion":"Pomelada fresca de 500 ml.","precio":3500,"icono":"🍹"},
-  {"id":28,"nombre":"Panqueque con dulce de leche","categoria":"Postres","descripcion":"Panqueque tibio con dulce de leche.","precio":6400,"icono":"🥞"},
-  {"id":29,"nombre":"Helado artesanal","categoria":"Postres","descripcion":"Dos bochas de helado a elección.","precio":5700,"icono":"🍨"},
-  {"id":30,"nombre":"Budín de pan","categoria":"Postres","descripcion":"Budín de pan casero con caramelo.","precio":5200,"icono":"🍮"}
-];
+let productos = [];
 
 const $ = id => document.getElementById(id);
 const parametrosQR = new URLSearchParams(location.search);
-const modoMuestra = parametrosQR.get("vista") === "muestra";
+const modoMuestra = parametrosQR.get("vista") === "muestra" || !parametrosQR.has("token");
 const mesaQR = Number(parametrosQR.get("mesa"));
-const mesaQRValida = parametrosQR.has("mesa") && Number.isInteger(mesaQR) && mesaQR>=1 && mesaQR<=999;
-const clavePanel="brasa-admin-demo-v1";
-function leerPanel(){try{const x=JSON.parse(localStorage.getItem(clavePanel));return x&&Array.isArray(x.mesas)&&Array.isArray(x.pedidos)?x:null}catch{return null}}
-function actualizarEstadoCuenta(){
- const data=leerPanel(), solicitud=data?.solicitudesCuenta?.find(x=>x.mesa===mesaQR && x.estado==="Pendiente");
- const btn=$("pedir-cuenta");if(!btn)return;
- btn.disabled=Boolean(solicitud);
- $("estado-cuenta").textContent=solicitud?"Aviso enviado. El personal ya tiene tu solicitud.":"";
-}
-// Avisos de estado para pedidos QR en esta demo local (mismo navegador).
-const seguimientoKey="brasa-seguimiento-pedidos-v1";
-function idsSeguimiento(){try{return JSON.parse(localStorage.getItem(seguimientoKey))||[]}catch{return []}}
-function guardarSeguimiento(id){const ids=idsSeguimiento();if(!ids.includes(id)){ids.push(id);localStorage.setItem(seguimientoKey,JSON.stringify(ids.slice(-30)))}}
-function pintarSeguimiento(){
- const cont=document.getElementById("seguimiento-pedido");if(!cont)return;
- const ids=idsSeguimiento(),panel=leerPanel();
- const pedidos=(panel?.pedidos||[]).filter(p=>ids.includes(p.id)&&Number(p.mesa)===mesaQR);
- cont.hidden=!pedidos.length;
- if(!pedidos.length)return;
- const p=pedidos[0];
- document.getElementById("seguimiento-detalle").textContent="Pedido #"+p.id+" · Mesa "+p.mesa+" · Estado: "+p.estado;
- const b=document.getElementById("activar-notificaciones");
- b.hidden=!("Notification" in window)||Notification.permission==="granted";
- document.getElementById("permiso-notificaciones").textContent=!("Notification" in window)?"Este navegador no admite notificaciones. El seguimiento sigue disponible.":Notification.permission==="granted"?"Notificaciones permitidas en este dispositivo (envío remoto pendiente de backend).":Notification.permission==="denied"?"Notificaciones bloqueadas. Podés habilitarlas en la configuración del navegador.":"Opcional: autorizá los avisos del navegador. El seguimiento funciona sin este permiso.";
-}
-document.getElementById("activar-notificaciones").addEventListener("click",async()=>{
- if(!("Notification" in window))return;
- try{await Notification.requestPermission()}catch{}
- pintarSeguimiento();
-});
-const estadosAvisables=new Set(["Confirmado","Preparando","Listo"]);
-const estadosVistos=new Map();
-let avisosInicializados=false;
-function revisarEstadoPedidos(){
- if(!mesaQRValida||modoMuestra)return;
- const panel=leerPanel();if(!panel)return;
- const ids=idsSeguimiento();
- const pedidos=panel.pedidos.filter(p=>Number(p.mesa)===mesaQR&&p.origen==="cliente-qr"&&ids.includes(p.id));
- pintarSeguimiento();
- if(!avisosInicializados){pedidos.forEach(p=>estadosVistos.set(String(p.id),p.estado));avisosInicializados=true;return}
- for(const p of pedidos){
-  const id=String(p.id),anterior=estadosVistos.get(id);
-  estadosVistos.set(id,p.estado);
-  if(anterior===undefined||anterior===p.estado||!estadosAvisables.has(p.estado))continue;
-  const texto=p.estado==="Confirmado"?"Tu pedido fue confirmado.":p.estado==="Preparando"?"Están preparando tu pedido.":"¡Tu pedido está listo!";
-  let aviso=document.getElementById("aviso-estado-pedido");
-  if(!aviso){aviso=document.createElement("div");aviso.id="aviso-estado-pedido";aviso.setAttribute("role","status");aviso.setAttribute("aria-live","polite");aviso.style.cssText="position:fixed;bottom:18px;left:50%;transform:translateX(-50%);z-index:99999;background:#251419;color:#fff;border:2px solid #d51f35;box-shadow:0 8px 30px #0009;border-radius:14px;padding:16px 22px;max-width:calc(100vw - 30px);font:600 16px system-ui,sans-serif;text-align:center";document.body.appendChild(aviso)}
-  aviso.textContent="🔔 Mesa "+mesaQR+": "+texto;
-  clearTimeout(revisarEstadoPedidos.timer);revisarEstadoPedidos.timer=setTimeout(()=>aviso.remove(),9000);
-  if("Notification" in window&&Notification.permission==="granted"){try{new Notification("Estado de tu pedido",{body:texto,tag:"pedido-"+id+"-"+p.estado})}catch{}}
- }
-}
-window.addEventListener("storage",e=>{if(e.key===clavePanel)revisarEstadoPedidos()});
-setInterval(()=>{if(!document.hidden)revisarEstadoPedidos()},2500);
-document.addEventListener("visibilitychange",()=>{if(!document.hidden)revisarEstadoPedidos()});
-revisarEstadoPedidos();
-
-
+const mesaQRValida = false; // El parámetro mesa no concede autorización.
+// Pedidos y cuentas: Supabase.
 const moneda = valor => new Intl.NumberFormat("es-AR", {
   style: "currency", currency: "ARS", maximumFractionDigits: 0
 }).format(valor);
@@ -842,7 +755,7 @@ const moneda = valor => new Intl.NumberFormat("es-AR", {
 const zonasEnvio={centro:2000,media:3500,lejana:5500}; // Tarifas de demostración: configurar según comercio.
 function actualizarCostoEnvio(){const costo=zonasEnvio[$("zona-envio").value]??0;$("costo-envio").textContent=`Envío estimado: ${moneda(costo)} · Total estimado: ${moneda(subtotal()+costo)}. El comercio debe confirmar la zona.`}
 $("zona-envio").addEventListener("change",actualizarCostoEnvio);
-const clave = "brasa-corte-demo-carrito-v1";
+const clave = "brasa-corte-carrito-v2";
 let carrito = {};
 let categoriaActual = "Entradas";
 let modoActual = null;
@@ -850,16 +763,16 @@ let modoActual = null;
 function elegirModo(modo) {
   if (modo !== "presencial" && modo !== "domicilio") return;
   modoActual = modo;
-  $("cuenta-cliente").hidden = modo !== "presencial" || modoMuestra || !mesaQRValida;
+  $("cuenta-cliente").hidden = modo !== "presencial" || modoMuestra || !parametrosQR.has("token");
   $("ubicacion-local").hidden = modo !== "domicilio";
   // La carta se revela únicamente cuando termina la transición de fuego.
   $("modalidad").value = modo;
   $("campo-mesa").hidden = modo !== "presencial";
   $("mesa-asignada").textContent = mesaQRValida ? "Mesa "+mesaQR+" asignada automáticamente por el QR del mozo." : "Escaneá el QR generado por el mozo para realizar pedidos en el local.";
-  if(modo==="presencial" && mesaQRValida) actualizarEstadoCuenta();
+  
   $("campo-direccion").hidden = modo !== "domicilio";
   $("direccion").required = modo === "domicilio";
-  $("modo-titulo").textContent = modo === "presencial" ? "CONSUMO EN EL LOCAL · DEMOSTRACIÓN" : "PEDIDO A DOMICILIO · DEMOSTRACIÓN";
+  $("modo-titulo").textContent = modo === "presencial" ? "CONSUMO EN EL LOCAL" : "PEDIDO A DOMICILIO · PRÓXIMAMENTE";
   for(const id of ["nombre-entrega","telefono-entrega","zona-envio","metodo-pago"]) $(id).disabled = modo !== "domicilio";
   $("direccion").setCustomValidity("");
   actualizarCostoEnvio();
@@ -901,7 +814,7 @@ try {
   carrito = {};
 }
 
-const categorias = ["Entradas", "Cortes", "Achuras", "Guarniciones", "Bebidas", "Postres"];
+const categorias = [];
 
 function mostrarFiltros() {
   $("filtros").innerHTML = categorias.map(categoria => `
@@ -965,7 +878,7 @@ function mostrarCarrito() {
   $("contador").textContent = `(${unidades})`;
   $("total").textContent = moneda(subtotal());
   actualizarCostoEnvio();
-  $("ver-pedido").disabled = elegidos.length === 0;
+  $("ver-pedido").disabled = elegidos.length === 0 || modoMuestra;
   $("vaciar").hidden = elegidos.length === 0;
 
   try {
@@ -981,8 +894,9 @@ function cambiarCantidad(id, cambio) {
 
   const anterior = carrito[id] || 0;
   const nueva = Math.max(0, Math.min(99, anterior + cambio));
+  if(nueva > 20 || (cambio>0 && Object.values(carrito).reduce((a,b)=>a+b,0)>=60)) { $("estado").textContent="Máximo: 20 unidades por plato y 60 por pedido.";return; }
   if (nueva === anterior) {
-    $("estado").textContent = "Máximo de demostración: 99 unidades por producto.";
+    $("estado").textContent = "Cantidad sin cambios.";
     return;
   }
   if (nueva === 0) delete carrito[id];
@@ -1032,99 +946,7 @@ $("vaciar").addEventListener("click", () => {
 
  
 
-$("formulario").addEventListener("submit", evento => {
-  evento.preventDefault();
-  if (!seleccionados().length) return;
-
-  const entrega = modoActual === "domicilio";
-  const direccion = $("direccion").value.trim();
-  if (entrega && !direccion) {
-    $("direccion").setCustomValidity("Escribí una dirección de ejemplo.");
-    $("direccion").reportValidity();
-    return;
-  }
-
-  const lineas = seleccionados().map(p =>
-    `• ${carrito[p.id]} × ${p.nombre}: ${moneda(p.precio * carrito[p.id])}`
-  );
-
-  const mesa = mesaQRValida ? mesaQR : null;
-  if (!entrega && !mesaQRValida) { $("estado").textContent="Para pedir en el local, escaneá el QR que genera el mozo para tu mesa."; return; }
-
-  const nombreEntrega=entrega?$("nombre-entrega").value.trim():"";
-  const telefonoEntrega=entrega?$("telefono-entrega").value.trim():"";
-  const referenciasEntrega=entrega?$("referencias-entrega").value.trim():"";
-  const zonaEntrega=entrega?$("zona-envio").value:"";
-  const metodoPago=entrega?$("metodo-pago").value:"";
-  const costoEntrega=entrega?(zonasEnvio[zonaEntrega]??0):0;
-  const aclaraciones = $("aclaraciones").value.trim();
-  $("mensaje").textContent = [
-    "DEMOSTRACIÓN — NO ES UN PEDIDO REAL",
-    entrega ? "Modalidad: a domicilio" : `Mesa: ${mesa}`,
-    "",
-    `Hola, ${negocio}. Quisiera consultar por este pedido:`,
-    "",
-    ...lineas,
-    "",
-    `Subtotal de productos: ${moneda(subtotal())}`,
-    entrega ? `Entrega en: ${direccion}` : "Modalidad: consumo en el local",
-    entrega ? `Recibe: ${nombreEntrega} · Teléfono: ${telefonoEntrega}` : "",
-    entrega && referenciasEntrega ? `Referencias: ${referenciasEntrega}` : "",
-    entrega ? `Zona: ${zonaEntrega} · Pago: ${metodoPago}` : "",
-    entrega ? `Envío estimado: ${moneda(costoEntrega)} · Total estimado: ${moneda(subtotal()+costoEntrega)}` : "",
-    aclaraciones ? `Aclaraciones: ${aclaraciones}` : "",
-    "",
-    "¿Me confirman disponibilidad, importe final, forma de pago y demora?",
-    "El pedido queda pendiente de confirmación del comercio."
-  ].filter(linea => linea !== "").join("\n");
-
-  const pedido = {
-    id: "DEMO-" + Date.now(),
-    fecha: new Date().toISOString(),
-    modalidad: modoActual,
-    mesa: entrega ? null : mesa,
-    direccion: entrega ? direccion : null,
-    nombreEntrega: entrega ? nombreEntrega : null,
-    telefonoEntrega: entrega ? telefonoEntrega : null,
-    referenciasEntrega: entrega ? referenciasEntrega : null,
-    zonaEntrega: entrega ? zonaEntrega : null,
-    costoEntrega,
-    metodoPago: entrega ? metodoPago : null,
-    productos: seleccionados().map(p => ({
-      id: p.id,
-      nombre: p.nombre,
-      cantidad: carrito[p.id],
-      precioUnitario: p.precio,
-      importe: p.precio * carrito[p.id]
-    })),
-    aclaraciones,
-    subtotal: subtotal(),
-    estado: "simulacion"
-  };
-  try {
-    // Los datos quedan solo en esta pestaña durante la sesión.
-    sessionStorage.setItem("menu-qr-ultimo-pedido-demo-v1", JSON.stringify(pedido));
-    $("estado-copia").textContent = "Pedido de demostración guardado en esta sesión. No se envió al restaurante.";
-  } catch {
-    $("estado-copia").textContent = "No se pudo guardar el pedido en este navegador. Podés copiar el resumen.";
-  }
-  // Cada envío es una comanda independiente; las siguientes son ADICIONES.
-  // Solo la demo local con mesa QR y panel inicializado puede crear avisos.
-  if(!entrega&&!modoMuestra){
-    const panel=leerPanel(),table=panel?.mesas.find(x=>Number(x.id)===mesa);
-    if(panel&&table?.estado==="Ocupada"&&table.habilitada===true){
-      const anteriores=panel.pedidos.filter(p=>Number(p.mesa)===mesa&&p.origen==="cliente-qr");
-      const adicion=anteriores.length>0;
-      const nuevo={id:Date.now()+Math.floor(Math.random()*1000),mesa,detalle:lineas.join(" | ")+(aclaraciones?" · Nota: "+aclaraciones:""),estado:"Nuevo",hora:new Date().toLocaleTimeString("es-AR",{hour:"2-digit",minute:"2-digit"}),origen:"cliente-qr",tipo:adicion?"Adición":"Pedido inicial",adicion,numeroComanda:anteriores.length+1,fecha:new Date().toISOString()};
-      panel.pedidos.unshift(nuevo);
-      try{localStorage.setItem(clavePanel,JSON.stringify(panel));guardarSeguimiento(nuevo.id);pintarSeguimiento();$("estado-copia").textContent=(adicion?"Adición":"Pedido inicial")+" registrada para el personal en este navegador (demo local).";carrito={};mostrarCarrito()}catch{$("estado-copia").textContent="No se pudo registrar el pedido. No se notificó al personal."}
-    }else{$("estado-copia").textContent="No se notificó al personal: la mesa no está ocupada/habilitada o se está usando otro navegador."}
-  }
-  $("dialogo").showModal();
-});
-
-
-
+$("formulario").addEventListener("submit",event=>{event.preventDefault();if(!parametrosQR.has("token")||modoMuestra)$("estado").textContent="Necesitás un QR vigente del mozo para pedir.";});
 $("direccion").addEventListener("input", () => {
   $("direccion").setCustomValidity("");
 });
@@ -1181,17 +1003,6 @@ $("visor-ra").addEventListener("error", () => {
 $("cerrar-ra").addEventListener("click", () => $("dialogo-ra").close());
 $("dialogo-ra").addEventListener("close", () => $("visor-ra").removeAttribute("src"));
 
-$("pedir-cuenta").addEventListener("click",()=>{
- if(!mesaQRValida||modoActual!=="presencial"||modoMuestra)return;
- const state=leerPanel();
- if(!state){$("estado-cuenta").textContent="Esta demostración solo puede avisar al personal desde el mismo navegador y dispositivo.";return}
- const mesa=state.mesas.find(m=>Number(m.id)===mesaQR);
- if(!mesa || mesa.habilitada!==true || mesa.estado!=="Ocupada"){$("estado-cuenta").textContent="La mesa no está habilitada actualmente.";return}
- state.solicitudesCuenta=Array.isArray(state.solicitudesCuenta)?state.solicitudesCuenta:[];
- if(state.solicitudesCuenta.some(x=>Number(x.mesa)===mesaQR&&x.estado==="Pendiente")){actualizarEstadoCuenta();return}
- state.solicitudesCuenta.push({id:Date.now(),mesa:mesaQR,zona:mesa.zona==="Afuera"?"Afuera":"Adentro",estado:"Pendiente",hora:new Date().toLocaleTimeString("es-AR",{hour:"2-digit",minute:"2-digit"})});
- try{localStorage.setItem(clavePanel,JSON.stringify(state));actualizarEstadoCuenta()}catch{$("estado-cuenta").textContent="No se pudo enviar el aviso."}
-});
 // Un QR emitido por el mozo entra directamente a «Comer aquí»; no ofrece delivery.
 if(parametrosQR.has("token")&&!modoMuestra){
   $("inicio").hidden=true;
@@ -1213,8 +1024,8 @@ if(parametrosQR.has("token")&&!modoMuestra){
       $("ver-pedido").disabled=true;
     }
   })();
-}else if(mesaQRValida&&!modoMuestra){elegirModo("presencial");}
-window.addEventListener("storage",e=>{if(e.key===clavePanel&&mesaQRValida)actualizarEstadoCuenta()});
+}
+
 if (modoMuestra) {
   $("inicio").hidden = true;
   $("contenido-menu").hidden = false;
@@ -1228,16 +1039,6 @@ if (modoMuestra) {
   aviso.textContent = "Carta para consultar platos y precios. En esta vista no se pueden realizar pedidos.";
   $("titulo-menu").before(aviso);
 }
-window.addEventListener("storage", e => {
-  if (e.key !== claveCatalogo) return;
-  sincronizarCatalogo();
-  for (const id of Object.keys(carrito)) {
-    if (!productos.some(p => p.id === Number(id) && p.disponible !== false)) delete carrito[id];
-  }
-  mostrarFiltros();
-  mostrarProductos();
-  mostrarCarrito();
-});
 mostrarFiltros();
 mostrarProductos();
 mostrarCarrito();
