@@ -61,18 +61,16 @@ function render(){
  $("badge-cuentas").textContent=pendientes.length;
  $("cuentas-mozo").innerHTML=pendientes.map(x=>'<article class="order"><h3>🧾 Mesa '+esc(x.mesa)+' · '+esc(x.zona||"Adentro")+'</h3><p class="count">Solicitada a las '+esc(x.hora)+'</p><button class="btn primary" data-atender-cuenta="'+esc(x.id)+'">Marcar atendida</button></article>').join("")||'<p class="empty">No hay cuentas solicitadas.</p>';
  $("count-tables").textContent=state.mesas.filter(m=>m.estado==="Ocupada").length;
- $("count-active").textContent=open.length;
- $("badge-pedidos").textContent=state.pedidos.filter(p=>p.estado==="Nuevo").length;
- $("count-ready").textContent=open.filter(p=>p.estado==="Listo").length;
+ // Las estadísticas de pedidos reales las actualiza pedidos-reales.js.
+
+
  $("tables").innerHTML=state.mesas.map(m=>{
  const related=open.filter(p=>safeId(p.mesa)===safeId(m.id));
  const badge=m.estado==="Libre"?"free":m.estado==="Reservada"?"reserved":"";
  return '<article class="card"><div class="topline"><h3>Mesa '+esc(m.id)+'</h3><span class="badge '+badge+'">'+esc(m.estado)+'</span></div><p class="count">'+related.length+' pedido(s) activo(s)</p><label class="muted" for="mesa-'+esc(m.id)+'">Estado de la mesa</label><select id="mesa-'+esc(m.id)+'" data-table="'+esc(m.id)+'">'+mesaStates.map(s=>'<option '+(m.estado===s?'selected':'')+'>'+s+'</option>').join('')+'</select><div class="actions"><button class="btn small secondary" data-show-orders="'+esc(m.id)+'">Ver pedidos</button><button class="btn small" data-close="'+esc(m.id)+'" '+(related.length?'disabled title="Tiene pedidos activos"':'')+'>Liberar mesa</button></div></article>'
  }).join("")||'<p class="empty">No hay mesas configuradas. Agregalas desde Administración.</p>';
- $("orders").innerHTML=[...state.pedidos].reverse().map(p=>{
- const next=p.estado==="Nuevo"?"Confirmado":p.estado==="Confirmado"?"Preparando":p.estado==="Preparando"?"Listo":p.estado==="Listo"?"Entregado":null;
- return '<article class="order" data-order-card="'+esc(p.mesa)+'"><div class="topline"><h3>Pedido #'+esc(p.id)+' · Mesa '+esc(p.mesa)+'</h3><span class="badge">'+esc(p.estado)+'</span></div><p>'+(p.adicion?'<span class="badge" style="background:#4d1923;color:#ffb6c0">➕ ADICIÓN #'+esc(p.numeroComanda)+' · NUEVA COMANDA</span><br>':'<span class="badge">PEDIDO INICIAL</span><br>')+esc(p.detalle)+'</p><p class="count">'+esc(p.hora)+'</p><div class="actions">'+(next?'<button class="btn primary small" data-next="'+esc(p.id)+'">Marcar '+esc(next)+'</button>':'')+'<label class="muted" style="min-width:190px">Estado del pedido<select aria-label="Estado del pedido '+esc(p.id)+'" data-order-status="'+esc(p.id)+'">'+states.map(st=>'<option value="'+esc(st)+'" '+(st===p.estado?'selected':'')+'>'+esc(st)+'</option>').join('')+'</select></label></div></article>'
- }).join("")||'<p class="empty">Sin pedidos todavía. Se pueden simular desde Administración.</p>';
+ // Los pedidos reales los dibuja exclusivamente pedidos-reales.js.
+
 }
 function update(mutator){
  // Releer justo antes de escribir para reducir el riesgo de pisar cambios entre pestañas.
