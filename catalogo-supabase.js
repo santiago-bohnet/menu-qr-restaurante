@@ -7,6 +7,7 @@
   if(error)throw error;
   if(!Array.isArray(data))throw Error("Catálogo no disponible");
   productos=data.map(p=>({id:Number(p.id),nombre:p.name,descripcion:p.description||"",categoria:p.category,precio:Number(p.price),foto:p.image_url||"",modelo:p.model_url||"",disponible:p.available!==false}));
+  for(const category of [...new Set(productos.map(p=>p.categoria))])if(!categorias.includes(category))categorias.push(category);
   if(typeof mostrarFiltros==="function")mostrarFiltros();
   if(typeof mostrarProductos==="function")mostrarProductos();
   if(typeof mostrarCarrito==="function")mostrarCarrito();
