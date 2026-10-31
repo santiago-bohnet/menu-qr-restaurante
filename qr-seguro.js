@@ -11,7 +11,9 @@
   if(!button)return;
   e.preventDefault();e.stopImmediatePropagation();
   const number=Number(button.dataset.qrTable);
-  button.disabled=true;\n  const oldText=button.innerHTML;\n  button.setAttribute("aria-busy","true");
+  button.disabled=true;
+  const oldText=button.innerHTML;
+  button.setAttribute("aria-busy","true");
   try{
    const {data:rows,error:readError}=await db.from("restaurant_tables").select("id,status,enabled").eq("number",number).maybeSingle();
    if(readError)throw readError;
@@ -31,7 +33,8 @@
    document.getElementById("qr-description").textContent="QR seguro · Mesa "+number;
    document.getElementById("qr-link").href=url.href;
    document.getElementById("qr-result").classList.remove("hide");
-   document.getElementById("download-qr").dataset.realTable=String(number);\n   if(typeof selectedTable!=="undefined")selectedTable=String(number);
+   document.getElementById("download-qr").dataset.realTable=String(number);
+   if(typeof selectedTable!=="undefined")selectedTable=String(number);
    const info=document.getElementById("qr-security-note");
    if(info)info.textContent="🔐 QR válido hasta 4 horas; generar otro revoca el anterior. Al liberar la mesa, deja de autorizar pedidos.";
    if(typeof say==="function")say("QR seguro generado para mesa "+number);
