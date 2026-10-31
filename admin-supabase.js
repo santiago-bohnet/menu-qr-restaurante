@@ -16,6 +16,8 @@
   document.querySelectorAll("[data-tab]").forEach(b=>b.setAttribute("aria-selected",String(b===btn)));
   el("heading").textContent=titles[btn.dataset.tab];
  }));
+ const requestedTab=new URLSearchParams(location.search).get("tab");
+ if(tabs.includes(requestedTab))document.querySelector(`[data-tab="${requestedTab}"]`)?.click();
  function render(){
   el("stat-pedidos").textContent=orders.length;
   el("stat-productos").textContent=products.length;
