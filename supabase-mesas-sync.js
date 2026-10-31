@@ -1,5 +1,4 @@
-/* Brasa & Corte: sincronización de mesas reales para los paneles existentes.
-   Los pedidos y los QR siguen siendo DEMO hasta implementar autorización de servidor. */
+/* Sincronización de mesas reales con Supabase; los pedidos se gestionan por separado. */
 (async function(){
  "use strict";
  const admin=document.documentElement.dataset.staffRole==="admin";
@@ -38,9 +37,12 @@
    if(!saved){notify("⚠️ No se pudo leer el almacenamiento local.");return}
    const byId=new Map(saved.mesas.map(m=>[Number(m.id),m]));
    saved.mesas=remote.map(t=>project(t,byId.get(Number(t.number))));
-   localStorage.setItem(KEY,JSON.stringify(saved));
+   const oldTables=JSON.stringify(local().mesas);
+   if(oldTables!==JSON.stringify(saved.mesas)){
+    localStorage.setItem(KEY,JSON.stringify(saved));
+    if(admin){state.mesas=saved.mesas;render()}else{state=saved;render()}
+   }
    baseline=snapshot(remote);
-   if(admin){state.mesas=saved.mesas;render()}else{state=saved;render()}
    ready=true;
    notify("🟢 Mesas sincronizadas con Supabase ("+remote.length+")");
   }catch(err){notify("⚠️ Error al leer mesas: "+err.message)}
