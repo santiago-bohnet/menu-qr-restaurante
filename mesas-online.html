@@ -15,7 +15,7 @@ async function load(){
  const result=await db.from("restaurant_tables").select("number,status,enabled").order("number");
  if(result.error){status.textContent="Error: "+result.error.message;return}
  rows=result.data;status.textContent=rows.length+" mesas cargadas desde Supabase · "+new Date().toLocaleTimeString("es-AR");
- grid.innerHTML=rows.map(t=>'<article class="card" data-number="'+t.number+'"><h2>Mesa '+t.number+'</h2><label>Estado<select data-status><option '+(t.status==="Libre"?"selected":"")+'>Libre</option><option '+(t.status==="Ocupada"?"selected":"")+'>Ocupada</option><option '+(t.status==="Reservada"?"selected":"")+'>Reservada</option></select></label><label><input type="checkbox" data-enabled '+(t.enabled?"checked":"")+'> Habilitada</label><button data-save>Guardar en Supabase</button></article>').join("")||'<p>No hay mesas. Un administrador puede agregar la primera.</p>';
+ grid.innerHTML=rows.map(t=>'<article class="card" data-number="'+t.number+'"><h2>Mesa '+t.number+'</h2><label>Estado<select data-status><option '+(t.status==="Libre"?"selected":"")+'>Libre</option><option '+(t.status==="Ocupada"?"selected":"")+'>Ocupada</option><option '+(t.status==="Reservada"?"selected":"")+'>Reservada</option></select></label><p class="muted">Habilitada únicamente cuando está ocupada.</p><button data-save>Guardar en Supabase</button></article>').join("")||'<p>No hay mesas. Un administrador puede agregar la primera.</p>';
 }
 grid.addEventListener("click",async e=>{
  const btn=e.target.closest("[data-save]");if(!btn)return;
