@@ -1,5 +1,5 @@
 /* Seguimiento real de pedidos y cierre de carta cuando el QR se invalida.
-   Notificaciones del navegador: funcionan con la página abierta; push en segundo plano requiere infraestructura adicional. */
+   Notificaciones web push opcionales y actualización del estado mientras la página está abierta. */
 (async function(){
  const token=new URLSearchParams(location.search).get("token");
  if(!token||!window.BRASA_SUPABASE)return;
@@ -64,16 +64,17 @@
   try{await Notification.requestPermission()}catch{}
   showTracking();
  });
- // Captura la confirmación de un pedido real, sin alterar el envío existente.
- const originalShow=HTMLDialogElement.prototype.showModal;
- HTMLDialogElement.prototype.showModal=function(...args){
-  if(this.id==="dialogo"){
-   const match=document.getElementById("estado-copia")?.textContent.match(/Pedido #(\d+) registrado correctamente/);
-   if(match){orderId=Number(match[1]);sessionStorage.setItem(key,String(orderId));states.delete(orderId);showTracking();setTimeout(check,200)}
-  }
-  return originalShow.apply(this,args);
- };
- // Escuchar el pedido confirmado sin depender de modificar APIs nativas.\n window.addEventListener("brasa:pedido-creado",e=>{\n   orderId=Number(e.detail?.id);\n   if(!Number.isInteger(orderId))return;\n   sessionStorage.setItem(key,String(orderId));\n   states.set(orderId,"Nuevo");\n   showTracking();\n   check();\n });\n if(orderId)showTracking();
+ // El evento del pedido real se emite únicamente después de que Supabase confirma el registro.
+ window.addEventListener("brasa:pedido-creado",event=>{
+  const id=Number(event.detail?.id);
+  if(!Number.isSafeInteger(id)||id<1)return;
+  orderId=id;
+  sessionStorage.setItem(key,String(orderId));
+  states.set(orderId,"Nuevo");
+  showTracking();
+  setTimeout(check,100);
+ });
+ if(orderId)showTracking();
  await check();
  setInterval(()=>{if(!document.hidden)check()},4000);
  document.addEventListener("visibilitychange",()=>{if(!document.hidden)check()});
