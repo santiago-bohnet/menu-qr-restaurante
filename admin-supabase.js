@@ -8,8 +8,8 @@
  const {createClient}=await import("https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm");
  const db=createClient(window.BRASA_SUPABASE.url,window.BRASA_SUPABASE.publishableKey);
  let products=[],tables=[],orders=[],bills=[],editingId=null,refreshing=false,mutating=false;
- const tabs=["resumen","pedidos","cuentas","carta","mesas"];
- const titles={resumen:"Resumen",pedidos:"Pedidos",cuentas:"Cuentas",carta:"Carta digital",mesas:"Mesas"};
+ const tabs=["resumen","pedidos","delivery","cuentas","carta","mesas"];
+ const titles={resumen:"Resumen",pedidos:"Pedidos de mesas",delivery:"Pedidos a domicilio",cuentas:"Cuentas",carta:"Carta digital",mesas:"Mesas"};
  document.querySelectorAll("[data-tab]").forEach(btn=>btn.addEventListener("click",()=>{
   tabs.forEach(id=>el(id).hidden=id!==btn.dataset.tab);
   document.querySelectorAll("[data-tab]").forEach(b=>b.setAttribute("aria-selected",String(b===btn)));
@@ -19,12 +19,20 @@
   el("stat-pedidos").textContent=orders.length;
   el("stat-productos").textContent=products.length;
   el("stat-mesas").textContent=tables.length;
-  el("admin-nuevos-pedidos").textContent=orders.filter(o=>o.status==="Nuevo").length;
+  el("admin-nuevos-pedidos").textContent=orders.filter(o=>o.kind==="local"&&o.status==="Nuevo").length;
+  el("admin-delivery-count").textContent=orders.filter(o=>o.kind==="delivery"&&o.status==="Nuevo").length;
   const pending=bills.filter(b=>b.status==="Pendiente");
   el("admin-cuentas-count").textContent=pending.length;
   el("cuentas-admin").innerHTML=pending.map(b=>'<div class="mesa"><h3>🧾 Mesa '+esc(b.restaurant_tables?.number??"?")+'</h3><p class="small">'+new Date(b.created_at).toLocaleString("es-AR")+'</p><button class="btn" type="button" data-bill="'+b.id+'">Marcar atendida</button></div>').join("")||'<p class="empty">No hay solicitudes pendientes.</p>';
   if(!document.activeElement?.matches("[data-order]")){
-   el("tabla-pedidos").innerHTML=orders.map(o=>'<tr><td>#'+o.id+'</td><td>'+esc(o.restaurant_tables?.number??(o.kind==="delivery"?"Domicilio":"?"))+'</td><td>'+esc((o.order_items||[]).map(x=>x.quantity+" × "+x.product_name).join(" · "))+'</td><td><select data-order="'+o.id+'">'+["Nuevo","Confirmado","Preparando","Listo","Entregado","Cancelado"].map(st=>'<option '+(st===o.status?"selected":"")+'>'+st+'</option>').join("")+'</select></td><td>'+new Date(o.created_at).toLocaleString("es-AR")+'</td></tr>').join("")||'<tr><td colspan="5">Todavía no hay pedidos.</td></tr>';
+   el("tabla-pedidos").innerHTML=orders.filter(o=>o.kind==="local").map(o=>'<tr><td>#'+o.id+'</td><td>'+esc(o.restaurant_tables?.number??(o.kind==="delivery"?"Domicilio":"?"))+'</td><td>'+esc((o.order_items||[]).map(x=>x.quantity+" × "+x.product_name).join(" · "))+'</td><td><select data-order="'+o.id+'">'+["Nuevo","Confirmado","Preparando","Listo","Entregado","Cancelado"].map(st=>'<option '+(st===o.status?"selected":"")+'>'+st+'</option>').join("")+'</select></td><td>'+new Date(o.created_at).toLocaleString("es-AR")+'</td></tr>').join("")||'<tr><td colspan="5">Todavía no hay pedidos.</td></tr>';
+  }
+  if(!document.activeElement?.matches("[data-delivery-order]")){
+   el("tabla-delivery").innerHTML=orders.filter(o=>o.kind==="delivery").map(o=>{
+    const details=esc((o.order_items||[]).map(i=>i.quantity+" × "+i.product_name).join(" · "));
+    const statuses=["Nuevo","Confirmado","Preparando","Listo","Entregado","Cancelado"];
+    return '<tr><td>#'+o.id+'</td><td><strong>'+esc(o.customer_name)+'</strong><br><a href="tel:'+esc((o.customer_phone||"").replace(/[^+0-9]/g,""))+'">'+esc(o.customer_phone)+'</a></td><td>'+esc(o.delivery_address)+'<br><span class="small">'+esc(o.delivery_reference||"")+'</span><br><span class="small">Zona: '+esc(o.delivery_zone||"")+' · Pago: '+esc(o.payment_method||"")+'</span></td><td>'+details+'</td><td>'+money(o.subtotal)+'<br><span class="small">Envío a confirmar</span></td><td><select data-delivery-order="'+o.id+'">'+statuses.map(st=>'<option '+(st===o.status?"selected":"")+'>'+st+'</option>').join("")+'</select></td></tr>';
+   }).join("")||'<tr><td colspan="6">No hay solicitudes de delivery.</td></tr>';
   }
   const categories=[...new Set(products.map(p=>p.category))].sort(),select=el("filtrar-categoria"),old=select.value;
   const opts='<option value="">Todas las categorías</option>'+categories.map(x=>'<option value="'+esc(x)+'">'+esc(x)+'</option>').join("");
@@ -42,7 +50,7 @@
    const results=await Promise.all([
     db.from("menu_products").select("id,name,description,category,price,available,image_url,model_url").order("id"),
     db.from("restaurant_tables").select("id,number,status,enabled,zone").order("number"),
-    db.from("orders").select("id,kind,status,created_at,restaurant_tables(number),order_items(product_name,quantity)").order("created_at",{ascending:false}).limit(100),
+    db.from("orders").select("id,kind,status,created_at,customer_name,customer_phone,delivery_address,delivery_reference,delivery_zone,payment_method,subtotal,restaurant_tables(number),order_items(product_name,quantity)").order("created_at",{ascending:false}).limit(100),
     db.from("bill_requests").select("id,status,created_at,restaurant_tables(number)").eq("status","Pendiente").order("created_at",{ascending:true})
    ]);
    for(const result of results)if(result.error)throw result.error;
@@ -107,6 +115,10 @@
  el("tabla-pedidos").addEventListener("change",event=>{
   const input=event.target.closest("[data-order]");if(!input)return;
   input.blur();change(db.rpc("staff_update_order_status",{p_order_id:Number(input.dataset.order),p_status:input.value}),"Estado del pedido actualizado.");
+ });
+ el("tabla-delivery").addEventListener("change",event=>{
+  const input=event.target.closest("[data-delivery-order]");if(!input)return;
+  input.blur();change(db.rpc("staff_update_order_status",{p_order_id:Number(input.dataset.deliveryOrder),p_status:input.value}),"Estado del delivery actualizado.");
  });
  el("cuentas-admin").addEventListener("click",event=>{
   const input=event.target.closest("[data-bill]");if(input)change(db.rpc("handle_table_bill",{p_request_id:Number(input.dataset.bill)}),"Solicitud de cuenta atendida.");
