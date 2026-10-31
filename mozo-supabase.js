@@ -34,7 +34,7 @@ const escapeHtml=value=>String(value??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<
   if(loading||writing)return;
   loading=true;
   try{
-   const {data,error}=await db.from("restaurant_tables").select("id,number,status,enabled").order("number");
+   const {data,error}=await db.from("restaurant_tables").select("id,number,status,enabled,zone").order("number");
    if(error)throw error;
    const next=data||[];
    if(!loaded||JSON.stringify(tables)!==JSON.stringify(next)){tables=next;render()}
