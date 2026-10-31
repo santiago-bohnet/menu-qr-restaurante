@@ -23,11 +23,12 @@
    const json=sub.toJSON();
    const {data,error}=await db.rpc("register_order_push",{p_token:token,p_order_id:orderId,p_endpoint:json.endpoint,p_p256dh:json.keys.p256dh,p_auth:json.keys.auth});
    if(error||data!==true)throw Error(error?.message||"No se pudo vincular el dispositivo con el pedido");
-   label.textContent="🔔 Dispositivo registrado para el pedido #"+orderId+".";
+   sessionStorage.setItem("brasa-push-enabled-"+orderId,"yes");
+   label.textContent="🔔 Dispositivo registrado para el pedido #"+orderId+". Listo para recibir avisos.";
    button.hidden=true;
   }catch(e){label.textContent="No se pudieron activar las notificaciones: "+e.message}
  }
  button.addEventListener("click",e=>{e.stopImmediatePropagation();subscribe()},true);
  window.addEventListener("brasa:pedido-creado",e=>{orderId=Number(e.detail?.id);button.hidden=false;label.textContent="Activá las notificaciones push para este pedido.";});
- if(orderId){button.hidden=false;label.textContent="Activá las notificaciones push para este pedido.";}
+ if(orderId){button.hidden=sessionStorage.getItem("brasa-push-enabled-"+orderId)==="yes";label.textContent=button.hidden?"🔔 Push activado para este pedido.":"Activá las notificaciones push para este pedido.";}
 })();
