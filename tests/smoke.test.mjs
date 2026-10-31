@@ -78,3 +78,15 @@ test("Autorización conserva destino admin y permite cambio de cuenta",()=>{
  assert.match(login,/auth\.signOut\(\)/);
  assert.match(login,/requested==="admin.html"&&data.role!=="admin"/);
 });
+
+test("Admin recibe avisos de delivery por push y mientras está abierto",()=>{
+ const html=read("admin.html"),push=read("push-admin-delivery.js"),sw=read("sw.js"),admin=read("admin-supabase.js");
+ assert.match(html,/id="activar-avisos-delivery"/);
+ assert.match(html,/push-admin-delivery\.js/);
+ assert.match(push,/register_staff_push/);
+ assert.match(push,/Notification\.requestPermission/);
+ assert.match(push,/brasa:new-delivery/);
+ assert.match(sw,/delivery_order/);
+ assert.match(sw,/admin\.html/);
+ assert.match(admin,/brasa:new-delivery/);
+});
