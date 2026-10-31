@@ -64,6 +64,21 @@
    setEnabled(false);status.textContent="⚠️ "+err.message;
   }finally{activating=false;button.disabled=false}
  }
+ document.addEventListener("brasa:new-delivery",event=>{
+  const ids=event.detail?.ids||[];
+  if(!ids.length)return;
+  const text=ids.length===1?"🛵 Nuevo pedido de delivery #"+ids[0]:"🛵 "+ids.length+" nuevos pedidos de delivery";
+  const toast=document.getElementById("toast");
+  if(toast)toast.textContent=text+" · Abrí la sección Delivery para ver los detalles.";
+  status.textContent=text+" · Revisá los pedidos en Administración.";
+  const tab=document.querySelector('[data-tab="delivery"]');
+  tab?.classList.add("has-new-delivery");
+  if(tab)tab.title=text;
+ });
+ document.querySelector('[data-tab="delivery"]')?.addEventListener("click",event=>{
+  event.currentTarget.classList.remove("has-new-delivery");
+  event.currentTarget.removeAttribute("title");
+ });
  button.addEventListener("click",connect);
  if(!supported()){
   button.disabled=true;status.textContent="Este navegador no admite Web Push. Podés consultar las solicitudes desde la pestaña Delivery.";
