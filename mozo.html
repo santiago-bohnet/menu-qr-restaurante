@@ -51,6 +51,7 @@ function save(){
 function render(){
  state=read();stamp();
  if(!state){state={mesas:[],pedidos:[],productos:[],solicitudesCuenta:[]};}
+ const open=[]; // Los pedidos reales se consultan directamente a Supabase.
  const group=(kind,qr)=>{const subset=state.mesas.filter(x=>(x.zona==="Afuera"?"Afuera":"Adentro")===kind);return '<div class="zone"><h3>'+kind+' <span class="count">('+subset.length+')</span></h3><div class="mesa-grid">'+subset.map(x=>{const reserved=x.estado==="Reservada",enabled=x.habilitada===true,status=reserved?"Reservada":enabled?"Habilitada":"Deshabilitada";return '<button type="button" class="tile '+(reserved?"reserved":enabled?"on":"")+'" '+(qr?'data-qr-table':'data-toggle-table')+'="'+esc(x.id)+'" aria-label="Mesa '+esc(x.id)+', '+kind+', '+status+'"><span>'+esc(x.id)+'</span><small>'+status+'</small><span class="table-strip '+(x.estado==='Ocupada'?'occupied':reserved?'reserved-strip':'')+'">'+(x.estado==='Ocupada'?'Ocupada':reserved?'Reservada':'Libre')+'</span></button>'}).join("")+'</div>'+(subset.length?'':'<p class="count">Sin mesas en esta zona.</p>')+'</div>'};
  $("mesa-controls").innerHTML=group("Adentro",false)+group("Afuera",false);
  $("tiles").innerHTML=group("Adentro",true)+group("Afuera",true);
@@ -60,6 +61,7 @@ function render(){
 
 
  $("tables").innerHTML=state.mesas.map(m=>{
+ const related=[];
  const badge=m.estado==="Libre"?"free":m.estado==="Reservada"?"reserved":"";
  return '<article class="card"><div class="topline"><h3>Mesa '+esc(m.id)+'</h3><span class="badge '+badge+'">'+esc(m.estado)+'</span></div><p class="count">'+'Pedidos disponibles en la pestaña Pedidos</p><label class="muted" for="mesa-'+esc(m.id)+'">Estado de la mesa</label><select id="mesa-'+esc(m.id)+'" data-table="'+esc(m.id)+'">'+mesaStates.map(s=>'<option '+(m.estado===s?'selected':'')+'>'+s+'</option>').join('')+'</select><div class="actions"><button class="btn small secondary" data-show-orders="'+esc(m.id)+'">Ver pedidos</button><button class="btn small" data-close="'+esc(m.id)+'">Liberar mesa</button></div></article>'
  }).join("")||'<p class="empty">No hay mesas configuradas. Agregalas desde Administración.</p>';
@@ -78,20 +80,20 @@ document.addEventListener("change",e=>{
  const id=el.dataset.table, next=el.value;
  if(!mesaStates.includes(next))return;
  update(s=>{const m=s.mesas.find(x=>safeId(x.id)===id);if(!m)return false;
- if(false){say("No podés liberar la mesa con pedidos activos.");render();return false}
+ if(next==="Libre"&&s.pedidos.some(p=>safeId(p.mesa)===id&&!["Entregado","Cancelado"].includes(p.estado))){say("No podés liberar la mesa con pedidos activos.");render();return false}
  m.estado=next;});
 });
 document.addEventListener("click",e=>{
  const b=e.target.closest("button");if(!b)return;
  if(b.dataset.toggleTable){const id=b.dataset.toggleTable;update(s=>{const m=s.mesas.find(x=>safeId(x.id)===id);if(!m)return false;
  const next=m.habilitada!==true;
- if(false){say("No se puede liberar la mesa "+id+" mientras tenga pedidos activos.");return false}
+ if(!next&&s.pedidos.some(p=>safeId(p.mesa)===id&&!["Entregado","Cancelado"].includes(p.estado))){say("No se puede liberar la mesa "+id+" mientras tenga pedidos activos.");return false}
  m.habilitada=next;m.estado=next?"Ocupada":"Libre";
  });return}
  if(b.dataset.atenderCuenta){const id=b.dataset.atenderCuenta;update(s=>{const x=s.solicitudesCuenta?.find(x=>safeId(x.id)===id);if(!x)return false;x.estado="Atendida"});return}
  if(b.dataset.view){view=b.dataset.view;for(const tab of document.querySelectorAll("[data-view]"))tab.setAttribute("aria-pressed",String(tab.dataset.view===view));$("mesas-view").classList.toggle("hide",view!=="mesas");$("pedidos-view").classList.toggle("hide",view!=="pedidos");$("avisos-view").classList.toggle("hide",view!=="avisos");return}
  if(b.dataset.showOrders){document.querySelector('[data-view="pedidos"]').click();for(const card of document.querySelectorAll("[data-order-card]"))card.classList.toggle("hide",card.dataset.orderCard!==b.dataset.showOrders);say("Pedidos de mesa "+b.dataset.showOrders+" (para mostrar todos, tocá Pedidos nuevamente).");return}
- if(b.dataset.close){const id=b.dataset.close;update(s=>{if(false){say("Esta mesa todavía tiene pedidos activos.");return false}const m=s.mesas.find(x=>safeId(x.id)===id);if(!m)return false;m.estado="Libre"});return}
+ if(b.dataset.close){const id=b.dataset.close;update(s=>{if(s.pedidos.some(p=>safeId(p.mesa)===id&&!["Entregado","Cancelado"].includes(p.estado))){say("Esta mesa todavía tiene pedidos activos.");return false}const m=s.mesas.find(x=>safeId(x.id)===id);if(!m)return false;m.estado="Libre"});return}
  if(b.dataset.next){const id=b.dataset.next;update(s=>{const p=s.pedidos.find(x=>safeId(x.id)===id);if(!p)return false;const i=states.indexOf(p.estado);if(i<0||i>=4)return false;p.estado=states[i+1]});return}
 
 });
