@@ -56,11 +56,7 @@ function render(){
  const group=(kind,qr)=>{const subset=state.mesas.filter(x=>(x.zona==="Afuera"?"Afuera":"Adentro")===kind);return '<div class="zone"><h3>'+kind+' <span class="count">('+subset.length+')</span></h3><div class="mesa-grid">'+subset.map(x=>{const reserved=x.estado==="Reservada",enabled=x.habilitada===true,status=reserved?"Reservada":enabled?"Habilitada":"Deshabilitada";return '<button type="button" class="tile '+(reserved?"reserved":enabled?"on":"")+'" '+(qr?'data-qr-table':'data-toggle-table')+'="'+esc(x.id)+'" aria-label="Mesa '+esc(x.id)+', '+kind+', '+status+'"><span>'+esc(x.id)+'</span><small>'+status+'</small><span class="table-strip '+(x.estado==='Ocupada'?'occupied':reserved?'reserved-strip':'')+'">'+(x.estado==='Ocupada'?'Ocupada':reserved?'Reservada':'Libre')+'</span></button>'}).join("")+'</div>'+(subset.length?'':'<p class="count">Sin mesas en esta zona.</p>')+'</div>'};
  $("mesa-controls").innerHTML=group("Adentro",false)+group("Afuera",false);
  $("tiles").innerHTML=group("Adentro",true)+group("Afuera",true);
- const cuentas=Array.isArray(state.solicitudesCuenta)?state.solicitudesCuenta:[];
- const pendientes=cuentas.filter(x=>x.estado==="Pendiente");
- $("badge-cuentas").textContent=pendientes.length;
- $("cuentas-mozo").innerHTML=pendientes.map(x=>'<article class="order"><h3>🧾 Mesa '+esc(x.mesa)+' · '+esc(x.zona||"Adentro")+'</h3><p class="count">Solicitada a las '+esc(x.hora)+'</p><button class="btn primary" data-atender-cuenta="'+esc(x.id)+'">Marcar atendida</button></article>').join("")||'<p class="empty">No hay cuentas solicitadas.</p>';
- $("count-tables").textContent=state.mesas.filter(m=>m.estado==="Ocupada").length;
+ // Las cuentas reales las gestiona cuentas-mozo-real.js.\n $("count-tables").textContent=state.mesas.filter(m=>m.estado==="Ocupada").length;
  // Las estadísticas de pedidos reales las actualiza pedidos-reales.js.
 
 
