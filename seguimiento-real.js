@@ -28,8 +28,8 @@
  function showTracking(){
   if(!orderId)return;
   area.hidden=false;
-  notifyButton.hidden=!("Notification" in window)||Notification.permission==="granted";
-  permission.textContent=!("Notification" in window)?"Tu navegador no admite notificaciones.":Notification.permission==="granted"?"Notificaciones habilitadas mientras tengas esta página abierta.":Notification.permission==="denied"?"Las notificaciones están bloqueadas en el navegador.":"Activá los avisos para conocer los cambios de estado con esta página abierta.";
+  notifyButton.hidden=!("Notification" in window)||sessionStorage.getItem("brasa-push-enabled-"+orderId)==="yes";
+  permission.textContent=!("Notification" in window)?"Tu navegador no admite notificaciones.":sessionStorage.getItem("brasa-push-enabled-"+orderId)==="yes"?"🔔 Push activado para este pedido.":Notification.permission==="denied"?"Las notificaciones están bloqueadas en el navegador.":"Tocá Activar notificaciones para recibir avisos incluso con la pantalla bloqueada.";
  }
  function alertStatus(status){
   const message=status==="Confirmado"?"Tu pedido fue confirmado.":status==="Preparando"?"Están preparando tu pedido.":status==="Listo"?"¡Tu pedido está listo!":status==="Entregado"?"Tu pedido fue entregado.":status==="Cancelado"?"Tu pedido fue cancelado.":"";
