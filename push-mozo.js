@@ -1,7 +1,7 @@
 (async()=>{
  const {createClient}=await import("https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm");
  const db=createClient(window.BRASA_SUPABASE.url,window.BRASA_SUPABASE.publishableKey);
- const publicKey="BOG1OwFNW4gtvKnj-vilagmEdpFWcRBtEwkAcT3aUbX77K4W_eFS3YLdVbgW0yY6DDi5gZX8uveHqPAu2DqqIyU";
+ const publicKey="BGocUWFN9P_4kfEszrF_YsN2GJw3-DYDbsVViVCA3S16A8SLwsiiTSt8Zst0kIxoQvLJYx5Z_gNeNbOnIdqa88E";
  const decode=str=>Uint8Array.from(atob((str+"=".repeat((4-str.length%4)%4)).replace(/-/g,"+").replace(/_/g,"/")),c=>c.charCodeAt(0));
  const toolbar=document.querySelector(".toolbar")||document.body;
  const button=document.createElement("button");button.type="button";button.className="btn";button.textContent="🔔 Activar avisos del mozo";toolbar.append(button);
@@ -27,7 +27,7 @@
    const j=sub.toJSON();
    const {error}=await db.rpc("register_staff_push",{p_endpoint:j.endpoint,p_p256dh:j.keys.p256dh,p_auth:j.keys.auth});
    if(error)throw error;
-   note.textContent="✅ Avisos de pedidos y cuentas activados";button.textContent="🔔 Avisos activados";
+   note.textContent="✅ Dispositivo registrado. Los avisos con la app cerrada requieren activar el envío del servidor.";button.textContent="🔔 Dispositivo registrado";
    await dispatch();
   }catch(e){note.textContent="⚠️ "+e.message}
  };
