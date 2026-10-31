@@ -658,7 +658,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
   <div class="pedido-columna">
   <aside class="carrito" id="carrito" aria-labelledby="titulo-carrito">
     <h2 id="titulo-carrito">Tu pedido</h2>
-    <p class="nota">Armalo a tu gusto. Esto es una demostración.</p>
+    <p class="nota">Elegí los platos que quieras. Los pedidos requieren un QR vigente.</p>
     <div id="items"></div>
     <div class="total"><span>Subtotal</span><span id="total">$0</span></div>
     <p class="nota">Precios de ejemplo en pesos argentinos. Envío no incluido.</p>
@@ -681,7 +681,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
         Realizar pedido
       </button>
     </form>
-    <p class="nota">No se enviará ningún mensaje. En un comercio real, el local debe confirmar disponibilidad, importe final y demora.</p>
+    <p class="nota">Los pedidos enviados con un QR válido quedan registrados en el restaurante. El personal confirma su preparación.</p>
     <button class="secundario" id="vaciar" type="button" hidden>Vaciar carrito</button>
     <p class="nota" id="estado" role="status"></p>
   </aside>
@@ -837,7 +837,7 @@ function mostrarProductos() {
         <div class="contenido">
           <h3>${escHtml(p.nombre)}</h3>
           <p class="descripcion">${escHtml(p.descripcion)}</p>
-          ${p.categoria === "Cortes" ? `<button class="ver-ra" type="button" data-ver-ra="${p.id}" aria-label="Ver demostración 3D de ${escHtml(p.nombre)}">◈ Ver en 3D / RA</button>` : ""}
+          ${(p.modelo || p.categoria === "Cortes") ? `<button class="ver-ra" type="button" data-ver-ra="${p.id}" aria-label="Ver demostración 3D de ${escHtml(p.nombre)}">◈ Ver en 3D / RA</button>` : ""}
           <div class="pie-plato">
             <span class="precio">${moneda(p.precio)}</span>
             <button class="agregar" type="button" data-agregar="${p.id}" ${p.disponible === false || modoMuestra ? "disabled" : ""}
